@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eae9f1;font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#3b45c9;text-decoration:none}a:hover{color:#2d35a8}
+*::-webkit-scrollbar{width:0;height:0}
+input::placeholder{color:#83869a;font-weight:400}
+@keyframes l-rise{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes l-drop{0%{transform:translateY(-12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes l-pop{0%{transform:scale(.86);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes l-caret{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes l-spin{100%{transform:rotate(360deg)}}
+</style>
+</helmet>
+<div style="display:inline-block;padding:2px">
+<div style="width:412px;height:866px;box-sizing:border-box;padding:11px;border-radius:56px;background:#d9d7e1;box-shadow:0 1px 2px rgba(20,22,31,.14)">
+<div data-screen-label="Byuma Lite" style="position:relative;width:390px;height:844px;border-radius:45px;overflow:hidden;background:#f5f4f9;color:#14161f;font-variant-numeric:tabular-nums lining-nums;font-family:'Instrument Sans',system-ui,sans-serif">
+
+<div style="position:absolute;top:0;left:0;right:0;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 30px;font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;z-index:6">
+<span>9:41</span>
+<span style="display:flex;align-items:center;gap:5px">
+<svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"></rect><rect x="4.5" y="5" width="3" height="6" rx="1"></rect><rect x="9" y="2.5" width="3" height="8.5" rx="1"></rect><rect x="13.5" y="0" width="3" height="11" rx="1"></rect></svg>
+<svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3.6a9 9 0 0 1 13 0M3.6 6.4a5.4 5.4 0 0 1 7.8 0"></path><circle cx="7.5" cy="9.4" r=".9" fill="currentColor"></circle></svg>
+<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".6" y=".6" width="21" height="10.8" rx="3.2" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2.4" y="2.4" width="16" height="7.2" rx="2" fill="currentColor"></rect><path d="M23.2 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" fill-opacity=".45"></path></svg>
+</span>
+</div>
+
+<div style="position:absolute;top:46px;left:0;right:0;bottom:0;overflow:auto">
+
+<sc-if value="{{ showChrome }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;justify-content:space-between;height:38px;padding:26px 22px 0;background:{{ headerBg }}">
+<span style="display:flex;align-items:center;gap:10px">
+<sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ goBack }}" style="width:34px;height:34px;border:1px solid rgba(20,22,31,.12);border-radius:11px;background:none;color:#4b4f5e;display:flex;align-items:center;justify-content:center;cursor:pointer">
+<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 2.5L4 7l4.5 4.5"></path></svg>
+</button>
+</sc-if>
+<span style="font:600 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase">{{ headerTitle }}</span>
+</span>
+<sc-if value="{{ showProfileBtn }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ goProfile }}" style="width:34px;height:34px;border:1px solid {{ navProfBd }};border-radius:11px;background:{{ navProfBg }};color:{{ navProfFg }};display:flex;align-items:center;justify-content:center;cursor:pointer">
+<svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="6.4" r="2.7"></circle><path d="M3.8 14.4c.9-2.4 2.8-3.6 5.2-3.6s4.3 1.2 5.2 3.6"></path></svg>
+</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSignup }}" hint-placeholder-val="{{ true }}">
+<div style="padding:64px 26px 34px">
+<div style="font:600 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase">BYUMA FT</div>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:36px;line-height:1.12;margin-top:26px">Track what you spend.</div>
+
+<div style="margin-top:34px">
+<input type="text" value="{{ fName }}" onChange="{{ onFName }}" placeholder="Name" style="width:100%;box-sizing:border-box;height:54px;padding:0 16px;border:1px solid {{ errName }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<input type="email" value="{{ fEmail }}" onChange="{{ onFEmail }}" placeholder="Email" style="width:100%;box-sizing:border-box;height:54px;margin-top:9px;padding:0 16px;border:1px solid {{ errEmail }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<input type="password" value="{{ fPass }}" onChange="{{ onFPass }}" placeholder="Password" style="width:100%;box-sizing:border-box;height:54px;margin-top:9px;padding:0 16px;border:1px solid {{ errPass }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+</div>
+
+<button type="button" onClick="{{ submitSignup }}" style="width:100%;height:56px;margin-top:22px;border:0;border-radius:16px;background:{{ accent }};color:#fff;font:500 15.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Create account</button>
+
+<div style="display:flex;align-items:center;gap:12px;margin-top:22px">
+<span style="flex:1;height:1px;background:rgba(20,22,31,.1)"></span>
+<span style="font:400 12px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">or</span>
+<span style="flex:1;height:1px;background:rgba(20,22,31,.1)"></span>
+</div>
+
+<button type="button" onClick="{{ google }}" style="width:100%;height:54px;margin-top:22px;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(20,22,31,.14);border-radius:15px;background:#fff;color:#14161f;font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer" style-hover="background:#faf9fc">
+<span style="width:22px;height:22px;border-radius:50%;border:1px solid rgba(20,22,31,.14);display:flex;align-items:center;justify-content:center;font:600 12px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">G</span>Continue with Google
+</button>
+
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:26px">
+<span style="font:400 13.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">Already have an account?</span>
+<button type="button" onClick="{{ toSignin }}" style="border:0;background:none;padding:0;color:{{ accent }};font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Sign in</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSignin }}" hint-placeholder-val="{{ false }}">
+<div style="padding:64px 26px 34px">
+<div style="font:600 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase">BYUMA FT</div>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:36px;line-height:1.12;margin-top:26px">Welcome back.</div>
+
+<div style="margin-top:34px">
+<input type="email" value="{{ fEmail }}" onChange="{{ onFEmail }}" placeholder="Email" style="width:100%;box-sizing:border-box;height:54px;padding:0 16px;border:1px solid {{ errEmail }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<input type="password" value="{{ fPass }}" onChange="{{ onFPass }}" placeholder="Password" style="width:100%;box-sizing:border-box;height:54px;margin-top:9px;padding:0 16px;border:1px solid {{ errPass }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+</div>
+
+<button type="button" onClick="{{ submitSignin }}" style="width:100%;height:56px;margin-top:22px;border:0;border-radius:16px;background:{{ accent }};color:#fff;font:500 15.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Sign in</button>
+
+<div style="display:flex;align-items:center;gap:12px;margin-top:22px">
+<span style="flex:1;height:1px;background:rgba(20,22,31,.1)"></span>
+<span style="font:400 12px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">or</span>
+<span style="flex:1;height:1px;background:rgba(20,22,31,.1)"></span>
+</div>
+
+<button type="button" onClick="{{ google }}" style="width:100%;height:54px;margin-top:22px;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid rgba(20,22,31,.14);border-radius:15px;background:#fff;color:#14161f;font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer" style-hover="background:#faf9fc">
+<span style="width:22px;height:22px;border-radius:50%;border:1px solid rgba(20,22,31,.14);display:flex;align-items:center;justify-content:center;font:600 12px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">G</span>Continue with Google
+</button>
+
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:26px">
+<span style="font:400 13.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">New here?</span>
+<button type="button" onClick="{{ toSignup }}" style="border:0;background:none;padding:0;color:{{ accent }};font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Create an account</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+<div>
+<div style="position:relative;padding:96px 22px 22px;background:#fff;border-radius:0 0 30px 30px;box-shadow:0 1px 2px rgba(20,22,31,.05)">
+<div onClick="{{ focusAmt }}" style="position:relative;display:flex;align-items:flex-end;justify-content:center;gap:6px;cursor:text;min-height:78px">
+<span style="font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1;color:{{ symColor }};padding-bottom:12px">{{ sym }}</span>
+<span style="font-family:'Instrument Serif',Georgia,serif;font-size:70px;line-height:1;color:{{ amtColor }}">{{ amtShown }}</span>
+<span style="width:2px;height:52px;background:{{ accent }};animation:l-caret 1.1s steps(1) infinite;margin-bottom:4px"></span>
+</div>
+<input ref="{{ amtRef }}" type="text" inputMode="decimal" value="{{ amt }}" onChange="{{ onAmt }}" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px">
+
+<div style="position:relative;display:flex;gap:8px;margin-top:22px">
+<sc-for list="{{ methods }}" as="m" hint-placeholder-count="2">
+<button type="button" onClick="{{ m.onClick }}" style="flex:1;height:54px;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid {{ m.bd }};border-radius:15px;background:{{ m.bg }};color:{{ m.fg }};font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">
+<span style="display:flex">{{ m.icon }}</span>{{ m.label }}
+</button>
+</sc-for>
+</div>
+
+<input type="text" value="{{ note }}" onChange="{{ onNote }}" placeholder="What was it for?" style="position:relative;width:100%;box-sizing:border-box;height:50px;margin-top:10px;padding:0 16px;border:1px solid rgba(20,22,31,.12);border-radius:14px;background:#faf9fc;outline:none;text-align:center;font:400 14.5px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+
+<div style="position:relative;display:flex;gap:7px;margin-top:10px;overflow-x:auto;margin-left:-22px;margin-right:-22px;padding:1px 22px 2px">
+<sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="5">
+<button type="button" onClick="{{ s.onClick }}" style="flex:none;white-space:nowrap;height:36px;padding:0 14px;border:1px solid {{ s.bd }};border-radius:11px;background:{{ s.bg }};color:{{ s.fg }};font:500 13px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">{{ s.label }}</button>
+</sc-for>
+<button type="button" onClick="{{ goCats }}" style="flex:none;white-space:nowrap;height:36px;padding:0 13px;border:1px dashed rgba(20,22,31,.2);border-radius:11px;background:none;color:#4b4f5e;font:500 13px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">＋</button>
+</div>
+
+<div style="position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:18px">
+<sc-for list="{{ keys }}" as="k" hint-placeholder-count="12">
+<button type="button" onClick="{{ k.onClick }}" style="height:52px;border:1px solid rgba(20,22,31,.09);border-radius:13px;background:#efeef6;box-shadow:0 1px 0 rgba(20,22,31,.05);color:#14161f;font-family:{{ k.font }};font-size:{{ k.size }};font-weight:500;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#e6e4f0" style-active="background:#dcdaea;box-shadow:none">{{ k.label }}</button>
+</sc-for>
+</div>
+
+<button type="button" onClick="{{ record }}" style="position:relative;width:100%;height:56px;margin-top:14px;border:0;border-radius:16px;background:{{ ctaBg }};color:{{ ctaFg }};font:500 15.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:{{ ctaCursor }}">{{ ctaLabel }}</button>
+</div>
+
+<div style="padding:22px 22px 30px">
+<sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}">
+<div>
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80">Spent so far</div>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:40px;line-height:1.05;margin-top:8px">{{ totalAll }}</div>
+
+<div style="display:flex;gap:3px;height:7px;margin-top:18px;border-radius:4px;overflow:hidden;background:rgba(20,22,31,.07)">
+<sc-for list="{{ mix }}" as="m" hint-placeholder-count="3">
+<span style="width:{{ m.pct }};background:{{ m.color }};border-radius:4px"></span>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:13px">
+<sc-for list="{{ mix }}" as="m" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:7px">
+<span style="width:7px;height:7px;flex:none;border-radius:50%;background:{{ m.color }}"></span>
+<span style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">{{ m.label }}</span>
+<span style="font:500 12.5px/1 'Instrument Sans',system-ui,sans-serif">{{ m.sum }}</span>
+</div>
+</sc-for>
+</div>
+
+<button type="button" onClick="{{ goStats }}" style="width:100%;height:54px;margin-top:22px;display:flex;align-items:center;justify-content:center;gap:9px;border:0;border-radius:15px;background:{{ accent }};color:#fff;font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">
+<svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 12.5V8M9 12.5V4.5M14 12.5v-3"></path></svg>Analytics
+</button>
+
+<div style="margin-top:34px;position:relative">
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+<div style="position:relative;padding-left:26px;padding-bottom:22px">
+<span style="position:absolute;left:4px;top:16px;bottom:0;width:1px;background:rgba(20,22,31,.1)"></span>
+<span style="position:absolute;left:0;top:5px;width:9px;height:9px;border-radius:50%;background:{{ g.dot }};box-shadow:0 0 0 4px #f5f4f9"></span>
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+<span style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif">{{ g.day }}</span>
+<span style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">{{ g.sum }}</span>
+</div>
+<div style="margin-top:11px;background:#fff;border-radius:15px;overflow:hidden">
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2">
+<div style="border-top:1px solid {{ r.line }}">
+<div onClick="{{ r.edit }}" style="display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer">
+<span style="width:30px;height:30px;flex:none;border-radius:9px;background:{{ r.chipBg }};display:flex;align-items:center;justify-content:center">{{ r.icon }}</span>
+<span style="flex:1;min-width:0;font:400 13.5px/1.3 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.method }}</span>
+<span style="font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif">{{ r.amount }}</span>
+<button type="button" onClick="{{ r.remove }}" style="width:24px;height:24px;flex:none;border:0;border-radius:50%;background:none;color:#9497a5;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:rgba(20,22,31,.05);color:#4b4f5e">
+<svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7"></path></svg>
+</button>
+</div>
+<sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 15px 16px;animation:l-rise .2s ease both">
+<div style="display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;border:1px solid rgba(20,22,31,.12);border-radius:12px;background:#faf9fc">
+<span style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">Amount</span>
+<input type="text" inputMode="decimal" value="{{ r.eAmt }}" onChange="{{ r.onEAmt }}" style="flex:1;min-width:0;border:0;background:none;outline:none;text-align:right;font-family:'Instrument Serif',Georgia,serif;font-size:22px;line-height:1;color:#14161f">
+</div>
+<input type="text" value="{{ r.eNote }}" onChange="{{ r.onENote }}" placeholder="What was it for?" style="width:100%;box-sizing:border-box;height:46px;margin-top:8px;padding:0 14px;border:1px solid rgba(20,22,31,.12);border-radius:12px;background:#faf9fc;outline:none;font:400 14px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<div style="display:flex;gap:7px;margin-top:8px">
+<sc-for list="{{ r.eMethods }}" as="m" hint-placeholder-count="2">
+<button type="button" onClick="{{ m.onClick }}" style="flex:1;height:44px;border:1px solid {{ m.bd }};border-radius:12px;background:{{ m.bg }};color:{{ m.fg }};font:500 13px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">{{ m.label }}</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:8px;margin-top:12px">
+<button type="button" onClick="{{ r.cancel }}" style="padding:0 16px;height:44px;border:1px solid rgba(20,22,31,.12);border-radius:12px;background:none;color:#4b4f5e;font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Cancel</button>
+<button type="button" onClick="{{ r.save }}" style="flex:1;height:44px;border:0;border-radius:12px;background:{{ accent }};color:#fff;font:500 14px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Save changes</button>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEmptyNew }}" hint-placeholder-val="{{ false }}">
+<div style="padding:56px 0 34px;text-align:center;animation:l-rise .24s ease both">
+<span style="width:54px;height:54px;border-radius:50%;background:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(20,22,31,.06)">
+<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#9497a5" stroke-width="1.5" stroke-linecap="round"><path d="M10 4.5v11M4.5 10h11"></path></svg>
+</span>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:24px;line-height:1.2;margin-top:18px">No expenses yet</div>
+<div style="font:400 13.5px/1.5 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;margin-top:9px">Your first one lands here.</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEmptyCleared }}" hint-placeholder-val="{{ false }}">
+<div style="padding:56px 0 34px;text-align:center;animation:l-rise .24s ease both">
+<span style="width:54px;height:54px;border-radius:50%;background:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(20,22,31,.06)">
+<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#9497a5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6h11M8 6V4.5h4V6M6 6l.7 9.5h6.6L14 6"></path></svg>
+</span>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:24px;line-height:1.2;margin-top:18px">Everything deleted</div>
+<div style="font:400 13.5px/1.5 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;margin-top:9px">Nothing left to show.</div>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:30px;line-height:1.15">Where the money went</div>
+
+<div style="display:flex;gap:6px;margin-top:22px">
+<sc-for list="{{ curTabs }}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{ c.onClick }}" style="flex:1;height:42px;border:1px solid {{ c.bd }};border-radius:13px;background:{{ c.bg }};color:{{ c.fg }};font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">{{ c.label }}</button>
+</sc-for>
+</div>
+
+<div style="margin-top:9px;background:#fff;border-radius:18px;padding:20px 18px">
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80">Spendable</div>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:42px;line-height:1.05;margin-top:10px;color:{{ spendColor }}">{{ spendable }}</div>
+
+<div style="margin-top:18px">
+<sc-for list="{{ balCells }}" as="b" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid {{ b.line }}">
+<span style="width:7px;height:7px;flex:none;border-radius:50%;background:{{ b.color }}"></span>
+<span style="flex:1;font:400 13px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">{{ b.label }}</span>
+<span style="font:500 14px/1 'Instrument Sans',system-ui,sans-serif;text-align:right">{{ b.value }}</span>
+</div>
+</sc-for>
+</div>
+
+<sc-if value="{{ hasBalWarn }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:18px;padding:11px 13px;border-radius:12px;background:{{ warnBg }};animation:l-drop .18s ease both">
+<span style="display:flex">{{ warnIcon }}</span>
+<span style="font:500 13px/1.35 'Instrument Sans',system-ui,sans-serif;color:{{ warnFg }}">{{ warnText }}</span>
+</div>
+</sc-if>
+
+<div style="display:flex;align-items:stretch;margin:18px -18px -20px;border-top:1px solid rgba(20,22,31,.08)">
+<button type="button" onClick="{{ goBalance }}" style="flex:1;height:50px;display:flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:0 0 0 18px;background:none;color:#4b4f5e;font:500 13px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer" style-hover="background:rgba(20,22,31,.035);color:#14161f">Update balance
+<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 2.5L10 7l-4.5 4.5"></path></svg>
+</button>
+<span style="width:1px;background:rgba(20,22,31,.08)"></span>
+<button type="button" onClick="{{ goLimits }}" style="flex:1;height:50px;display:flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:0 0 18px 0;background:none;color:#4b4f5e;font:500 13px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer" style-hover="background:rgba(20,22,31,.035);color:#14161f">Limits
+<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 2.5L10 7l-4.5 4.5"></path></svg>
+</button>
+</div>
+</div>
+
+<div style="margin-top:26px;background:#fff;border-radius:18px;padding:20px 18px">
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80">This month</div>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:42px;line-height:1.05;margin-top:10px">{{ monthTotal }}</div>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:26px 0 10px">How you paid</div>
+<div style="background:#fff;border-radius:18px;padding:6px 18px 18px">
+<sc-for list="{{ split }}" as="s" hint-placeholder-count="2">
+<div style="padding-top:16px">
+<div style="display:flex;align-items:center;gap:9px">
+<span style="width:9px;height:9px;border-radius:50%;background:{{ s.color }}"></span>
+<span style="flex:1;font:500 14px/1 'Instrument Sans',system-ui,sans-serif">{{ s.label }}</span>
+<span style="font:500 14px/1 'Instrument Sans',system-ui,sans-serif">{{ s.sum }}</span>
+<span style="font:400 13px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;width:38px;text-align:right">{{ s.pct }}</span>
+</div>
+<div style="height:8px;border-radius:4px;background:#f5f4f9;margin-top:10px;overflow:hidden">
+<span style="display:block;height:100%;width:{{ s.pct }};background:{{ s.color }};border-radius:4px"></span>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:26px 0 10px">By category</div>
+<div style="background:#fff;border-radius:18px;padding:6px 18px 18px">
+<sc-for list="{{ byCat }}" as="c" hint-placeholder-count="4">
+<div style="padding-top:16px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+<span style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.name }}</span>
+<span style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;flex:none">{{ c.sum }}</span>
+</div>
+<div style="height:7px;border-radius:4px;background:#f5f4f9;margin-top:9px;overflow:hidden">
+<span style="display:block;height:100%;width:{{ c.pct }};background:{{ c.color }};border-radius:4px"></span>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:26px 0 10px">Last months</div>
+<div style="background:#fff;border-radius:18px;padding:20px 18px 16px">
+<div style="display:flex;align-items:flex-end;gap:10px;height:110px">
+<sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%">
+<span style="font:500 11px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;margin-bottom:7px">{{ m.short }}</span>
+<span style="width:100%;height:{{ m.h }};background:{{ m.color }};border-radius:7px"></span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:10px;margin-top:9px">
+<sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
+<span style="flex:1;text-align:center;font:400 11.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">{{ m.label }}</span>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBalance }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1.2">What do you have now?</div>
+<div style="margin-top:20px">
+<sc-for list="{{ balInputs }}" as="b" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:12px;height:56px;margin-bottom:9px;padding:0 16px;border:1px solid {{ b.bd }};border-radius:14px;background:#fff">
+<span style="flex:none;font-family:'Instrument Serif',Georgia,serif;font-size:20px;line-height:1;color:#4b4f5e">{{ b.sym }}</span>
+<input type="text" inputMode="decimal" value="{{ b.value }}" onChange="{{ b.onChange }}" placeholder="0" style="flex:1;min-width:0;border:0;background:none;outline:none;text-align:right;font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1;color:#14161f">
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:4px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+<sc-if value="{{ hasRateRows }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:4px;padding:14px 16px 4px;border:1px solid rgba(20,22,31,.1);border-radius:16px;background:#fff">
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80">Rates</div>
+<sc-for list="{{ rateRows }}" as="r" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:8px;padding:11px 0">
+<span style="flex:1;font:400 13px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">1 {{ r.name }} =</span>
+<input type="text" inputMode="decimal" value="{{ r.value }}" onChange="{{ r.onChange }}" style="width:96px;box-sizing:border-box;height:38px;padding:0 10px;border:1px solid rgba(20,22,31,.12);border-radius:10px;background:#faf9fc;outline:none;text-align:right;font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<span style="width:38px;font:400 13px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">{{ r.unit }}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ extraClosed }}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{ openExtra }}" style="margin-top:4px;border:0;background:none;padding:0;color:#4b4f5e;font:500 13px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer" style-hover="color:#14161f">＋ Add from another currency</button>
+</sc-if>
+<sc-if value="{{ extraOpen }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:4px;padding:16px;border:1px solid rgba(20,22,31,.1);border-radius:16px;background:#fff;animation:l-rise .2s ease both">
+<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
+<sc-for list="{{ extraOptions }}" as="c" hint-placeholder-count="2">
+<button type="button" onClick="{{ c.onClick }}" style="flex:none;height:34px;padding:0 13px;border:1px solid {{ c.bd }};border-radius:11px;background:{{ c.bg }};color:{{ c.fg }};font:500 13px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">{{ c.label }}</button>
+</sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:12px;height:52px;margin-top:10px;padding:0 14px;border:1px solid rgba(20,22,31,.12);border-radius:13px;background:#faf9fc">
+<span style="flex:none;font-family:'Instrument Serif',Georgia,serif;font-size:19px;line-height:1;color:#4b4f5e">{{ extraCur }}</span>
+<input type="text" inputMode="decimal" value="{{ extraAmt }}" onChange="{{ onExtraAmt }}" placeholder="0" style="flex:1;min-width:0;border:0;background:none;outline:none;text-align:right;font-family:'Instrument Serif',Georgia,serif;font-size:24px;line-height:1;color:#14161f">
+</div>
+<div style="display:flex;align-items:center;gap:10px;height:46px;margin-top:8px;padding:0 14px;border:1px solid {{ extraRateBd }};border-radius:13px;background:#faf9fc">
+<span style="font:400 13px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">1 {{ extraCur }} =</span>
+<input type="text" inputMode="decimal" value="{{ extraRate }}" onChange="{{ onExtraRate }}" style="flex:1;min-width:0;border:0;background:none;outline:none;text-align:right;font:500 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<span style="font:400 13px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">{{ mainCurLabel }}</span>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px">
+<span style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">Adds ≈ {{ extraPreview }}</span>
+<button type="button" onClick="{{ closeExtra }}" style="border:0;background:none;padding:0;color:#6b6f80;font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer" style-hover="color:#b4553a">Remove</button>
+</div>
+</div>
+</sc-if>
+<div style="font:400 12.5px/1.5 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;margin-top:14px">Replaces the old totals. Rates are estimates you can edit.</div>
+<button type="button" onClick="{{ saveBalance }}" style="width:100%;height:54px;margin-top:14px;border:0;border-radius:15px;background:{{ accent }};color:#fff;font:500 15px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Save</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLimits }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<div style="display:flex;gap:6px">
+<sc-for list="{{ curTabs }}" as="c" hint-placeholder-count="3">
+<button type="button" onClick="{{ c.onClick }}" style="flex:1;height:42px;border:1px solid {{ c.bd }};border-radius:13px;background:{{ c.bg }};color:{{ c.fg }};font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">{{ c.label }}</button>
+</sc-for>
+</div>
+<div style="margin-top:22px">
+<sc-for list="{{ limInputs }}" as="l" hint-placeholder-count="2">
+<div style="margin-bottom:14px">
+<div style="display:flex;align-items:center;gap:9px">
+<span style="width:8px;height:8px;border-radius:50%;background:{{ l.dot }}"></span>
+<span style="font:500 14px/1 'Instrument Sans',system-ui,sans-serif">{{ l.label }}</span>
+<span style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">{{ l.hint }}</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;height:56px;margin-top:9px;padding:0 16px;border:1px solid {{ l.bd }};border-radius:14px;background:#fff">
+<span style="flex:none;font-family:'Instrument Serif',Georgia,serif;font-size:20px;line-height:1;color:#4b4f5e">{{ l.sym }}</span>
+<input type="text" inputMode="decimal" value="{{ l.value }}" onChange="{{ l.onChange }}" placeholder="0" style="flex:1;min-width:0;border:0;background:none;outline:none;text-align:right;font-family:'Instrument Serif',Georgia,serif;font-size:26px;line-height:1;color:#14161f">
+</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:6px;padding:15px 16px;border-radius:14px;background:rgba(20,22,31,.04)">
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">Spendable after limits</span>
+<span style="font:500 15px/1 'Instrument Sans',system-ui,sans-serif">{{ limPreview }}</span>
+</div>
+<button type="button" onClick="{{ saveLimits }}" style="width:100%;height:54px;margin-top:14px;border:0;border-radius:15px;background:{{ accent }};color:#fff;font:500 15px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Save</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCurs }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<div style="display:flex;gap:8px">
+<input type="text" value="{{ newCur }}" onChange="{{ onNewCur }}" placeholder="Code, e.g. EUR" style="flex:1;min-width:0;box-sizing:border-box;height:52px;padding:0 16px;border:1px solid {{ errCur }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.04em;color:#14161f">
+<button type="button" onClick="{{ addCur }}" style="flex:none;padding:0 20px;height:52px;border:0;border-radius:14px;background:{{ accent }};color:#fff;font:500 14px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Add</button>
+</div>
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:22px 0 10px">
+<span style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">{{ curCount }}</span>
+<span style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">Rates are estimates. Edit any.</span>
+</div>
+<div style="background:#fff;border-radius:18px;overflow:hidden">
+<sc-for list="{{ curRows }}" as="c" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-top:1px solid {{ c.line }}">
+<button type="button" onClick="{{ c.toggle }}" style="width:24px;height:24px;flex:none;border:1.5px solid {{ c.tickBd }};border-radius:8px;background:{{ c.tickBg }};display:flex;align-items:center;justify-content:center;cursor:pointer">{{ c.tick }}</button>
+<span style="flex:none;font:500 14px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.03em">{{ c.name }}</span>
+<sc-if value="{{ c.isMain }}" hint-placeholder-val="{{ false }}">
+<span style="flex:1;text-align:right;font:400 12px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">main currency</span>
+</sc-if>
+<sc-if value="{{ c.notMain }}" hint-placeholder-val="{{ true }}">
+<span style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:5px;font:400 12px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">1 {{ c.name }} =
+<input type="text" inputMode="decimal" value="{{ c.rateShown }}" onChange="{{ c.onRate }}" style="width:74px;box-sizing:border-box;height:32px;padding:0 8px;border:1px solid rgba(20,22,31,.12);border-radius:9px;background:#faf9fc;outline:none;text-align:right;font:500 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">{{ c.unit }}
+</span>
+</sc-if>
+<sc-if value="{{ c.canRemove }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ c.remove }}" style="width:26px;height:26px;flex:none;border:0;border-radius:50%;background:none;color:#9497a5;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:rgba(20,22,31,.05);color:#b4553a">
+<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7"></path></svg>
+</button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<div style="display:flex;align-items:center;gap:14px">
+<span style="width:56px;height:56px;flex:none;border-radius:50%;background:{{ accent }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',Georgia,serif;font-size:24px">{{ initials }}</span>
+<div style="min-width:0">
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:24px;line-height:1.2">{{ name }}</div>
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ email }}</div>
+</div>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:26px 0 10px">Account</div>
+<div style="background:#fff;border-radius:18px;overflow:hidden">
+<sc-for list="{{ accountRows }}" as="a" hint-placeholder-count="4">
+<button type="button" onClick="{{ a.onClick }}" style="width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border:0;border-top:1px solid {{ a.line }};background:none;cursor:pointer;text-align:left" style-hover="background:#faf9fc">
+<span style="font:500 14px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">{{ a.label }}</span>
+<span style="display:flex;align-items:center;gap:9px">
+<span style="font:400 13px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.value }}</span>
+<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="#9497a5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 2.5L10 7l-4.5 4.5"></path></svg>
+</span>
+</button>
+</sc-for>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:26px 0 10px">Main currency</div>
+<div style="display:flex;gap:7px">
+<sc-for list="{{ curOptions }}" as="c" hint-placeholder-count="4">
+<button type="button" onClick="{{ c.onClick }}" style="flex:1;height:46px;border:1px solid {{ c.bd }};border-radius:12px;background:{{ c.bg }};color:{{ c.fg }};font:500 14px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">{{ c.label }}</button>
+</sc-for>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:26px 0 10px">Settings</div>
+<div style="background:#fff;border-radius:18px;overflow:hidden">
+<sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;border-top:1px solid {{ t.line }}">
+<div style="font:500 14px/1 'Instrument Sans',system-ui,sans-serif">{{ t.label }}</div>
+<button type="button" onClick="{{ t.onClick }}" style="width:46px;height:28px;flex:none;border:0;border-radius:14px;background:{{ t.trackBg }};padding:3px;display:flex;justify-content:{{ t.justify }};cursor:pointer">
+<span style="width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(20,22,31,.2)"></span>
+</button>
+</div>
+</sc-for>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:26px 0 10px">Data</div>
+<div style="background:#fff;border-radius:18px;overflow:hidden">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 18px">
+<span style="font:400 13.5px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">Expenses</span>
+<span style="font:500 14px/1 'Instrument Sans',system-ui,sans-serif">{{ countAll }}</span>
+</div>
+<button type="button" onClick="{{ askClear }}" style="width:100%;text-align:left;padding:15px 18px;border:0;border-top:1px solid rgba(20,22,31,.055);background:none;color:#b4553a;font:500 14px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Delete all expenses</button>
+</div>
+
+<button type="button" onClick="{{ askSignOut }}" style="width:100%;height:52px;margin-top:26px;border:1px solid rgba(20,22,31,.12);border-radius:14px;background:none;color:#4b4f5e;font:500 14px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer" style-hover="background:rgba(20,22,31,.04)">Sign out</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isName }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<input type="text" value="{{ fName }}" onChange="{{ onFName }}" placeholder="Name" style="width:100%;box-sizing:border-box;height:54px;padding:0 16px;border:1px solid {{ errName }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+<button type="button" onClick="{{ saveName }}" style="width:100%;height:54px;margin-top:22px;border:0;border-radius:15px;background:{{ accent }};color:#fff;font:500 15px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Save</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEmail }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<div style="background:#fff;border-radius:14px;padding:15px 16px">
+<div style="font:400 12px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">Now</div>
+<div style="font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ email }}</div>
+</div>
+<input type="email" value="{{ fEmail }}" onChange="{{ onFEmail }}" placeholder="New email" style="width:100%;box-sizing:border-box;height:54px;margin-top:9px;padding:0 16px;border:1px solid {{ errEmail }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<input type="password" value="{{ fPass }}" onChange="{{ onFPass }}" placeholder="Password" style="width:100%;box-sizing:border-box;height:54px;margin-top:9px;padding:0 16px;border:1px solid {{ errPass }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+<button type="button" onClick="{{ saveEmail }}" style="width:100%;height:54px;margin-top:22px;border:0;border-radius:15px;background:{{ accent }};color:#fff;font:500 15px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Save</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPassword }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<input type="password" value="{{ fPass }}" onChange="{{ onFPass }}" placeholder="Current password" style="width:100%;box-sizing:border-box;height:54px;padding:0 16px;border:1px solid {{ errPass }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<input type="password" value="{{ fNew }}" onChange="{{ onFNew }}" placeholder="New password" style="width:100%;box-sizing:border-box;height:54px;margin-top:9px;padding:0 16px;border:1px solid {{ errNew }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<input type="password" value="{{ fNew2 }}" onChange="{{ onFNew2 }}" placeholder="Repeat new password" style="width:100%;box-sizing:border-box;height:54px;margin-top:9px;padding:0 16px;border:1px solid {{ errNew2 }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+<span style="flex:1;height:5px;border-radius:3px;background:{{ pw1 }}"></span>
+<span style="flex:1;height:5px;border-radius:3px;background:{{ pw2 }}"></span>
+<span style="flex:1;height:5px;border-radius:3px;background:{{ pw3 }}"></span>
+<span style="font:400 12px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;width:52px;text-align:right">{{ pwLabel }}</span>
+</div>
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+<button type="button" onClick="{{ savePassword }}" style="width:100%;height:54px;margin-top:22px;border:0;border-radius:15px;background:{{ accent }};color:#fff;font:500 15px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Change password</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCats }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 34px">
+<div style="display:flex;gap:8px">
+<input type="text" value="{{ newCat }}" onChange="{{ onNewCat }}" placeholder="New category" style="flex:1;min-width:0;box-sizing:border-box;height:52px;padding:0 16px;border:1px solid {{ errCat }};border-radius:14px;background:#fff;outline:none;font:400 15px/1 'Instrument Sans',system-ui,sans-serif;color:#14161f">
+<button type="button" onClick="{{ addCat }}" style="flex:none;padding:0 20px;height:52px;border:0;border-radius:14px;background:{{ accent }};color:#fff;font:500 14px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Add</button>
+</div>
+<sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;margin-top:12px;animation:l-drop .18s ease both">
+<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="6.4"></circle><path d="M8 4.8v3.8M8 11.1v.1"></path></svg>
+<span style="font:400 13px/1.4 'Instrument Sans',system-ui,sans-serif;color:#b4553a">{{ formError }}</span>
+</div>
+</sc-if>
+<div style="margin-top:22px;background:#fff;border-radius:18px;overflow:hidden">
+<sc-for list="{{ catRows }}" as="c" hint-placeholder-count="6">
+<div style="display:flex;align-items:center;gap:12px;padding:15px 18px;border-top:1px solid {{ c.line }}">
+<span style="flex:1;font:500 14px/1 'Instrument Sans',system-ui,sans-serif">{{ c.name }}</span>
+<span style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;color:#6b6f80">{{ c.count }}</span>
+<button type="button" onClick="{{ c.remove }}" style="width:26px;height:26px;flex:none;border:0;border-radius:50%;background:none;color:#9497a5;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:rgba(20,22,31,.05);color:#b4553a">
+<svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7"></path></svg>
+</button>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+<div style="padding:120px 30px 34px;text-align:center">
+<span style="width:60px;height:60px;border-radius:50%;background:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(20,22,31,.06)">
+<svg width="26" height="26" viewBox="0 0 20 20" fill="none" stroke="#b4553a" stroke-width="1.6" stroke-linecap="round"><path d="M10 3.4L2.6 16.2h14.8z"></path><path d="M10 8v3.4M10 13.8v.1"></path></svg>
+</span>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:28px;line-height:1.2;margin-top:20px">Something broke</div>
+<div style="font:400 13.5px/1.5 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;margin-top:10px">Your expenses are safe on this phone.</div>
+<button type="button" onClick="{{ retry }}" style="width:100%;height:54px;margin-top:26px;border:0;border-radius:15px;background:{{ accent }};color:#fff;font:500 15px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Try again</button>
+<button type="button" onClick="{{ goHome }}" style="width:100%;height:54px;margin-top:9px;border:1px solid rgba(20,22,31,.12);border-radius:15px;background:none;color:#4b4f5e;font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Back to expenses</button>
+</div>
+</sc-if>
+
+</div>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:16px;right:16px;top:56px;z-index:9;display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:14px;background:{{ toastBg }};box-shadow:0 6px 20px rgba(20,22,31,.16);animation:l-drop .2s ease both">
+<span style="display:flex">{{ toastIcon }}</span>
+<span style="flex:1;font:500 13.5px/1.35 'Instrument Sans',system-ui,sans-serif;color:#fff">{{ toastText }}</span>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasConfirm }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:12;background:rgba(20,22,31,.42);display:flex;align-items:flex-end;justify-content:center">
+<div style="width:100%;background:#fff;border-radius:26px 26px 45px 45px;padding:24px 22px 30px;box-sizing:border-box;animation:l-rise .22s cubic-bezier(.2,.8,.2,1) both">
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:24px;line-height:1.2">{{ confirmTitle }}</div>
+<div style="font:400 13.5px/1.5 'Instrument Sans',system-ui,sans-serif;color:#6b6f80;margin-top:10px">{{ confirmBody }}</div>
+<div style="display:flex;gap:9px;margin-top:24px">
+<button type="button" onClick="{{ confirmNo }}" style="flex:1;height:52px;border:1px solid rgba(20,22,31,.12);border-radius:14px;background:none;color:#4b4f5e;font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">Cancel</button>
+<button type="button" onClick="{{ confirmYes }}" style="flex:1;height:52px;border:0;border-radius:14px;background:{{ confirmBg }};color:#fff;font:500 14.5px/1 'Instrument Sans',system-ui,sans-serif;cursor:pointer">{{ confirmCta }}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:14;background:rgba(245,244,249,.74);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<span style="width:34px;height:34px;border-radius:50%;border:2.5px solid rgba(20,22,31,.12);border-top-color:{{ accent }};animation:l-spin .7s linear infinite"></span>
+<span style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e">{{ busyLabel }}</span>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:416,&quot;height&quot;:870},&quot;currency&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;RWF&quot;,&quot;TL&quot;,&quot;USD&quot;],&quot;default&quot;:&quot;RWF&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Money&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#3b45c9&quot;,&quot;#1f7a5c&quot;,&quot;#b4553a&quot;,&quot;#14161f&quot;],&quot;default&quot;:&quot;#3b45c9&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Look&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;signup&quot;,&quot;signin&quot;,&quot;home&quot;,&quot;empty&quot;,&quot;cleared&quot;,&quot;stats&quot;,&quot;balance&quot;,&quot;limits&quot;,&quot;profile&quot;,&quot;name&quot;,&quot;email&quot;,&quot;password&quot;,&quot;cats&quot;,&quot;currencies&quot;,&quot;error&quot;,&quot;confirm&quot;,&quot;busy&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+const CASH_ICON = () => React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" },
+  React.createElement("rect", { x: 2, y: 5, width: 16, height: 10, rx: 2.5 }),
+  React.createElement("circle", { cx: 10, cy: 10, r: 2.4 }));
+const MOMO_ICON = () => React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" },
+  React.createElement("rect", { x: 5.5, y: 2.5, width: 9, height: 15, rx: 2.2 }),
+  React.createElement("path", { d: "M8.6 14.8h2.8" }));
+const BANK_ICON = () => React.createElement("svg", { width: 17, height: 17, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" },
+  React.createElement("path", { d: "M3 8l7-4 7 4M4.5 8v7M15.5 8v7M8 8v7M12 8v7M2.5 16.5h15" }));
+const METHODS = [{ k: "cash", label: "Cash", icon: CASH_ICON }, { k: "momo", label: "MoMo", icon: MOMO_ICON }, { k: "bank", label: "Bank", icon: BANK_ICON }];
+const MLABEL = { cash: "Cash", momo: "MoMo", bank: "Bank" };
+const MICON = { cash: CASH_ICON, momo: MOMO_ICON, bank: BANK_ICON };
+const WARN_ICON = (c) => React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 18 18", fill: "none", stroke: c, strokeWidth: 1.6, strokeLinecap: "round" },
+  React.createElement("circle", { cx: 9, cy: 9, r: 7 }),
+  React.createElement("path", { d: "M9 5.2v4.2M9 12.2v.1" }));
+const OK_ICON = (c) => React.createElement("svg", { width: 16, height: 16, viewBox: "0 0 18 18", fill: "none", stroke: c, strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" },
+  React.createElement("path", { d: "M4 9.4l3.2 3.1L14 5.6" }));
+
+const SEED = [
+  { id: 4, amount: 2400, method: "momo", note: "Groceries", offset: 0 },
+  { id: 3, amount: 850, method: "cash", note: "Coffee", offset: 0 },
+  { id: 2, amount: 12500, method: "bank", note: "Bills", offset: 1 },
+  { id: 1, amount: 600, method: "cash", note: "Transport", offset: 3 },
+  { id: 11, amount: 3200, method: "momo", note: "Groceries", offset: 8 },
+  { id: 12, amount: 1400, method: "cash", note: "Transport", offset: 14 },
+  { id: 13, amount: 24000, method: "bank", note: "Rent", offset: 34 },
+  { id: 14, amount: 5200, method: "momo", note: "Groceries", offset: 42 },
+  { id: 15, amount: 1800, method: "cash", note: "Food", offset: 55 },
+  { id: 16, amount: 24000, method: "bank", note: "Rent", offset: 66 },
+  { id: 17, amount: 4100, method: "cash", note: "Transport", offset: 88 },
+  { id: 18, amount: 24000, method: "bank", note: "Rent", offset: 97 },
+  { id: 19, amount: 2600, method: "momo", note: "Bills", offset: 124 },
+  { id: 20, amount: 24000, method: "bank", note: "Rent", offset: 129 },
+  { id: 21, amount: 3000, method: "cash", note: "Food", offset: 155 },
+];
+const BASE_CATS = ["Transport", "Food", "Groceries", "Coffee", "Bills", "Rent"];
+const CURS = ["RWF", "TL", "USD"];
+const BASE_CURS = ["RWF", "TL", "USD", "EUR", "KES"];
+const RATES = { RWF: 1, TL: 34, USD: 1420, EUR: 1560, KES: 11 };
+const SEED_BAL = { RWF: 840000, TL: 9600, USD: 1240 };
+const SEED_LIM = { RWF: { must: 460000, net: 140000 }, TL: { must: 7200, net: 2600 }, USD: { must: 300, net: 400 } };
+const group = (n) => Math.abs(Math.round(n)).toLocaleString("en-US");
+const VIOLET = "#7b5ec7";
+
+class Component extends DCLogic {
+  state = {
+    screen: "signup",
+    items: [],
+    cleared: false,
+    amt: "",
+    method: null,
+    note: "",
+    name: "",
+    email: "",
+    cats: BASE_CATS.slice(),
+    settings: { round: false, reminder: true, hide: false },
+    fName: "", fEmail: "", fPass: "", fNew: "", fNew2: "", newCat: "",
+    formError: "", errField: "",
+    toast: null, confirm: null, busy: null,
+    back: "home",
+    mainCur: "RWF",
+    balCur: "RWF",
+    allCurs: BASE_CURS.slice(),
+    rates: { ...RATES },
+    selCurs: ["RWF", "TL", "USD"],
+    newCur: "",
+    extra: null,
+    balances: { RWF: 0, TL: 0, USD: 0 },
+    limits: { RWF: { must: 0, net: 0 }, TL: { must: 0, net: 0 }, USD: { must: 0, net: 0 } },
+    fBal: { RWF: "", TL: "", USD: "" },
+    fLim: { must: "", net: "" },
+  };
+
+  componentDidMount() {
+    const s = this.props.startScreen;
+    if (!s) return;
+    const signedIn = { name: "Thierry", email: "thierry@gmail.com", items: SEED.slice(), balances: { ...SEED_BAL }, limits: JSON.parse(JSON.stringify(SEED_LIM)) };
+    const map = {
+      signup: { screen: "signup" },
+      signin: { screen: "signin" },
+      home: { ...signedIn, screen: "home" },
+      empty: { name: "Thierry", email: "thierry@gmail.com", items: [], cleared: false, screen: "home" },
+      cleared: { name: "Thierry", email: "thierry@gmail.com", items: [], cleared: true, screen: "home" },
+      stats: { ...signedIn, screen: "stats" },
+      profile: { ...signedIn, screen: "profile" },
+      name: { ...signedIn, screen: "name", fName: "Thierry" },
+      email: { ...signedIn, screen: "email" },
+      password: { ...signedIn, screen: "password" },
+      cats: { ...signedIn, screen: "cats" },
+      balance: { ...signedIn, screen: "balance", back: "stats", fBal: { RWF: "840000", TL: "9600", USD: "1240" } },
+      limits: { ...signedIn, screen: "limits", back: "stats", fLim: { must: "460000", net: "140000" } },
+      currencies: { ...signedIn, screen: "curs", back: "profile" },
+      error: { screen: "error" },
+      confirm: { ...signedIn, screen: "profile", confirm: { title: "Delete all expenses?", body: "All 15 of them, on every device. This cannot be undone.", cta: "Delete all", danger: true, yes: () => {} } },
+      busy: { ...signedIn, screen: "profile", busy: "Deleting everything" },
+    };
+    if (map[s]) this.setState(map[s]);
+  }
+
+  componentWillUnmount() { clearTimeout(this._toastT); clearTimeout(this._busyT); }
+
+  fmt(n) {
+    const S0 = this.state;
+    const cur = (S0.selCurs || CURS).includes(S0.mainCur) ? S0.mainCur : (S0.selCurs || CURS)[0];
+    return (n < 0 ? "−" : "") + cur + " " + group(n);
+  }
+
+  toast(text, kind) {
+    clearTimeout(this._toastT);
+    this.setState({ toast: { text, kind: kind || "warn" } });
+    this._toastT = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+
+  freeze(label, ms, done) {
+    this.setState({ busy: label, confirm: null });
+    clearTimeout(this._busyT);
+    this._busyT = setTimeout(() => { this.setState({ busy: null }); done(); }, ms || 900);
+  }
+
+  go(screen, back) {
+    this.setState({ screen, back: back || "home", formError: "", errField: "", fName: "", fEmail: "", fPass: "", fNew: "", fNew2: "", newCat: "" });
+  }
+
+  fail(field, msg) { this.setState({ formError: msg, errField: field }); return false; }
+
+  push(ch) {
+    this.setState((s) => {
+      const a = s.amt;
+      if (ch === "⌫") return { amt: a.slice(0, -1) };
+      if (ch === ".") return a.includes(".") ? null : { amt: a === "" ? "0." : a + "." };
+      if (a.includes(".") && a.split(".")[1].length >= 2) return null;
+      return a.length >= 9 ? null : { amt: a + ch };
+    });
+  }
+  setAmt(next) { if (next.length <= 9) this.setState({ amt: next }); }
+
+  renderVals() {
+    const T = {};
+    const S = this.state;
+    const brand = this.props.accent ?? "#3b45c9";
+    const CURLIST = (S.selCurs && S.selCurs.length ? S.selCurs : CURS);
+    const mainC = CURLIST.includes(S.mainCur) ? S.mainCur : CURLIST[0];
+    const cur = mainC;
+    const screen = S.screen;
+    const items = S.items;
+    const LINE = "rgba(20,22,31,.12)";
+    const BAD = "#b4553a";
+    T.accent = brand;
+
+    T.isSignup = screen === "signup";
+    T.isSignin = screen === "signin";
+    T.isHome = screen === "home";
+    T.isStats = screen === "stats";
+    T.isProfile = screen === "profile";
+    T.isName = screen === "name";
+    T.isEmail = screen === "email";
+    T.isPassword = screen === "password";
+    T.isCats = screen === "cats";
+    T.isError = screen === "error";
+
+    T.isBalance = screen === "balance";
+    T.isLimits = screen === "limits";
+
+    const bcur = CURLIST.includes(S.balCur) ? S.balCur : mainC;
+    const fmtC = (n, sym) => (n < 0 ? "−" : "") + (sym || bcur) + " " + group(n);
+    const lim = S.limits[bcur] || { must: 0, net: 0 };
+    const bal = S.balances[bcur] || 0;
+    const spend = bal - lim.must - 0.75 * lim.net;
+
+    const CL = CURLIST;
+    T.isCurs = screen === "curs";
+    T.curTabs = CL.map((c) => {
+      const on = c === bcur;
+      return {
+        label: c,
+        onClick: () => this.setState(screen === "limits" ? { balCur: c, fLim: { must: String(S.limits[c].must || ""), net: String(S.limits[c].net || "") }, formError: "", errField: "" } : { balCur: c }),
+        bg: on ? brand : "#fff", fg: on ? "#fff" : "#4b4f5e", bd: on ? brand : LINE,
+      };
+    });
+
+    T.spendable = fmtC(spend);
+    T.spendColor = bal < lim.must ? BAD : (spend < 0 ? VIOLET : "#14161f");
+    T.balCells = [
+      { label: "Balance", value: fmtC(bal), color: "#4b4f5e" },
+      { label: "Must", value: fmtC(lim.must), color: BAD },
+      { label: "Safety net", value: fmtC(lim.net), color: VIOLET },
+    ].map((b, ix) => ({ ...b, line: ix === 0 ? "transparent" : "rgba(20,22,31,.07)" }));
+    const overMust = bal < lim.must;
+    const overNet = !overMust && spend < 0;
+    T.hasBalWarn = overMust || overNet;
+    T.warnBg = overMust ? "rgba(180,85,58,.09)" : "rgba(123,94,199,.1)";
+    T.warnFg = overMust ? BAD : VIOLET;
+    T.warnIcon = WARN_ICON(overMust ? BAD : VIOLET);
+    T.warnText = overMust ? "Under your must limit by " + fmtC(lim.must - bal) + "." : "Safety net is thin.";
+
+    T.goBalance = () => this.setState({ screen: "balance", back: "stats", formError: "", errField: "", fBal: { RWF: S.balances.RWF ? String(S.balances.RWF) : "", TL: S.balances.TL ? String(S.balances.TL) : "", USD: S.balances.USD ? String(S.balances.USD) : "" } });
+    T.goLimits = () => this.setState({ screen: "limits", back: "stats", formError: "", errField: "", fLim: { must: lim.must ? String(lim.must) : "", net: lim.net ? String(lim.net) : "" } });
+
+    const clean = (v) => v.replace(/[^0-9.]/g, "");
+    const RT = S.rates || RATES;
+    const estRate = (from) => Math.round(((RT[from] || 1) / (RT[mainC] || 1)) * 100) / 100;
+    const setRate = (code, shown) => {
+      const v = Number(shown);
+      if (!v || v <= 0) return;
+      this.setState({ rates: { ...RT, [code]: v * (RT[mainC] || 1) } });
+    };
+    const ex = S.extra;
+    T.mainCurLabel = mainC;
+    T.extraClosed = !ex;
+    T.extraOpen = !!ex;
+    T.openExtra = () => {
+      const other = (S.allCurs || CURS).filter((c) => !CL.includes(c))[0] || null;
+      if (!other) return this.toast("Add a currency in your profile first.");
+      this.setState({ extra: { cur: other, amt: "", rate: String(estRate(other)) }, formError: "", errField: "" });
+    };
+    T.closeExtra = () => this.setState({ extra: null, formError: "", errField: "" });
+    T.extraCur = ex ? ex.cur : "";
+    T.extraAmt = ex ? ex.amt : "";
+    T.extraRate = ex ? ex.rate : "";
+    T.extraRateBd = S.errField === "exrate" ? BAD : LINE;
+    T.extraPreview = ex ? fmtC((Number(ex.amt) || 0) * (Number(ex.rate) || 0), mainC) : "";
+    T.extraOptions = (S.allCurs || CURS).filter((c) => !CL.includes(c)).map((c) => {
+      const on = ex && ex.cur === c;
+      return {
+        label: c,
+        onClick: () => this.setState({ extra: { cur: c, amt: ex ? ex.amt : "", rate: String(estRate(c)) }, formError: "", errField: "" }),
+        bg: on ? brand : "#faf9fc", fg: on ? "#fff" : "#4b4f5e", bd: on ? brand : LINE,
+      };
+    });
+    T.onExtraAmt = (e) => this.setState({ extra: { ...ex, amt: clean(e.target.value) }, formError: "", errField: "" });
+    T.onExtraRate = (e) => this.setState({ extra: { ...ex, rate: clean(e.target.value) }, formError: "", errField: "" });
+    T.rateRows = CL.filter((c) => c !== mainC).map((c) => ({
+      name: c,
+      unit: mainC,
+      value: S.rateEdit && S.rateEdit.code === c ? S.rateEdit.value : String(estRate(c)),
+      onChange: (e) => {
+        const raw = e.target.value.replace(/[^0-9.]/g, "");
+        this.setState({ rateEdit: { code: c, value: raw } });
+        if (raw) setRate(c, raw);
+      },
+    }));
+    T.hasRateRows = CL.length > 1;
+    T.balInputs = CL.map((c) => ({
+      sym: c,
+      value: S.fBal[c] ?? "",
+      bd: S.errField === "bal" + c ? BAD : LINE,
+      onChange: (e) => this.setState({ fBal: { ...S.fBal, [c]: clean(e.target.value) }, formError: "", errField: "" }),
+    }));
+    T.saveBalance = () => {
+      const vals = { ...S.balances };
+      for (const c of CL) {
+        const raw = (S.fBal[c] || "").trim();
+        if (raw && isNaN(Number(raw))) return this.fail("bal" + c, "That is not a number.");
+        vals[c] = Number(raw) || 0;
+      }
+      const ex = S.extra;
+      let added = 0;
+      if (ex && ex.amt) {
+        const a = Number(ex.amt) || 0;
+        const r = Number(ex.rate) || 0;
+        if (a > 0 && r <= 0) return this.fail("exrate", "Set a rate first.");
+        added = a * r;
+      }
+      if (!CL.some((c) => vals[c] > 0) && added <= 0) return this.fail("bal" + CL[0], "Enter at least one total.");
+      if (added > 0) vals[mainC] = (vals[mainC] || 0) + added;
+      this.freeze("Saving balance", 800, () => {
+        this.setState({ balances: vals, extra: null, screen: "stats" });
+        this.toast(added > 0 ? "Balance updated with " + fmtC(added, mainC) + " added." : "Balance updated.", "ok");
+      });
+    };
+
+    const lmust = Number(S.fLim.must) || 0;
+    const lnet = Number(S.fLim.net) || 0;
+    T.limInputs = [
+      { k: "must", label: "Must", hint: "strict", dot: BAD, value: S.fLim.must ?? "" },
+      { k: "net", label: "Safety net", hint: "flexible", dot: VIOLET, value: S.fLim.net ?? "" },
+    ].map((l) => ({
+      ...l, sym: bcur,
+      bd: S.errField === "lim" + l.k ? BAD : LINE,
+      onChange: (e) => this.setState({ fLim: { ...S.fLim, [l.k]: clean(e.target.value) }, formError: "", errField: "" }),
+    }));
+    T.limPreview = fmtC(bal - lmust - 0.75 * lnet);
+    T.saveLimits = () => {
+      if (lmust > bal) return this.fail("limmust", "More than your balance.");
+      this.freeze("Saving limits", 700, () => {
+        this.setState({ limits: { ...S.limits, [bcur]: { must: lmust, net: lnet } }, screen: "stats" });
+        this.toast("Limits saved.", "ok");
+      });
+    };
+
+    const titles = { home: "BYUMA FT", stats: "ANALYTICS", profile: "PROFILE", name: "YOUR NAME", email: "EMAIL", password: "PASSWORD", cats: "CATEGORIES", curs: "CURRENCIES", balance: "BALANCE", limits: "LIMITS", error: "" };
+    T.showChrome = !["signup", "signin", "error"].includes(screen);
+    T.headerTitle = titles[screen] || "";
+    T.showBack = screen !== "home";
+    T.showProfileBtn = ["home", "stats", "profile"].includes(screen);
+    T.headerBg = screen === "home" ? "#fff" : "transparent";
+    T.navProfBg = screen === "profile" ? brand : "transparent";
+    T.navProfFg = screen === "profile" ? "#fff" : "#6b6f80";
+    T.navProfBd = screen === "profile" ? brand : LINE;
+    T.goHome = () => this.go("home");
+    T.goStats = () => this.go("stats");
+    T.goProfile = () => this.go("profile");
+    T.goCats = () => this.go("cats", "home");
+    T.goBack = () => this.go(["stats", "profile"].includes(screen) ? "home" : (S.back || "home"));
+
+    // auth
+    const clear = { formError: "", errField: "" };
+    T.fName = S.fName; T.onFName = (e) => this.setState({ fName: e.target.value, ...clear });
+    T.fEmail = S.fEmail; T.onFEmail = (e) => this.setState({ fEmail: e.target.value, ...clear });
+    T.fPass = S.fPass; T.onFPass = (e) => this.setState({ fPass: e.target.value, ...clear });
+    T.fNew = S.fNew; T.onFNew = (e) => this.setState({ fNew: e.target.value, ...clear });
+    T.fNew2 = S.fNew2; T.onFNew2 = (e) => this.setState({ fNew2: e.target.value, ...clear });
+    T.formError = S.formError;
+    T.hasFormError = !!S.formError;
+    const eb = (f) => (S.errField === f ? BAD : LINE);
+    T.errName = eb("name"); T.errEmail = eb("email"); T.errPass = eb("pass");
+    T.errNew = eb("new"); T.errNew2 = eb("new2"); T.errCat = eb("cat");
+
+    const emailOk = (v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim());
+
+    T.submitSignup = () => {
+      if (!S.fName.trim()) return this.fail("name", "Your name is missing.");
+      if (!emailOk(S.fEmail)) return this.fail("email", "That email does not look right.");
+      if (S.fPass.length < 8) return this.fail("pass", "Use at least 8 characters.");
+      this.freeze("Creating your account", 1100, () => {
+        this.setState({ screen: "home", name: S.fName.trim(), email: S.fEmail.trim(), items: [], cleared: false, formError: "", errField: "", fPass: "" });
+        this.toast("Account ready.", "ok");
+      });
+    };
+    T.submitSignin = () => {
+      if (!emailOk(S.fEmail)) return this.fail("email", "That email does not look right.");
+      if (!S.fPass) return this.fail("pass", "Enter your password.");
+      if (S.fPass.length < 8) return this.fail("pass", "Wrong email or password.");
+      this.freeze("Signing in", 1000, () => {
+        this.setState({ screen: "home", name: S.fEmail.trim().split("@")[0], email: S.fEmail.trim(), items: SEED.slice(), balances: { ...SEED_BAL }, limits: JSON.parse(JSON.stringify(SEED_LIM)), cleared: false, formError: "", errField: "", fPass: "" });
+        this.toast("Signed in.", "ok");
+      });
+    };
+    T.google = () => this.freeze("Connecting to Google", 1200, () => {
+      this.setState({ screen: "home", name: "Thierry", email: "thierry@gmail.com", items: SEED.slice(), balances: { ...SEED_BAL }, limits: JSON.parse(JSON.stringify(SEED_LIM)), cleared: false });
+      this.toast("Signed in with Google.", "ok");
+    });
+    T.toSignin = () => this.go("signin");
+    T.toSignup = () => this.go("signup");
+
+    // recorder
+    const amt = S.amt;
+    const num = Number(amt.replace(/[^0-9.]/g, "")) || 0;
+    T.amt = amt;
+    const gtype = (v) => { const p = v.split("."); return Number(p[0] || 0).toLocaleString("en-US") + (p.length > 1 ? "." + p[1] : ""); };
+    T.amtShown = amt === "" ? "0" : gtype(amt);
+    T.amtColor = amt === "" ? "#83869a" : "#14161f";
+    T.symColor = amt === "" ? "#83869a" : "#4b4f5e";
+    T.sym = cur;
+    T.amtRef = (el) => { this._amtEl = el; };
+    T.focusAmt = () => { if (this._amtEl) this._amtEl.focus(); };
+    T.onAmt = (e) => this.setAmt(e.target.value.replace(/[^0-9.]/g, ""));
+    T.note = S.note;
+    T.onNote = (e) => this.setState({ note: e.target.value });
+
+    T.methods = METHODS.map((m) => ({ k: m.k, label: m.label, icon: React.createElement(m.icon) })).map((m) => {
+      const on = S.method === m.k;
+      return {
+        label: m.label, icon: m.icon,
+        onClick: () => this.setState({ method: m.k }),
+        bg: on ? brand : "#fff", fg: on ? "#fff" : "#14161f", bd: on ? brand : LINE,
+      };
+    });
+
+    const freq = {};
+    items.forEach((i) => { if (i.note) freq[i.note] = (freq[i.note] || 0) + 1; });
+    const ordered = S.cats.slice().sort((a, b) => (freq[b] || 0) - (freq[a] || 0));
+    T.suggestions = ordered.slice(0, 8).map((s) => {
+      const on = S.note.toLowerCase() === s.toLowerCase();
+      return {
+        label: s,
+        onClick: () => this.setState({ note: on ? "" : s }),
+        bg: on ? brand : "#fff", fg: on ? "#fff" : "#4b4f5e", bd: on ? brand : LINE,
+      };
+    });
+
+    T.keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "⌫"].map((k) => ({
+      label: k,
+      font: k === "⌫" ? "'Instrument Sans',system-ui,sans-serif" : "'Instrument Serif',Georgia,serif",
+      size: k === "⌫" ? "16px" : "23px",
+      onClick: () => this.push(k),
+    }));
+
+    const ready = num > 0 && !!S.method;
+    T.ctaLabel = num <= 0 ? "Record expense" : (!S.method ? "Pick a method" : "Record " + this.fmt(num));
+    T.ctaBg = ready ? brand : "rgba(20,22,31,.06)";
+    T.ctaFg = ready ? "#fff" : "#8f92a0";
+    T.ctaCursor = num > 0 ? "pointer" : "default";
+    T.record = () => {
+      if (num <= 0) return;
+      if (!S.method) return this.toast("Pick cash, MoMo or bank first.");
+      this.setState({
+        items: [{ id: Date.now(), amount: num, method: S.method, note: S.note.trim(), offset: 0 }, ...items],
+        amt: "", note: "", method: null, cleared: false,
+      });
+      this.toast("Recorded " + this.fmt(num) + ".", "ok");
+    };
+
+    T.hasItems = items.length > 0;
+    T.isEmptyNew = items.length === 0 && !S.cleared;
+    T.isEmptyCleared = items.length === 0 && S.cleared;
+    T.totalAll = this.fmt(items.reduce((s, i) => s + i.amount, 0));
+    const mSum = (k) => items.filter((i) => i.method === k).reduce((s, i) => s + i.amount, 0);
+    const allSum = items.reduce((s, i) => s + i.amount, 0) || 1;
+    const MIXCOL = { cash: brand, momo: "#4b4f5e", bank: "#8f92a0" };
+    T.mix = METHODS.map((m) => {
+      const v = mSum(m.k);
+      return { label: m.label, sum: this.fmt(v), pct: Math.round(v / allSum * 1000) / 10 + "%", color: MIXCOL[m.k] };
+    });
+
+    const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const dayLabel = (off) => {
+      if (off === 0) return "Today";
+      if (off === 1) return "Yesterday";
+      const d = new Date(Date.now() - off * 864e5);
+      return d.getDate() + " " + MON[d.getMonth()];
+    };
+    const offsets = [...new Set(items.map((i) => i.offset))].sort((a, b) => a - b);
+    T.groups = offsets.map((off) => {
+      const rows = items.filter((i) => i.offset === off);
+      return {
+        day: dayLabel(off),
+        dot: off === 0 ? brand : "rgba(20,22,31,.22)",
+        sum: this.fmt(rows.reduce((s, i) => s + i.amount, 0)),
+        rows: rows.map((i, ix) => {
+          const editing = S.editId === i.id;
+          const eMethod = S.eMethod || i.method;
+          return {
+            method: i.note || MLABEL[i.method],
+            amount: this.fmt(i.amount),
+            icon: React.createElement(MICON[i.method] || CASH_ICON, null),
+            chipBg: i.method === "cash" ? "rgba(20,22,31,.05)" : "rgba(20,22,31,.08)",
+            line: ix === 0 ? "transparent" : "rgba(20,22,31,.055)",
+            editing,
+            remove: (ev) => {
+              if (ev && ev.stopPropagation) ev.stopPropagation();
+              this.setState({
+                editId: null,
+                confirm: {
+                  title: "Delete this expense?",
+                  body: this.fmt(i.amount) + " · " + MLABEL[i.method],
+                  cta: "Delete", danger: true,
+                  yes: () => this.freeze("Deleting", 600, () => {
+                    this.setState({ items: this.state.items.filter((x) => x.id !== i.id) });
+                    this.toast("Expense deleted.", "ok");
+                  }),
+                },
+              });
+            },
+            edit: () => this.setState(editing ? { editId: null } : { editId: i.id, eAmt: String(i.amount), eNote: i.note || "", eMethod: i.method }),
+            eAmt: S.eAmt ?? "",
+            onEAmt: (e) => this.setState({ eAmt: e.target.value.replace(/[^0-9.]/g, "") }),
+            eNote: S.eNote ?? "",
+            onENote: (e) => this.setState({ eNote: e.target.value }),
+            eMethods: METHODS.map((m) => {
+              const on = eMethod === m.k;
+              return { label: m.label, onClick: () => this.setState({ eMethod: m.k }), bg: on ? brand : "#fff", fg: on ? "#fff" : "#14161f", bd: on ? brand : LINE };
+            }),
+            cancel: () => this.setState({ editId: null }),
+            save: () => {
+              const v = Number(String(S.eAmt).replace(/[^0-9.]/g, "")) || 0;
+              if (v <= 0) { this.toast("Amount cannot be zero."); return; }
+              this.setState({
+                items: this.state.items.map((x) => x.id === i.id ? { ...x, amount: v, note: (S.eNote || "").trim(), method: eMethod } : x),
+                editId: null,
+              });
+              this.toast("Expense updated.", "ok");
+            },
+          };
+        }),
+      };
+    });
+
+    // analytics
+    const now = new Date();
+    const monthOf = (off) => { const d = new Date(now.getTime() - off * 864e5); return d.getFullYear() * 12 + d.getMonth(); };
+    const thisM = now.getFullYear() * 12 + now.getMonth();
+    const sum = (arr) => arr.reduce((s, i) => s + i.amount, 0);
+    T.monthTotal = this.fmt(sum(items.filter((i) => monthOf(i.offset) === thisM)));
+    const tot = items.reduce((s, i) => s + i.amount, 0) || 1;
+    const MCOL = MIXCOL;
+    T.split = METHODS.map((m) => {
+      const v = mSum(m.k);
+      return { label: m.label, sum: this.fmt(v), pct: Math.round(v / tot * 100) + "%", color: MCOL[m.k] };
+    });
+    const catMap = {};
+    items.forEach((i) => { const k = i.note || MLABEL[i.method]; catMap[k] = (catMap[k] || 0) + i.amount; });
+    const catTop = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const catMax = catTop.length ? catTop[0][1] : 1;
+    T.byCat = catTop.map(([name, v], ix) => ({ name, sum: this.fmt(v), pct: Math.round(v / catMax * 100) + "%", color: ix === 0 ? brand : "rgba(20,22,31,.22)" }));
+    const mSums = [];
+    for (let k = 5; k >= 0; k--) mSums.push({ mi: thisM - k, v: sum(items.filter((i) => monthOf(i.offset) === thisM - k)) });
+    const mMax = Math.max(...mSums.map((m) => m.v), 1);
+    T.months = mSums.map((m) => ({
+      short: m.mi === thisM && m.v ? this.fmt(m.v) : "",
+      label: MON[((m.mi % 12) + 12) % 12],
+      h: Math.max(6, Math.round(m.v / mMax * 78)) + "px",
+      color: m.mi === thisM ? brand : "rgba(20,22,31,.15)",
+    }));
+
+    // profile
+    T.name = S.name || "You";
+    T.email = S.email || "not set";
+    T.initials = (S.name || "?").trim().charAt(0).toUpperCase();
+    T.countAll = String(items.length);
+    T.accountRows = [
+      { label: "Name", value: S.name || "not set", onClick: () => this.go("name", "profile") },
+      { label: "Email", value: S.email || "not set", onClick: () => this.go("email", "profile") },
+      { label: "Password", value: "••••••••", onClick: () => this.go("password", "profile") },
+      { label: "Categories", value: String(S.cats.length), onClick: () => this.go("cats", "profile") },
+      { label: "Currencies", value: CL.join(" · "), onClick: () => this.go("curs", "profile") },
+    ].map((r, ix) => ({ ...r, line: ix === 0 ? "transparent" : "rgba(20,22,31,.055)" }));
+
+    T.curOptions = CL.map((c) => {
+      const on = mainC === c;
+      return {
+        label: c, onClick: () => this.setState({ mainCur: c }),
+        bg: on ? brand : "#faf9fc", fg: on ? "#fff" : "#4b4f5e", bd: on ? brand : LINE,
+      };
+    });
+
+    const st = S.settings;
+    T.toggles = [
+      { k: "round", label: "Round amounts" },
+      { k: "reminder", label: "Evening reminder" },
+      { k: "hide", label: "Hide totals" },
+    ].map((t, ix) => ({
+      label: t.label,
+      line: ix === 0 ? "transparent" : "rgba(20,22,31,.055)",
+      trackBg: st[t.k] ? brand : "rgba(20,22,31,.14)",
+      justify: st[t.k] ? "flex-end" : "flex-start",
+      onClick: () => this.setState({ settings: { ...st, [t.k]: !st[t.k] } }),
+    }));
+
+    // edit screens
+    T.saveName = () => {
+      if (!S.fName.trim()) return this.fail("name", "Your name is missing.");
+      this.freeze("Saving", 700, () => { this.setState({ name: S.fName.trim(), screen: "profile" }); this.toast("Name changed.", "ok"); });
+    };
+    T.saveEmail = () => {
+      if (!emailOk(S.fEmail)) return this.fail("email", "That email does not look right.");
+      if (S.fEmail.trim() === S.email) return this.fail("email", "That is already your email.");
+      if (!S.fPass) return this.fail("pass", "Enter your password to confirm.");
+      this.setState({
+        confirm: {
+          title: "Change your email?", body: "You will sign in with " + S.fEmail.trim() + " from now on.", cta: "Change",
+          yes: () => this.freeze("Saving", 900, () => { this.setState({ email: S.fEmail.trim(), screen: "profile" }); this.toast("Email changed.", "ok"); }),
+        },
+      });
+    };
+    const pwLen = S.fNew.length;
+    const pwScore = pwLen === 0 ? 0 : pwLen < 8 ? 1 : (/[0-9]/.test(S.fNew) && /[^a-zA-Z0-9]/.test(S.fNew)) ? 3 : 2;
+    const pwCol = ["rgba(20,22,31,.1)", BAD, "#c08a2e", "#1f7a5c"];
+    T.pw1 = pwScore >= 1 ? pwCol[pwScore] : pwCol[0];
+    T.pw2 = pwScore >= 2 ? pwCol[pwScore] : pwCol[0];
+    T.pw3 = pwScore >= 3 ? pwCol[pwScore] : pwCol[0];
+    T.pwLabel = ["", "weak", "fair", "strong"][pwScore];
+    T.savePassword = () => {
+      if (!S.fPass) return this.fail("pass", "Enter your current password.");
+      if (S.fNew.length < 8) return this.fail("new", "New password needs 8 characters.");
+      if (S.fNew !== S.fNew2) return this.fail("new2", "The two new passwords do not match.");
+      if (S.fNew === S.fPass) return this.fail("new", "Pick a password you have not used.");
+      this.setState({
+        confirm: {
+          title: "Change your password?", body: "You stay signed in on this phone. Other phones sign out.", cta: "Change",
+          yes: () => this.freeze("Saving", 1000, () => { this.setState({ screen: "profile" }); this.toast("Password changed.", "ok"); }),
+        },
+      });
+    };
+
+    T.newCur = S.newCur;
+    T.onNewCur = (e) => this.setState({ newCur: e.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4), formError: "", errField: "" });
+    T.errCur = S.errField === "cur" ? BAD : LINE;
+    T.addCur = () => {
+      const n = S.newCur.trim();
+      if (n.length < 2) return this.fail("cur", "Use 2 to 4 letters.");
+      if ((S.allCurs || []).includes(n)) return this.fail("cur", "You already have that one.");
+      this.setState({ allCurs: [...S.allCurs, n], newCur: "", formError: "", errField: "" });
+      this.toast(n + " added.", "ok");
+    };
+    T.curCount = CL.length + " of 3 picked";
+    T.curRows = (S.allCurs || []).map((c, ix) => {
+      const on = CL.includes(c);
+      return {
+        name: c,
+        isMain: c === mainC,
+        notMain: c !== mainC,
+        unit: mainC,
+        rateShown: S.rateEdit && S.rateEdit.code === c ? S.rateEdit.value : String(estRate(c)),
+        onRate: (e) => {
+          const raw = e.target.value.replace(/[^0-9.]/g, "");
+          this.setState({ rateEdit: { code: c, value: raw } });
+          if (raw) setRate(c, raw);
+        },
+        line: ix === 0 ? "transparent" : "rgba(20,22,31,.055)",
+        tickBg: on ? brand : "transparent",
+        tickBd: on ? brand : "rgba(20,22,31,.18)",
+        tick: on ? OK_ICON("#fff") : null,
+        toggle: () => {
+          if (on) {
+            if (CL.length <= 1) return this.toast("Keep at least one currency.");
+            const next = CL.filter((x) => x !== c);
+            this.setState({ selCurs: next, mainCur: c === S.mainCur ? next[0] : S.mainCur, balCur: next.includes(S.balCur) ? S.balCur : next[0], extra: null });
+          } else {
+            if (CL.length >= 3) return this.toast("Three at a time. Unpick one first.");
+            this.setState({ selCurs: [...CL, c], extra: null });
+          }
+        },
+        canRemove: !BASE_CURS.includes(c),
+        remove: () => {
+          if (CL.includes(c)) return this.toast("Unpick it first.");
+          this.setState({ allCurs: S.allCurs.filter((x) => x !== c) });
+          this.toast(c + " removed.", "ok");
+        },
+      };
+    });
+
+    // categories
+    T.newCat = S.newCat;
+    T.onNewCat = (e) => this.setState({ newCat: e.target.value, formError: "", errField: "" });
+    T.addCat = () => {
+      const n = S.newCat.trim();
+      if (!n) return this.fail("cat", "Type a name first.");
+      if (n.length > 18) return this.fail("cat", "Keep it under 18 characters.");
+      if (S.cats.some((c) => c.toLowerCase() === n.toLowerCase())) return this.fail("cat", "You already have that one.");
+      this.setState({ cats: [...S.cats, n], newCat: "", formError: "", errField: "" });
+      this.toast(n + " added.", "ok");
+    };
+    T.catRows = S.cats.map((c, ix) => ({
+      name: c,
+      count: (freq[c] || 0) + " used",
+      line: ix === 0 ? "transparent" : "rgba(20,22,31,.055)",
+      remove: () => this.setState({
+        confirm: {
+          title: "Remove " + c + "?", body: "Expenses already filed under it keep their label.", cta: "Remove", danger: true,
+          yes: () => { this.setState({ cats: this.state.cats.filter((x) => x !== c) }); this.toast(c + " removed.", "ok"); },
+        },
+      }),
+    }));
+
+    // destructive + errors
+    T.askClear = () => {
+      if (!items.length) return this.toast("Nothing to delete.");
+      this.setState({
+        confirm: {
+          title: "Delete all expenses?", body: "All " + items.length + " of them, on every device. This cannot be undone.", cta: "Delete all", danger: true,
+          yes: () => this.freeze("Deleting everything", 1200, () => { this.setState({ items: [], cleared: true, screen: "home" }); this.toast("All expenses deleted.", "ok"); }),
+        },
+      });
+    };
+    T.askSignOut = () => this.setState({
+      confirm: {
+        title: "Sign out?", body: "You will need your password to get back in.", cta: "Sign out",
+        yes: () => this.freeze("Signing out", 1100, () => this.setState({ screen: "error" })),
+      },
+    });
+    T.retry = () => this.freeze("Trying again", 900, () => { this.setState({ screen: "signin", items: [], cleared: false, fEmail: "", fPass: "" }); this.toast("Signed out.", "ok"); });
+
+    // overlays
+    const c = S.confirm;
+    T.hasConfirm = !!c;
+    T.confirmTitle = c ? c.title : "";
+    T.confirmBody = c ? c.body : "";
+    T.confirmCta = c ? c.cta : "";
+    T.confirmBg = c && c.danger ? BAD : brand;
+    T.confirmNo = () => this.setState({ confirm: null });
+    T.confirmYes = () => { const y = c && c.yes; this.setState({ confirm: null }); if (y) y(); };
+
+    const to = S.toast;
+    T.hasToast = !!to;
+    T.toastText = to ? to.text : "";
+    T.toastBg = to && to.kind === "ok" ? "#14161f" : BAD;
+    T.toastIcon = to ? (to.kind === "ok" ? OK_ICON("#fff") : WARN_ICON("#fff")) : null;
+
+    T.busy = !!S.busy;
+    T.busyLabel = S.busy || "";
+
+    return T;
+  }
+}
+
+</script>
+</body>
+</html>

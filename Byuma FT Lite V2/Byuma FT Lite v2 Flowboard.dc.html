@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eae9f1;font-family:'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#3b45c9;text-decoration:none}a:hover{color:#2d35a8}
+</style>
+</helmet>
+<div style="padding:56px 56px 80px;background:#eae9f1;min-width:2160px">
+<div style="font:600 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#6b6f80">BYUMA FT LITE V2</div>
+<div style="font-family:'Instrument Serif',Georgia,serif;font-size:44px;line-height:1.1;margin-top:18px">Every screen</div>
+<div style="font:400 14px/1.5 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:12px;max-width:640px">Seventeen states, in the order a person meets them. Numbers pair with the developer spec.</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:56px 0 20px">1 · Getting in</div>
+<div style="display:flex;flex-wrap:wrap;gap:34px">
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="signup" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">1.1 Sign up</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Name, email, password (8+), or Google. Lands on an empty home with zero balance.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="signin" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">1.2 Sign in</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Returning user. Failures name the field and colour its border red.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="empty" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">1.3 Nothing recorded yet</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Recorder is live; the timeline and totals are replaced by one line of reassurance.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="error" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">1.4 Something broke</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Full-screen stop with two ways out. Also the post-sign-out state.</div>
+</div>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:56px 0 20px">2 · Recording</div>
+<div style="display:flex;flex-wrap:wrap;gap:34px">
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="home" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">2.1 Record an expense</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Amount, Cash / MoMo / Bank, what it was for, numpad, then the timeline below.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="cats" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">2.2 Categories</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">The chips above the numpad. Use count per category; removal keeps old labels.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="cleared" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">2.3 Everything deleted</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Distinct from 1.3 so a person can tell a wipe from a fresh start.</div>
+</div>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:56px 0 20px">3 · Balance and analytics</div>
+<div style="display:flex;flex-wrap:wrap;gap:34px">
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="stats" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">3.1 Analytics</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Currency tabs, Spendable, Must and Safety net, then month total, split, categories, six months.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="balance" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">3.2 Update balance</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">One total per picked currency, replacing the old ones, plus money from a fourth currency at an editable rate.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="limits" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">3.3 Limits</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Must (strict, red) and Safety net (flexible, violet) per currency, with a live spendable preview.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="currencies" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">3.4 Currencies</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Add a code, tick up to three, delete custom ones. Rates to the main currency listed per row.</div>
+</div>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:56px 0 20px">4 · Profile</div>
+<div style="display:flex;flex-wrap:wrap;gap:34px">
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="profile" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">4.1 Profile</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Account rows, main currency, three settings, data count, delete all, sign out.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="name" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">4.2 Change name</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Saves with a freeze, returns to profile, confirms by toast.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="email" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">4.3 Change email</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Current email shown, password confirms, then a confirm sheet.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="password" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">4.4 Change password</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Three fields and a strength meter: weak, fair, strong.</div>
+</div>
+</div>
+
+<div style="font:400 12.5px/1 'Instrument Sans',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#6b6f80;margin:56px 0 20px">5 · Warnings and freezes</div>
+<div style="display:flex;flex-wrap:wrap;gap:34px">
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="confirm" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">5.1 Confirm before it happens</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Deleting an expense or all of them, signing out, changing email or password.</div>
+</div>
+<div>
+<div style="width:412px;height:866px;overflow:hidden"><dc-import name="Byuma FT Lite v2" start-screen="busy" hint-size="412px,866px"></dc-import></div>
+<div style="font:500 13.5px/1 'Instrument Sans',system-ui,sans-serif;margin-top:16px">5.2 Frozen while it runs</div>
+<div style="font:400 12.5px/1.45 'Instrument Sans',system-ui,sans-serif;color:#4b4f5e;margin-top:7px;max-width:412px">Blocking veil with a spinner and a label. Nothing is tappable until it finishes.</div>
+</div>
+</div>
+</div>
+</x-dc>
+</body>
+</html>
