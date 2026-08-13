@@ -1,0 +1,194 @@
+/**
+ * Drives the built app on every phone we target and checks that nothing
+ * overflows sideways. Writes a screenshot per screen per device.
+ *
+ *   npm run build && node scripts/check-layout.mjs
+ */
+import { chromium } from 'playwright'
+import { mkdirSync } from 'node:fs'
+
+const BASE = process.env.APP_URL || 'http://localhost:4173'
+const OUT = process.env.SHOT_DIR || 'shots'
+
+const DEVICES = [
+  { name: 'tecno-spark-7t', width: 360, height: 800, dpr: 2 },
+  { name: 'iphone-14-pro', width: 393, height: 852, dpr: 3 },
+  { name: 'iphone-15-pro', width: 393, height: 852, dpr: 3 },
+  { name: 'iphone-17-pro-max', width: 440, height: 956, dpr: 3 },
+]
+
+mkdirSync(OUT, { recursive: true })
+
+const browser = await chromium.launch({
+  executablePath:
+    process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+})
+
+let failures = 0
+
+/** Anything wider than the phone, or any text spilling out of its box. */
+async function checkOverflow(page, device, screen) {
+  const problems = await page.evaluate((deviceWidth) => {
+    const out = []
+    const doc = document.documentElement
+    if (doc.scrollWidth > deviceWidth + 1) {
+      out.push(`page scrolls sideways: ${doc.scrollWidth}px > ${deviceWidth}px`)
+    }
+    for (const el of document.querySelectorAll('.phone *')) {
+      const r = el.getBoundingClientRect()
+      if (r.width === 0 || r.height === 0) continue
+      if (r.right > deviceWidth + 1 || r.left < -1) {
+        // A sideways scroller is allowed to hold wider content.
+        let p = el.parentElement
+        let inScroller = false
+        while (p) {
+          if (getComputedStyle(p).overflowX === 'auto') {
+            inScroller = true
+            break
+          }
+          p = p.parentElement
+        }
+        if (!inScroller) {
+          out.push(
+            `${el.className || el.tagName} sticks out: ${Math.round(r.left)}..${Math.round(r.right)}`,
+          )
+        }
+      }
+    }
+    return out.slice(0, 6)
+  }, device.width)
+
+  if (problems.length) {
+    failures++
+    console.log(`  ✗ ${screen}`)
+    for (const p of problems) console.log(`      ${p}`)
+  } else {
+    console.log(`  ✓ ${screen}`)
+  }
+}
+
+async function shoot(page, device, screen) {
+  await page.screenshot({ path: `${OUT}/${device.name}--${screen}.png` })
+  await checkOverflow(page, device, screen)
+}
+
+for (const device of DEVICES) {
+  console.log(`\n${device.name}  ${device.width}x${device.height} @${device.dpr}x`)
+  const ctx = await browser.newContext({
+    viewport: { width: device.width, height: device.height },
+    deviceScaleFactor: device.dpr,
+    isMobile: true,
+    hasTouch: true,
+  })
+  const page = await ctx.newPage()
+  page.on('pageerror', (e) => {
+    failures++
+    console.log(`  ! page error: ${e.message}`)
+  })
+
+  await page.goto(BASE, { waitUntil: 'networkidle' })
+  await page.evaluate(() => localStorage.clear())
+  await page.reload({ waitUntil: 'networkidle' })
+
+  // 1.1 Sign up
+  await page.waitForSelector('text=Track what you spend.')
+  await shoot(page, device, '1.1-signup')
+
+  await page.fill('input[placeholder="Name"]', 'Thierry')
+  await page.fill('input[placeholder="Email"]', 'thierry@gmail.com')
+  await page.fill('input[placeholder="Password"]', 'ubuzima2026')
+  await page.click('text=Create account')
+
+  // 1.3 Nothing recorded yet
+  await page.waitForSelector('text=No expenses yet', { timeout: 8000 })
+  await shoot(page, device, '1.3-empty')
+
+  // 2.1 Record an expense
+  for (const k of ['2', '4', '0', '0']) {
+    await page.click(`.key >> text="${k}"`)
+  }
+  await page.click('.method-btn >> text=MoMo')
+  await page.click('.chip >> text=Groceries')
+  await shoot(page, device, '2.1-typing')
+  await page.click('.cta')
+  await page.waitForSelector('text=Spent so far')
+
+  // a couple more so the charts have something to draw
+  for (const [amount, method] of [
+    ['850', 'Cash'],
+    ['12500', 'Bank'],
+  ]) {
+    for (const d of amount.split('')) await page.click(`.key >> text="${d}"`)
+    await page.click(`.method-btn >> text=${method}`)
+    await page.click('.cta')
+  }
+  await page.waitForTimeout(300)
+  await shoot(page, device, '2.1-home')
+
+  // the timeline lower down
+  await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 99999))
+  await page.waitForTimeout(200)
+  await shoot(page, device, '2.1-home-timeline')
+  await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 0))
+
+  // 3.1 Analytics
+  await page.click('.btn-analytics')
+  await page.waitForSelector('text=Where the money went')
+  await shoot(page, device, '3.1-stats')
+
+  // 3.2 Update balance
+  await page.click('text=Update balance')
+  await page.waitForSelector('text=What do you have now?')
+  await page.fill('input[aria-label="RWF total"]', '840000')
+  await page.fill('input[aria-label="TL total"]', '9600')
+  await page.fill('input[aria-label="USD total"]', '1240')
+  await shoot(page, device, '3.2-balance')
+  await page.click('.btn-save')
+  await page.waitForSelector('text=Where the money went', { timeout: 8000 })
+
+  // 3.3 Limits — set numbers that trigger the violet warning
+  await page.click('text=Limits')
+  await page.waitForSelector('text=Spendable after limits')
+  await page.fill('input[aria-label="Must"]', '460000')
+  await page.fill('input[aria-label="Safety net"]', '140000')
+  await shoot(page, device, '3.3-limits')
+  await page.click('.btn-save')
+  await page.waitForSelector('text=Where the money went', { timeout: 8000 })
+  await page.waitForTimeout(300)
+  await shoot(page, device, '3.1-stats-with-balance')
+
+  // 4.1 Profile
+  await page.click('button[aria-label="Profile"]')
+  await page.waitForSelector('text=Main currency')
+  await shoot(page, device, '4.1-profile')
+
+  // 3.4 Currencies
+  await page.click('.row-btn >> text=Currencies')
+  await page.waitForSelector('text=Rates are estimates. Edit any.')
+  await shoot(page, device, '3.4-currencies')
+  await page.click('button[aria-label="Back"]')
+
+  // 2.2 Categories
+  await page.click('.row-btn >> text=Categories')
+  await page.waitForSelector('input[placeholder="New category"]')
+  await shoot(page, device, '2.2-categories')
+  await page.click('button[aria-label="Back"]')
+
+  // 5.1 Confirm sheet
+  await page.click('text=Sign out')
+  await page.waitForSelector('text=You will need your password to get back in.')
+  await shoot(page, device, '5.1-confirm')
+  await page.click('.sheet-cancel')
+
+  // 4.4 Change password (the strength meter)
+  await page.click('.row-btn >> text=Password')
+  await page.fill('input[placeholder="New password"]', 'abc123!@#')
+  await shoot(page, device, '4.4-password')
+
+  await ctx.close()
+}
+
+await browser.close()
+
+console.log(failures ? `\n${failures} problem(s) found.` : '\nNo layout problems found.')
+process.exit(failures ? 1 : 0)

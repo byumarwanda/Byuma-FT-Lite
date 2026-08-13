@@ -1,0 +1,22 @@
+/* Every colour in the design language, and nothing else. */
+:root {
+  --ink: #14161f;
+  --ink-2: #4b4f5e;
+  --muted: #6b6f80;
+  --faint: #83869a;
+  --icon-faint: #9497a5;
+
+  --accent: #3b45c9;
+  --danger: #b4553a;
+  --flexible: #7b5ec7;
+  --good: #1f7a5c;
+  --fair: #c08a2e;
+
+  --canvas: #f5f4f9;
+  --surface: #fff;
+  --sunken: #faf9fc;
+  --key: #efeef6;
+
+  --hairline: rgba(20, 22, 31, 0.12);
+  --divider: rgba(20, 22, 31, 0.055);
+}
