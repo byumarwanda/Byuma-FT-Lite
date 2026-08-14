@@ -132,7 +132,7 @@ export function Stats({ app }: { app: App }) {
         )}
 
         <div className="card-footer">
-          <button type="button" className="card-footer-btn" onClick={app.goBalance}>
+          <button type="button" className="card-footer-btn" onClick={() => app.goBalance('stats')}>
             Update balance
             <ChevronRight />
           </button>

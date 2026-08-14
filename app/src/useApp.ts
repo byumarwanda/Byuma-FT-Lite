@@ -408,15 +408,21 @@ export function useApp() {
 
   /* ---------------- balance ---------------- */
 
-  const goBalance = useCallback(() => {
-    const next: Record<string, string> = {}
-    for (const c of selCurs) next[c] = data.balances[c] ? String(data.balances[c]) : ''
-    setFBal(next)
-    setExtra(null)
-    clearErr()
-    setScreen('balance')
-    setBack('stats')
-  }, [selCurs, data.balances, clearErr])
+  // `from` is where the back chevron returns to. Analytics is the usual way
+  // in, but the empty home screen also offers it to a person who has not set
+  // a balance yet.
+  const goBalance = useCallback(
+    (from: Screen = 'stats') => {
+      const next: Record<string, string> = {}
+      for (const c of selCurs) next[c] = data.balances[c] ? String(data.balances[c]) : ''
+      setFBal(next)
+      setExtra(null)
+      clearErr()
+      setScreen('balance')
+      setBack(from)
+    },
+    [selCurs, data.balances, clearErr],
+  )
 
   const goLimits = useCallback(() => {
     const lim = limitsFor(data.limits, activeCur)

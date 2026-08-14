@@ -45,8 +45,6 @@ export default function App() {
   return (
     <div className="shell">
       <div className="phone">
-        <div className="statusbar" />
-
         <div className="scroll">
           {chrome && (
             <TopBar

@@ -110,6 +110,16 @@ export const BarsIcon = () => (
   </svg>
 )
 
+/** Sits in the Analytics button's place before a balance has been set. */
+export const PlusSmallIcon = () => (
+  <svg
+    width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor"
+    strokeWidth="1.8" strokeLinecap="round"
+  >
+    <path d="M9 4v10M4 9h10" />
+  </svg>
+)
+
 export const CrossIcon = ({ size = 10 }) => (
   <svg
     width={size} height={size} viewBox="0 0 14 14" fill="none" stroke="currentColor"
