@@ -4,9 +4,11 @@ import {
   applyDeleteAll,
   applyEdit,
   applyRecord,
-  spendable,
+  p1Shortfall,
+  spendableNow,
 } from './calc'
-import type { Expense } from '../types'
+import { BASE_RATES } from './rates'
+import type { Expense, Plan } from '../types'
 
 const expense = (over: Partial<Expense> = {}): Expense => ({
   id: Math.random().toString(36),
@@ -83,20 +85,24 @@ describe('editing moves only the difference', () => {
 })
 
 describe('the whole picture', () => {
+  const plans: Plan[] = [
+    { id: 'p', name: 'Musts', amt: 460_000, cur: 'RWF', prio: 1, date: '' },
+  ]
+  const safety = { amt: 140_000, cur: 'RWF' }
+
   it('spending eats into the spendable amount', () => {
-    const limits = { must: 460_000, net: 140_000 }
     let bal: Record<string, number> = { RWF: 840_000 }
-    expect(spendable(bal.RWF, limits)).toBe(275_000)
+    // 840,000 − 460,000 − 98,000
+    expect(spendableNow(BASE_RATES, bal.RWF, plans, safety, [], 'RWF')).toBe(282_000)
 
     bal = applyRecord(bal, expense({ amount: 75_000 }))
-    expect(spendable(bal.RWF, limits)).toBe(200_000)
+    expect(spendableNow(BASE_RATES, bal.RWF, plans, safety, [], 'RWF')).toBe(207_000)
   })
 
-  it('spending enough turns the balance red against the must limit', () => {
-    const limits = { must: 460_000, net: 140_000 }
+  it('spending enough turns the balance red against the P1 plans', () => {
     let bal: Record<string, number> = { RWF: 500_000 }
     bal = applyRecord(bal, expense({ amount: 60_000 }))
     expect(bal.RWF).toBe(440_000)
-    expect(bal.RWF < limits.must).toBe(true)
+    expect(p1Shortfall(BASE_RATES, bal.RWF, plans, 'RWF')).toBe(20_000)
   })
 })

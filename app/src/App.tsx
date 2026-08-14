@@ -3,7 +3,7 @@ import { ConfirmSheet, Freeze, Toast, TopBar } from './components/ui'
 import { Forgot, SignIn, SignUp } from './screens/Auth'
 import { Home } from './screens/Home'
 import { Stats } from './screens/Stats'
-import { Balance, LimitsScreen } from './screens/Money'
+import { Balance, PlansScreen } from './screens/Money'
 import { Categories, Currencies } from './screens/Currencies'
 import {
   ChangeEmail,
@@ -24,7 +24,7 @@ const TITLES: Record<string, string> = {
   forgot: 'PASSWORD',
   curs: 'CURRENCIES',
   balance: 'BALANCE',
-  limits: 'LIMITS',
+  plans: 'PLANS',
 }
 
 export default function App() {
@@ -66,7 +66,7 @@ export default function App() {
           {screen === 'home' && <Home app={app} />}
           {screen === 'stats' && <Stats app={app} />}
           {screen === 'balance' && <Balance app={app} />}
-          {screen === 'limits' && <LimitsScreen app={app} />}
+          {screen === 'plans' && <PlansScreen app={app} />}
           {screen === 'curs' && <Currencies app={app} />}
           {screen === 'cats' && <Categories app={app} />}
           {screen === 'profile' && <Profile app={app} />}

@@ -91,28 +91,50 @@ its own. You do not have to correct it by hand.
 correct the app — for example after counting the real cash in your pocket.
 Whatever you type there replaces the old totals.
 
-**Limits** (Analytics → Limits) is where you protect money:
+**Plans** (Analytics → Plans) is where you protect money before it is
+spent. A plan is anything you know is coming: rent, school fees, a loan
+payment. Each one has a name, an amount, a currency, a priority and, if
+you like, a date:
 
-- **Must** — money that is already spoken for: rent, school fees, a loan.
-  **All of it** is taken off.
-- **Safety net** — a cushion. **Only 75% of it** is taken off, because in
-  real life a person dips into their cushion, and the app should not
-  pretend otherwise.
+- **P1 — certain.** All of its amount is set aside.
+- **P2 — likely.** Half is set aside.
+- **P3 — loose.** A fifth is set aside.
+
+Below the plans sits the **Safety net** — the money you want to remain
+with if every plan happened and the musts were done. **70% of it** is held
+back, because in real life a person dips into their cushion, and the app
+should not pretend otherwise.
+
+And below that, **Expected income** — money on its way to you: a salary,
+a client paying. Each row has a switch: flip it on and that money counts
+into what you can spend before it arrives; leave it off and the app waits
+until you actually have it.
 
 So:
 
 ```
-Spendable = Balance − Must − (75% of Safety net)
+Spendable = Balance
+          − (all of P1 + half of P2 + a fifth of P3)
+          − 70% of Safety net
+          + Expected income you count in
 ```
+
+The bottom of the Plans screen shows exactly this sum with your own
+numbers, so you can always see where the figure comes from.
 
 The app warns you in two ways:
 
-- **Red** — your balance has fallen below your Must limit. It tells you by
-  how much.
-- **Violet** — your Must is still covered, but you are eating into your
-  safety net.
+- **Red** — your balance cannot cover your P1 plans in full. It tells you
+  by how much. Expected income cannot save this: money that has not
+  arrived cannot pay a certain bill.
+- **Violet** — the P1s are covered, but you are eating into your safety
+  net.
 
 Never both at once.
+
+If you saved limits in an earlier version, nothing is lost: each old
+**Must** became a P1 plan called "Musts", and your old safety nets were
+pooled into the one safety net, in your main currency.
 
 **Exchange rates.** The app fetches today's rates from the internet when
 you open it. If you have no internet it keeps the last rates it saw. You
@@ -216,6 +238,15 @@ Two smaller adjustments you asked for during the build:
 - A small **Version** line sits at the very bottom of Profile, under
   Sign out. It shows the day the running version was published, so you can
   tell at a glance that an update has arrived.
+- **Limits grew into Plans** — named plans with P1/P2/P3 priorities, one
+  safety net (70% held back instead of the design's 75%), and expected
+  income you can count in. Section 2 has the current formula.
+- An **eye** beside "Spent so far" and "Spendable" hides every amount on
+  the home and analytics screens — the same switch as "Hide totals" in
+  Profile, so the toggle and the eye always agree.
+- The **phone's back button** steps back one screen — or closes whatever
+  sheet or form is open — instead of leaving the app. It only leaves from
+  the home or sign-in screen, the way a phone app should.
 
 ---
 

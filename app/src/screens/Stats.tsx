@@ -1,16 +1,9 @@
 import type { App } from '../useApp'
 import type { Method } from '../types'
-import {
-  monthIndex,
-  monthName,
-  overMust,
-  overNet,
-  spendable,
-  sumIn,
-  topCategories,
-} from '../lib/calc'
+import { monthIndex, monthName, sumIn, topCategories } from '../lib/calc'
+import { MINUS } from '../lib/money'
 import { ChevronRight, METHODS, MLABEL, WarnIcon } from '../components/icons'
-import { ACCENT, DANGER, VIOLET, pick } from '../components/ui'
+import { ACCENT, DANGER, HideEye, VIOLET, pick } from '../components/ui'
 
 const MIXCOL: Record<Method, string> = {
   cash: ACCENT,
@@ -27,17 +20,7 @@ export function CurrencyTabs({ app, flush }: { app: App; flush?: boolean }) {
           type="button"
           className="cur-tab"
           style={pick(c === app.activeCur, '#fff', '#4b4f5e')}
-          onClick={() => {
-            app.setBalCur(c)
-            if (app.screen === 'limits') {
-              const lim = app.data.limits[c] ?? { must: 0, net: 0 }
-              app.setFLim({
-                must: lim.must ? String(lim.must) : '',
-                net: lim.net ? String(lim.net) : '',
-              })
-              app.clearErr()
-            }
-          }}
+          onClick={() => app.setBalCur(c)}
         >
           {c}
         </button>
@@ -47,18 +30,23 @@ export function CurrencyTabs({ app, flush }: { app: App; flush?: boolean }) {
 }
 
 export function Stats({ app }: { app: App }) {
-  const { data, activeCur, balance, limits, mainCur } = app
+  const { data, activeCur, balance, plansOff, safetyOff, incomeIn, spend, mainCur } = app
   const rates = data.rates
   const items = data.items
 
-  const spend = spendable(balance, limits)
-  const red = overMust(balance, limits)
-  const violet = overNet(balance, limits)
+  const red = app.shortfall > 0
+  const violet = !red && spend < 0
+
+  // "Hide totals" masks the money, not the structure.
+  const m = (s: string) => (app.hidden ? '••••••' : s)
 
   const cells = [
-    { label: 'Balance', value: balance, color: '#4b4f5e' },
-    { label: 'Must', value: limits.must, color: DANGER },
-    { label: 'Safety net', value: limits.net, color: VIOLET },
+    { label: 'Balance', text: app.fmtIn(balance, activeCur), color: '#4b4f5e' },
+    { label: 'Plans', text: MINUS + ' ' + app.fmtIn(plansOff, activeCur), color: DANGER },
+    { label: 'Safety net', text: MINUS + ' ' + app.fmtIn(safetyOff, activeCur), color: VIOLET },
+    ...(incomeIn > 0
+      ? [{ label: 'Income counted', text: '+ ' + app.fmtIn(incomeIn, activeCur), color: ACCENT }]
+      : []),
   ]
 
   const thisMonth = monthIndex(Date.now())
@@ -95,12 +83,15 @@ export function Stats({ app }: { app: App }) {
 
       {/* ---------------- the balance card ---------------- */}
       <div className="card card-balance">
-        <div className="label-sm">Spendable</div>
+        <div className="label-eye">
+          <span className="label-sm">Spendable</span>
+          <HideEye hidden={app.hidden} onToggle={app.toggleHide} />
+        </div>
         <div
           className="figure-42"
           style={{ color: red ? DANGER : violet ? VIOLET : '#14161f' }}
         >
-          {app.fmtIn(spend, activeCur)}
+          {m(app.fmtIn(spend, activeCur))}
         </div>
 
         <div className="bal-rows">
@@ -108,7 +99,7 @@ export function Stats({ app }: { app: App }) {
             <div className="bal-row" key={b.label}>
               <span className="dot-7" style={{ background: b.color }} />
               <span className="bal-label">{b.label}</span>
-              <span className="bal-value">{app.fmtIn(b.value, activeCur)}</span>
+              <span className="bal-value">{m(b.text)}</span>
             </div>
           ))}
         </div>
@@ -123,10 +114,10 @@ export function Stats({ app }: { app: App }) {
             </span>
             <span style={{ color: red ? DANGER : VIOLET }}>
               {red
-                ? 'Under your must limit by ' +
-                  app.fmtIn(limits.must - balance, activeCur) +
-                  '.'
-                : 'Safety net is thin.'}
+                ? 'Under your P1 plans by ' + app.fmtIn(app.shortfall, activeCur) + '.'
+                : safetyOff > 0
+                  ? 'Eating into your safety net.'
+                  : 'Your plans leave nothing spare.'}
             </span>
           </div>
         )}
@@ -137,8 +128,8 @@ export function Stats({ app }: { app: App }) {
             <ChevronRight />
           </button>
           <span className="card-footer-divider" />
-          <button type="button" className="card-footer-btn" onClick={app.goLimits}>
-            Limits
+          <button type="button" className="card-footer-btn" onClick={app.goPlans}>
+            Plans
             <ChevronRight />
           </button>
         </div>
@@ -147,7 +138,7 @@ export function Stats({ app }: { app: App }) {
       {/* ---------------- this month ---------------- */}
       <div className="card card-month">
         <div className="label-sm">This month</div>
-        <div className="figure-42">{app.fmt(monthTotal)}</div>
+        <div className="figure-42">{m(app.fmt(monthTotal))}</div>
       </div>
 
       {/* ---------------- how you paid ---------------- */}
@@ -165,7 +156,7 @@ export function Stats({ app }: { app: App }) {
               <div className="paid-head">
                 <span className="dot-9" style={{ background: MIXCOL[k] }} />
                 <span className="paid-label">{label}</span>
-                <span className="paid-sum">{app.fmt(v)}</span>
+                <span className="paid-sum">{app.priv(app.fmt(v))}</span>
                 <span className="paid-pct">{pct}</span>
               </div>
               <div className="track-8">
@@ -183,7 +174,7 @@ export function Stats({ app }: { app: App }) {
           <div className="paid-row" key={c.name}>
             <div className="cat-head">
               <span className="cat-name">{c.name}</span>
-              <span className="cat-sum">{app.fmt(c.value)}</span>
+              <span className="cat-sum">{app.priv(app.fmt(c.value))}</span>
             </div>
             <div className="track-7">
               <span
@@ -204,7 +195,7 @@ export function Stats({ app }: { app: App }) {
           {months.map((m) => (
             <div className="month" key={m.mi}>
               <span className="month-figure">
-                {m.mi === thisMonth && m.v ? app.fmt(m.v) : ''}
+                {m.mi === thisMonth && m.v ? app.priv(app.fmt(m.v)) : ''}
               </span>
               <span
                 className="month-bar"

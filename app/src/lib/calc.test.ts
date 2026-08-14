@@ -2,18 +2,21 @@ import { describe, expect, it } from 'vitest'
 import {
   amountIn,
   byDay,
+  countedIncome,
   dayLabel,
   dayOffset,
-  overMust,
-  overNet,
-  spendable,
+  intoSafety,
+  p1Shortfall,
+  plansTake,
+  safetyTake,
+  shortDate,
+  spendableNow,
   sumIn,
   topCategories,
   totalBalance,
-  totalLimits,
 } from './calc'
 import { BASE_RATES, convert, estRate, withRate } from './rates'
-import type { Expense } from '../types'
+import type { Expense, Income, Plan } from '../types'
 
 const DAY = 864e5
 
@@ -27,47 +30,121 @@ const expense = (over: Partial<Expense> = {}): Expense => ({
   ...over,
 })
 
+const plan = (over: Partial<Plan> = {}): Plan => ({
+  id: Math.random().toString(36),
+  name: 'Rent',
+  amt: 1000,
+  cur: 'RWF',
+  prio: 1,
+  date: '',
+  ...over,
+})
+
+const income = (over: Partial<Income> = {}): Income => ({
+  id: Math.random().toString(36),
+  name: 'Salary',
+  amt: 1000,
+  cur: 'RWF',
+  date: '',
+  counted: false,
+  ...over,
+})
+
+const NO_SAFETY = { amt: 0, cur: 'RWF' }
+
 describe('spendable', () => {
-  it('takes all of the must and three quarters of the safety net', () => {
-    // The design's own numbers: 840,000 − 460,000 − 0.75 × 140,000 = 275,000
-    expect(spendable(840_000, { must: 460_000, net: 140_000 })).toBe(275_000)
+  it('sets aside all of a P1, half of a P2, a fifth of a P3', () => {
+    const plans = [
+      plan({ amt: 100_000, prio: 1 }),
+      plan({ amt: 60_000, prio: 2 }),
+      plan({ amt: 50_000, prio: 3 }),
+    ]
+    // 100,000 + 30,000 + 10,000
+    expect(plansTake(BASE_RATES, plans, 'RWF')).toBe(140_000)
+    expect(spendableNow(BASE_RATES, 840_000, plans, NO_SAFETY, [], 'RWF')).toBe(700_000)
   })
 
-  it('is just the balance when no limits are set', () => {
-    expect(spendable(5000, { must: 0, net: 0 })).toBe(5000)
+  it('holds back 70% of the safety net', () => {
+    const safety = { amt: 140_000, cur: 'RWF' }
+    expect(safetyTake(BASE_RATES, safety, 'RWF')).toBe(98_000)
+    expect(spendableNow(BASE_RATES, 840_000, [], safety, [], 'RWF')).toBe(742_000)
+  })
+
+  it('adds expected income only when its switch is on', () => {
+    const incomes = [
+      income({ amt: 50_000, counted: true }),
+      income({ amt: 999_999, counted: false }),
+    ]
+    expect(countedIncome(BASE_RATES, incomes, 'RWF')).toBe(50_000)
+    expect(spendableNow(BASE_RATES, 100_000, [], NO_SAFETY, incomes, 'RWF')).toBe(150_000)
+  })
+
+  it('converts plans, safety and income across currencies', () => {
+    // 1 USD = 1420 RWF
+    expect(plansTake(BASE_RATES, [plan({ amt: 100, cur: 'USD' })], 'RWF')).toBe(142_000)
+    expect(safetyTake(BASE_RATES, { amt: 10, cur: 'USD' }, 'RWF')).toBe(9940)
+    expect(
+      countedIncome(BASE_RATES, [income({ amt: 1, cur: 'USD', counted: true })], 'RWF'),
+    ).toBe(1420)
+  })
+
+  it('is just the balance when nothing is set', () => {
+    expect(spendableNow(BASE_RATES, 5000, [], NO_SAFETY, [], 'RWF')).toBe(5000)
   })
 })
 
 describe('the two warnings', () => {
-  it('goes red when the balance is under the must limit', () => {
-    const lim = { must: 500, net: 100 }
-    expect(overMust(400, lim)).toBe(true)
-    expect(overNet(400, lim)).toBe(false)
+  it('goes red when the balance cannot cover the P1 plans in full', () => {
+    const plans = [plan({ amt: 500, prio: 1 })]
+    expect(p1Shortfall(BASE_RATES, 400, plans, 'RWF')).toBe(100)
+    expect(intoSafety(BASE_RATES, 400, plans, NO_SAFETY, [], 'RWF')).toBe(false)
   })
 
-  it('goes violet when only the safety net is breached', () => {
-    const lim = { must: 300, net: 200 }
-    // 400 − 300 − 150 = −50, but the balance still covers the must
-    expect(overMust(400, lim)).toBe(false)
-    expect(overNet(400, lim)).toBe(true)
+  it('leaves P2 and P3 out of the red warning', () => {
+    const plans = [plan({ amt: 900, prio: 2 }), plan({ amt: 900, prio: 3 })]
+    expect(p1Shortfall(BASE_RATES, 400, plans, 'RWF')).toBe(0)
+  })
+
+  it('income that has not arrived cannot pay a P1', () => {
+    const plans = [plan({ amt: 500, prio: 1 })]
+    const incomes = [income({ amt: 10_000, counted: true })]
+    // spendable rises with the counted income, but the red warning stands
+    expect(spendableNow(BASE_RATES, 400, plans, NO_SAFETY, incomes, 'RWF')).toBe(9900)
+    expect(p1Shortfall(BASE_RATES, 400, plans, 'RWF')).toBe(100)
+  })
+
+  it('goes violet when only the cushion is eaten into', () => {
+    const plans = [plan({ amt: 300, prio: 1 })]
+    const safety = { amt: 200, cur: 'RWF' }
+    // 400 − 300 − 140 = −40: the P1 is covered, the cushion is not
+    expect(p1Shortfall(BASE_RATES, 400, plans, 'RWF')).toBe(0)
+    expect(intoSafety(BASE_RATES, 400, plans, safety, [], 'RWF')).toBe(true)
   })
 
   it('shows neither when there is money left', () => {
-    const lim = { must: 100, net: 100 }
-    expect(overMust(1000, lim)).toBe(false)
-    expect(overNet(1000, lim)).toBe(false)
+    const plans = [plan({ amt: 100, prio: 1 })]
+    const safety = { amt: 100, cur: 'RWF' }
+    expect(p1Shortfall(BASE_RATES, 1000, plans, 'RWF')).toBe(0)
+    expect(intoSafety(BASE_RATES, 1000, plans, safety, [], 'RWF')).toBe(false)
   })
 
-  it('never shows both colours at once', () => {
-    for (const [bal, must, net] of [
-      [0, 100, 100],
-      [400, 300, 200],
-      [1000, 100, 100],
-      [100, 100, 100],
-    ]) {
-      const lim = { must, net }
-      expect(overMust(bal, lim) && overNet(bal, lim)).toBe(false)
+  it('never shows both at once', () => {
+    const plans = [plan({ amt: 300, prio: 1 })]
+    const safety = { amt: 200, cur: 'RWF' }
+    for (const bal of [0, 100, 340, 400, 1000]) {
+      const red = p1Shortfall(BASE_RATES, bal, plans, 'RWF') > 0
+      const violet = intoSafety(BASE_RATES, bal, plans, safety, [], 'RWF')
+      expect(red && violet).toBe(false)
     }
+  })
+})
+
+describe('short dates', () => {
+  it('shows day and month, with the year only when it is another year', () => {
+    const y = new Date().getFullYear()
+    expect(shortDate(y + '-09-12')).toBe('12 Sep')
+    expect(shortDate('2030-01-05')).toBe('5 Jan 2030')
+    expect(shortDate('')).toBe('')
   })
 })
 
@@ -201,26 +278,12 @@ describe('the ultimate total', () => {
     expect(totalBalance(BASE_RATES, { RWF: 500 }, ['RWF', 'USD'], 'RWF')).toBe(500)
   })
 
-  it('sums the limits across currencies too', () => {
-    const limits = {
-      RWF: { must: 460_000, net: 140_000 },
-      USD: { must: 100, net: 200 },
-    }
-    const whole = totalLimits(BASE_RATES, limits, ['RWF', 'USD'], 'RWF')
-    expect(whole.must).toBe(460_000 + 142_000)
-    expect(whole.net).toBe(140_000 + 284_000)
-  })
-
   it('drives spendable off the whole pot, not one currency', () => {
-    const limits = {
-      RWF: { must: 460_000, net: 140_000 },
-      TL: { must: 0, net: 0 },
-      USD: { must: 0, net: 0 },
-    }
+    const plans = [plan({ amt: 460_000, cur: 'RWF', prio: 1 })]
+    const safety = { amt: 140_000, cur: 'RWF' }
     const bal = totalBalance(BASE_RATES, balances, codes, 'RWF')
-    const lim = totalLimits(BASE_RATES, limits, codes, 'RWF')
-    // 2,927,200 − 460,000 − 105,000
-    expect(spendable(bal, lim)).toBe(2_362_200)
+    // 2,927,200 − 460,000 − 98,000
+    expect(spendableNow(BASE_RATES, bal, plans, safety, [], 'RWF')).toBe(2_369_200)
   })
 
   it('follows an edited rate', () => {
