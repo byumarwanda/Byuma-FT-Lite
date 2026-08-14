@@ -109,26 +109,64 @@ box. Once you type a rate yourself, the app will not overwrite it.
 
 ---
 
-## 3. Where your information is kept
+## 3. Signing in
+
+Three ways in, and one way back if you forget.
+
+**Your password.** What you set when you created the account. The eye at the
+right of any password box shows what you have typed, so you are never
+guessing on a phone keyboard.
+
+**Your phone's fingerprint, face or PIN.** Go to **Profile → Security** and
+turn on **Unlock with your phone**. After that the sign-in screen offers
+*Unlock as <your name>* and you are in with one tap — no typing. Your
+fingerprint never leaves your phone; the app only ever learns whether your
+phone said yes.
+
+**If you forget your password.** Tap **Forgot your password?** on the sign-in
+screen.
+
+- If you turned on phone unlock, confirm with your fingerprint, face or PIN
+  and you can set a new password straight away. Your expenses are untouched.
+- If you did not, nothing on the phone can prove who you are — there is no
+  email server behind this app to send a reset link to. The only honest
+  option left is to erase that account and start over, which deletes its
+  expenses. The app says so plainly before it does anything.
+
+**So turn on phone unlock early.** It is both the fast way in and the only
+way back if the password goes.
+
+---
+
+## 4. Where your information is kept
 
 Everything is stored **inside your own phone**. Nothing is uploaded
 anywhere and nobody else can see it. Your password is not stored — only a
 scrambled version of it that cannot be turned back into your password.
 
-Two things to know:
+Be clear-eyed about what the lock does: it keeps the app shut, not the file.
+Your expenses sit in ordinary browser storage on the phone, unencrypted, so
+somebody who knows their way around a browser's developer tools could read
+them. The password and the phone unlock guard the app, not the data at rest.
+For a personal expense tracker on your own phone that is a fair trade; it is
+not a safe.
+
+Three things to know:
 
 - Your expenses **do not follow you to a second phone**. Each phone keeps
   its own. Your friends each get their own private account on their own
   phone.
 - If you **clear your browser data** for this site, or delete the app and
   choose to clear its data, your expenses go with it.
+- **Phone unlock only works on the phone you set it up on.** It is tied to
+  that handset, so it cannot let you in from a different one.
 
 If you later want your account to work on any phone, with a real backup,
 that needs an online service behind it. Tell me and I will add it.
 
 ---
 
-## 4. Where the design was not followed exactly
+## 5. Where the design was not followed exactly
 
 Three deliberate changes. Everything else matches the designs.
 
@@ -158,7 +196,7 @@ Two smaller adjustments you asked for during the build:
 
 ---
 
-## 5. How it fits different phones
+## 6. How it fits different phones
 
 The design was drawn on a 390px-wide screen. Every single measurement —
 margins, padding, corner radius, text size — is stored as a fraction of
@@ -178,13 +216,13 @@ and sits in the middle of the window.
 
 ---
 
-## 6. For a developer
+## 7. For a developer
 
 ```bash
 cd app
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 42 unit tests over the money engine
+npm test             # 56 unit tests over the money engine
 npm run build        # production build into app/dist
 ```
 
@@ -213,6 +251,7 @@ app/src/
   lib/rates.ts      the rate table, live FX fetch, conversion
   lib/calc.ts       spendable, the warnings, balance arithmetic, aggregates
   lib/crypto.ts     PBKDF2 password hashing
+  lib/passkey.ts    unlocking with the phone's own fingerprint/face/PIN
   lib/storage.ts    accounts, session and per-account data in localStorage
   useApp.ts         all state and every action
   screens/          one file per group of screens

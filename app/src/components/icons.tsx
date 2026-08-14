@@ -120,6 +120,37 @@ export const PlusSmallIcon = () => (
   </svg>
 )
 
+export const EyeIcon = () => (
+  <svg
+    width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+    strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+  >
+    <path d="M1.6 10S4.6 4.6 10 4.6 18.4 10 18.4 10 15.4 15.4 10 15.4 1.6 10 1.6 10z" />
+    <circle cx="10" cy="10" r="2.4" />
+  </svg>
+)
+
+export const EyeOffIcon = () => (
+  <svg
+    width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+    strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+  >
+    <path d="M7.9 5a7.8 7.8 0 0 1 2.1-.3c5.4 0 8.4 5.3 8.4 5.3a14 14 0 0 1-2.4 3M4.8 6.3A14 14 0 0 0 1.6 10S4.6 15.4 10 15.4c1.3 0 2.4-.3 3.4-.8" />
+    <path d="M8.3 8.3a2.4 2.4 0 0 0 3.4 3.4M3 3l14 14" />
+  </svg>
+)
+
+/** The phone's own unlock — fingerprint, face or PIN. */
+export const UnlockIcon = () => (
+  <svg
+    width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor"
+    strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+  >
+    <path d="M10 2.5c-2.6 0-4.7 2.1-4.7 4.7v2.4M14.7 8.4V7.2a4.7 4.7 0 0 0-1.4-3.3" />
+    <path d="M5.3 12.3c0 3 2.1 5.2 4.7 5.2M10 9.1v4.3M12.6 11v2.4a4 4 0 0 1-.6 2.1" />
+  </svg>
+)
+
 export const CrossIcon = ({ size = 10 }) => (
   <svg
     width={size} height={size} viewBox="0 0 14 14" fill="none" stroke="currentColor"

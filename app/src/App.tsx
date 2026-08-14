@@ -1,6 +1,6 @@
 import { useApp } from './useApp'
 import { ConfirmSheet, Freeze, Toast, TopBar } from './components/ui'
-import { SignIn, SignUp } from './screens/Auth'
+import { Forgot, SignIn, SignUp } from './screens/Auth'
 import { Home } from './screens/Home'
 import { Stats } from './screens/Stats'
 import { Balance, LimitsScreen } from './screens/Money'
@@ -21,6 +21,7 @@ const TITLES: Record<string, string> = {
   email: 'EMAIL',
   password: 'PASSWORD',
   cats: 'CATEGORIES',
+  forgot: 'PASSWORD',
   curs: 'CURRENCIES',
   balance: 'BALANCE',
   limits: 'LIMITS',
@@ -40,7 +41,8 @@ export default function App() {
     )
   }
 
-  const chrome = screen !== 'signup' && screen !== 'signin' && screen !== 'error'
+  const chrome =
+    screen !== 'signup' && screen !== 'signin' && screen !== 'error'
 
   return (
     <div className="shell">
@@ -60,6 +62,7 @@ export default function App() {
 
           {screen === 'signup' && <SignUp app={app} />}
           {screen === 'signin' && <SignIn app={app} />}
+          {screen === 'forgot' && <Forgot app={app} />}
           {screen === 'home' && <Home app={app} />}
           {screen === 'stats' && <Stats app={app} />}
           {screen === 'balance' && <Balance app={app} />}

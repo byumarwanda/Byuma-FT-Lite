@@ -9,6 +9,9 @@ import { BASE_CURS, BASE_RATES } from './rates'
 
 const K_ACCOUNTS = 'byuma.accounts.v1'
 const K_SESSION = 'byuma.session.v1'
+// Who signed in last on this phone, so the sign-in screen can offer to
+// unlock with the phone instead of asking for the password.
+const K_LAST = 'byuma.last.v1'
 const K_DATA = 'byuma.data.v1.'
 
 function read<T>(key: string, fallback: T): T {
@@ -126,6 +129,24 @@ export function saveSession(id: string | null): void {
     return
   }
   write(K_SESSION, id)
+}
+
+export function loadLastAccountId(): string | null {
+  return read<string | null>(K_LAST, null)
+}
+
+export function saveLastAccountId(id: string): void {
+  write(K_LAST, id)
+}
+
+export function removeAccount(accountId: string): void {
+  saveAccounts(loadAccounts().filter((a) => a.id !== accountId))
+  try {
+    localStorage.removeItem(K_DATA + accountId)
+    if (loadLastAccountId() === accountId) localStorage.removeItem(K_LAST)
+  } catch {
+    /* ignore */
+  }
 }
 
 export function loadData(accountId: string): UserData {

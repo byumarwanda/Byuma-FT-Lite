@@ -3,6 +3,8 @@ import type { ConfirmState, ToastState } from '../types'
 import {
   ChevronLeft,
   ErrorIcon,
+  EyeIcon,
+  EyeOffIcon,
   OkIcon,
   PersonIcon,
   WarnIcon,
@@ -97,6 +99,52 @@ export function TopBar({
           <PersonIcon />
         </button>
       )}
+    </div>
+  )
+}
+
+/**
+ * A password field with an eye to reveal what has been typed. Typing a
+ * password blind on a phone keyboard is where most sign-in failures come
+ * from, so every password field in the app uses this.
+ */
+export function PasswordField({
+  value,
+  onChange,
+  placeholder,
+  autoComplete,
+  borderColor,
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+  autoComplete: string
+  borderColor: string
+}) {
+  const [shown, setShown] = useState(false)
+  return (
+    <div className="field-wrap">
+      <input
+        className="field"
+        type={shown ? 'text' : 'password'}
+        autoComplete={autoComplete}
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ borderColor }}
+      />
+      <button
+        type="button"
+        className="reveal"
+        aria-label={shown ? 'Hide password' : 'Show password'}
+        aria-pressed={shown}
+        onClick={() => setShown((v) => !v)}
+      >
+        {shown ? <EyeOffIcon /> : <EyeIcon />}
+      </button>
     </div>
   )
 }

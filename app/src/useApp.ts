@@ -22,16 +22,20 @@ import {
   totalLimits,
 } from './lib/calc'
 import { hashPassword, verifyPassword } from './lib/crypto'
+import { passkeyAvailable, registerPasskey, verifyPasskey } from './lib/passkey'
 import {
   findAccount,
   freshData,
   loadAccounts,
   loadData,
+  loadLastAccountId,
   loadSession,
   newId,
   rememberCategory,
+  removeAccount,
   saveAccounts,
   saveData,
+  saveLastAccountId,
   saveSession,
 } from './lib/storage'
 
@@ -42,6 +46,9 @@ const FREEZE = {
   saveName: 700,
   saveEmail: 900,
   savePassword: 1000,
+  unlock: 700,
+  resetPassword: 900,
+  erase: 1200,
   saveBalance: 800,
   saveLimits: 700,
   deleteOne: 600,
@@ -100,6 +107,13 @@ export function useApp() {
   const [eNote, setENote] = useState('')
   const [eMethod, setEMethod] = useState<Method>('cash')
 
+  // unlocking with the phone
+  const [canUsePhone, setCanUsePhone] = useState(false)
+  const [lastAccount, setLastAccount] = useState<Account | null>(null)
+  // the account being recovered on the forgot-password screen
+  const [recovering, setRecovering] = useState<Account | null>(null)
+  const [recovered, setRecovered] = useState(false)
+
   const toastT = useRef<number | undefined>(undefined)
   const busyT = useRef<number | undefined>(undefined)
 
@@ -129,6 +143,12 @@ export function useApp() {
         saveSession(null)
       }
     }
+    const lastId = loadLastAccountId()
+    if (lastId) {
+      const remembered = loadAccounts().find((a) => a.id === lastId)
+      if (remembered) setLastAccount(remembered)
+    }
+    void passkeyAvailable().then(setCanUsePhone)
     setReady(true)
   }, [])
 
@@ -248,6 +268,7 @@ export function useApp() {
     saveAccounts([...loadAccounts(), acc])
     saveData(acc.id, fresh)
     saveSession(acc.id)
+    saveLastAccountId(acc.id)
 
     freeze('Creating your account', FREEZE.signup, () => {
       setAccount(acc)
@@ -271,6 +292,8 @@ export function useApp() {
 
     const d = loadData(acc.id)
     saveSession(acc.id)
+    saveLastAccountId(acc.id)
+    setLastAccount(acc)
     freeze('Signing in', FREEZE.signin, () => {
       setAccount(acc)
       setData(d)
@@ -288,6 +311,9 @@ export function useApp() {
       cta: 'Sign out',
       yes: () =>
         freeze('Signing out', FREEZE.signOut, () => {
+          // lastAccount is already what it should be, set on sign-in and kept
+          // current by enabling or disabling phone unlock. Do not touch it
+          // here — signing out must not forget who to offer the unlock for.
           saveSession(null)
           setAccount(null)
           setData(freshData())
@@ -298,6 +324,139 @@ export function useApp() {
         }),
     })
   }, [freeze, resetForms, showToast])
+
+  /* ---------------- unlocking with the phone ---------------- */
+
+  /** Sign in straight from the phone's own fingerprint, face or PIN. */
+  const unlockWithPhone = useCallback(async () => {
+    if (!lastAccount?.passkeyId) return
+    const ok = await verifyPasskey(lastAccount.passkeyId)
+    if (!ok) return fail('pass', 'That did not match. Use your password instead.')
+    const d = loadData(lastAccount.id)
+    saveSession(lastAccount.id)
+    freeze('Signing in', FREEZE.unlock, () => {
+      setAccount(lastAccount)
+      setData(d)
+      setBalCur(d.selCurs.includes(d.mainCur) ? d.mainCur : d.selCurs[0])
+      setScreen('home')
+      resetForms()
+      showToast('Signed in.', 'ok')
+    })
+  }, [lastAccount, fail, freeze, resetForms, showToast])
+
+  /** Ask the phone to remember this account, from Profile. */
+  const enablePhoneUnlock = useCallback(async () => {
+    if (!account) return
+    const id = await registerPasskey(account.id, account.email, account.name)
+    if (!id) return showToast('Your phone did not confirm it.')
+    const updated = { ...account, passkeyId: id }
+    saveAccounts(loadAccounts().map((a) => (a.id === account.id ? updated : a)))
+    setAccount(updated)
+    setLastAccount(updated)
+    showToast('Phone unlock is on.', 'ok')
+  }, [account, showToast])
+
+  const disablePhoneUnlock = useCallback(() => {
+    if (!account) return
+    setConfirm({
+      title: 'Turn off phone unlock?',
+      body: 'You will need your password to sign in, and to reset it if you forget.',
+      cta: 'Turn off',
+      yes: () => {
+        const updated = { ...account, passkeyId: undefined }
+        saveAccounts(loadAccounts().map((a) => (a.id === account.id ? updated : a)))
+        setAccount(updated)
+        setLastAccount(updated)
+        showToast('Phone unlock is off.', 'ok')
+      },
+    })
+  }, [account, showToast])
+
+  /* ---------------- forgot password ---------------- */
+
+  const goForgot = useCallback(() => {
+    // Carry over whatever was typed on the sign-in screen.
+    const typed = fEmail.trim()
+    setRecovering(typed ? (findAccount(typed) ?? null) : lastAccount)
+    setRecovered(false)
+    setScreen('forgot')
+    setBack('signin')
+    setFPass('')
+    setFNew('')
+    setFNew2('')
+    clearErr()
+  }, [fEmail, lastAccount, clearErr])
+
+  /** Look up the account whose password is being reset. */
+  const findForRecovery = useCallback(() => {
+    if (!emailOk(fEmail)) return fail('email', 'That email does not look right.')
+    const acc = findAccount(fEmail)
+    if (!acc) return fail('email', 'No account on this phone uses that email.')
+    setRecovering(acc)
+    clearErr()
+  }, [fEmail, fail, clearErr])
+
+  /** Prove who you are with the phone, which unlocks the new-password fields. */
+  const proveWithPhone = useCallback(async () => {
+    if (!recovering?.passkeyId) return
+    const ok = await verifyPasskey(recovering.passkeyId)
+    if (!ok) return fail('pass', 'That did not match. Try again.')
+    setRecovered(true)
+    clearErr()
+  }, [recovering, fail, clearErr])
+
+  const resetPassword = useCallback(async () => {
+    if (!recovering || !recovered) return
+    if (fNew.length < 8) return fail('new', 'New password needs 8 characters.')
+    if (fNew !== fNew2) return fail('new2', 'The two new passwords do not match.')
+    const creds = await hashPassword(fNew)
+    const updated = { ...recovering, ...creds }
+    saveAccounts(loadAccounts().map((a) => (a.id === recovering.id ? updated : a)))
+    const d = loadData(updated.id)
+    saveSession(updated.id)
+    saveLastAccountId(updated.id)
+    freeze('Saving', FREEZE.resetPassword, () => {
+      setAccount(updated)
+      setLastAccount(updated)
+      setData(d)
+      setBalCur(d.selCurs.includes(d.mainCur) ? d.mainCur : d.selCurs[0])
+      setRecovering(null)
+      setRecovered(false)
+      setScreen('home')
+      resetForms()
+      showToast('Password changed.', 'ok')
+    })
+  }, [recovering, recovered, fNew, fNew2, fail, freeze, resetForms, showToast])
+
+  /**
+   * The last resort when there is no phone unlock to prove anything with.
+   * Nothing can verify the person, so the only honest option is to start the
+   * account over — and to be blunt that the expenses go with it.
+   */
+  const eraseAndStartOver = useCallback(() => {
+    if (!recovering) return
+    setConfirm({
+      title: 'Erase and start over?',
+      body:
+        'Every expense saved under ' +
+        recovering.email +
+        ' on this phone is deleted. This cannot be undone.',
+      cta: 'Erase',
+      danger: true,
+      yes: () =>
+        freeze('Erasing', FREEZE.erase, () => {
+          removeAccount(recovering.id)
+          setRecovering(null)
+          setRecovered(false)
+          setLastAccount(null)
+          setAccount(null)
+          setData(freshData())
+          setScreen('signup')
+          resetForms()
+          showToast('Account erased.', 'ok')
+        }),
+    })
+  }, [recovering, freeze, resetForms, showToast])
 
   /* ---------------- recorder ---------------- */
 
@@ -766,6 +925,10 @@ export function useApp() {
     eMethod,
     catFreq,
     orderedCats,
+    canUsePhone,
+    lastAccount,
+    recovering,
+    recovered,
 
     // setters
     setAmt,
@@ -803,6 +966,14 @@ export function useApp() {
     signUp,
     signIn,
     askSignOut,
+    unlockWithPhone,
+    enablePhoneUnlock,
+    disablePhoneUnlock,
+    goForgot,
+    findForRecovery,
+    proveWithPhone,
+    resetPassword,
+    eraseAndStartOver,
     record,
     askDelete,
     openEditor,

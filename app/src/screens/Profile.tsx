@@ -1,6 +1,6 @@
 import type { App } from '../useApp'
 import type { Settings } from '../types'
-import { ACCENT, DANGER, FormError, LINE, pick } from '../components/ui'
+import { ACCENT, DANGER, FormError, LINE, PasswordField, pick } from '../components/ui'
 import { ChevronRight } from '../components/icons'
 
 const border = (app: App, field: string) => (app.errField === field ? DANGER : LINE)
@@ -17,6 +17,8 @@ export function Profile({ app }: { app: App }) {
     { label: 'Categories', value: String(data.cats.length), to: 'cats' as const },
     { label: 'Currencies', value: selCurs.join(' · '), to: 'curs' as const },
   ]
+
+  const phoneOn = !!account?.passkeyId
 
   const toggles: { k: keyof Settings; label: string }[] = [
     { k: 'round', label: 'Round amounts' },
@@ -68,6 +70,40 @@ export function Profile({ app }: { app: App }) {
           </button>
         ))}
       </div>
+
+      {app.canUsePhone && (
+        <>
+          <div className="section-label">Security</div>
+          <div className="list-card">
+            <div className="toggle-row">
+              <div>
+                <div className="toggle-label">Unlock with your phone</div>
+                <div className="toggle-hint">
+                  {phoneOn
+                    ? 'Sign in with your fingerprint, face or PIN. Also how you reset a forgotten password.'
+                    : 'Sign in without typing your password, and keep a way back in if you forget it.'}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="toggle"
+                role="switch"
+                aria-checked={phoneOn}
+                aria-label="Unlock with your phone"
+                onClick={() =>
+                  phoneOn ? app.disablePhoneUnlock() : void app.enablePhoneUnlock()
+                }
+                style={{
+                  background: phoneOn ? ACCENT : 'rgba(20,22,31,.14)',
+                  justifyContent: phoneOn ? 'flex-end' : 'flex-start',
+                }}
+              >
+                <span />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="section-label">Settings</div>
       <div className="list-card">
@@ -157,17 +193,15 @@ export function ChangeEmail({ app }: { app: App }) {
         }}
         style={{ borderColor: border(app, 'email') }}
       />
-      <input
-        className="field"
-        type="password"
-        autoComplete="current-password"
+      <PasswordField
         placeholder="Password"
+        autoComplete="current-password"
         value={app.fPass}
-        onChange={(e) => {
-          app.setFPass(e.target.value)
+        onChange={(v) => {
+          app.setFPass(v)
           app.clearErr()
         }}
-        style={{ borderColor: border(app, 'pass') }}
+        borderColor={border(app, 'pass')}
       />
       <FormError message={app.formError} />
       <button
@@ -197,41 +231,35 @@ export function ChangePassword({ app }: { app: App }) {
 
   return (
     <div className="page">
-      <input
-        className="field"
-        type="password"
-        autoComplete="current-password"
+      <PasswordField
         placeholder="Current password"
+        autoComplete="current-password"
         value={app.fPass}
-        onChange={(e) => {
-          app.setFPass(e.target.value)
+        onChange={(v) => {
+          app.setFPass(v)
           app.clearErr()
         }}
-        style={{ borderColor: border(app, 'pass') }}
+        borderColor={border(app, 'pass')}
       />
-      <input
-        className="field"
-        type="password"
-        autoComplete="new-password"
+      <PasswordField
         placeholder="New password"
-        value={app.fNew}
-        onChange={(e) => {
-          app.setFNew(e.target.value)
-          app.clearErr()
-        }}
-        style={{ borderColor: border(app, 'new') }}
-      />
-      <input
-        className="field"
-        type="password"
         autoComplete="new-password"
-        placeholder="Repeat new password"
-        value={app.fNew2}
-        onChange={(e) => {
-          app.setFNew2(e.target.value)
+        value={app.fNew}
+        onChange={(v) => {
+          app.setFNew(v)
           app.clearErr()
         }}
-        style={{ borderColor: border(app, 'new2') }}
+        borderColor={border(app, 'new')}
+      />
+      <PasswordField
+        placeholder="Repeat new password"
+        autoComplete="new-password"
+        value={app.fNew2}
+        onChange={(v) => {
+          app.setFNew2(v)
+          app.clearErr()
+        }}
+        borderColor={border(app, 'new2')}
       />
 
       <div className="pw-meter">

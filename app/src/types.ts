@@ -49,6 +49,8 @@ export interface Account {
   hash: string
   iterations: number
   createdAt: number
+  /** Set once this phone has been asked to remember the account. */
+  passkeyId?: string
 }
 
 export type Screen =
@@ -64,6 +66,7 @@ export type Screen =
   | 'email'
   | 'password'
   | 'cats'
+  | 'forgot'
   | 'error'
 
 export interface ToastState {
