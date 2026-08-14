@@ -29,6 +29,7 @@ import {
   loadData,
   loadSession,
   newId,
+  rememberCategory,
   saveAccounts,
   saveData,
   saveSession,
@@ -318,6 +319,8 @@ export function useApp() {
       items: [item, ...d.items],
       // Recording spends the money, so the total comes down by itself.
       balances: applyRecord(d.balances, item),
+      // A note typed by hand becomes a category, ready as a chip next time.
+      cats: rememberCategory(d.cats, item.note),
       cleared: false,
     }))
     setAmt('')
@@ -380,6 +383,7 @@ export function useApp() {
         ),
         // Move the balance by the difference only.
         balances: applyEdit(d.balances, item, v),
+        cats: rememberCategory(d.cats, eNote),
       }))
       setEditId(null)
       showToast('Expense updated.', 'ok')

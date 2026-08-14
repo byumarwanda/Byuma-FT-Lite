@@ -4,10 +4,13 @@
     <meta charset="UTF-8" />
     <!-- maximum-scale + user-scalable=no stop iOS from zooming the page in when
          a field is focused; the design's own text sizes are kept instead.
-         viewport-fit=cover lets the safe-area insets reach the notch. -->
+         viewport-fit=cover lets the safe-area insets reach the notch.
+         interactive-widget=resizes-content shrinks the page when the phone's
+         keyboard opens, so the Record button stays reachable by scrolling
+         instead of being buried underneath it. -->
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content"
     />
     <meta name="theme-color" content="#f5f4f9" />
     <meta name="description" content="Track what you spend." />

@@ -31,19 +31,20 @@ export function clean(v: string): string {
 }
 
 /**
- * The numpad rules: digits only plus one decimal point, at most two
- * decimals, at most nine characters. Returns the next value, or null
- * when the key should be ignored.
+ * The rules the numpad used to enforce, now applied to whatever the phone's
+ * own keyboard sends: digits only plus one decimal point, at most two
+ * decimals, at most nine characters.
  */
-export function pressKey(current: string, key: string): string | null {
-  if (key === '⌫') return current.slice(0, -1)
-  if (key === '.') {
-    if (current.includes('.')) return null
-    return current === '' ? '0.' : current + '.'
+export function sanitizeAmount(raw: string): string {
+  let v = raw.replace(/[^0-9.]/g, '')
+  const dot = v.indexOf('.')
+  if (dot !== -1) {
+    // Keep the first point, drop any others, then cap the decimals at two.
+    const whole = v.slice(0, dot)
+    const rest = v.slice(dot + 1).replace(/\./g, '')
+    v = whole + '.' + rest.slice(0, 2)
   }
-  if (current.includes('.') && current.split('.')[1].length >= 2) return null
-  if (current.length >= 9) return null
-  return current + key
+  return v.slice(0, 9)
 }
 
 export function toNumber(v: string): number {

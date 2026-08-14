@@ -32,6 +32,24 @@ function write(key: string, value: unknown): void {
 
 export const BASE_CATS = ['Transport', 'Food', 'Groceries', 'Coffee', 'Bills', 'Rent']
 
+/** The Categories screen's own limit, applied wherever one is created. */
+export const MAX_CAT = 18
+
+/**
+ * A note typed straight into the recorder becomes a category, so the next
+ * time it is one tap away. The chips are ordered by how often each has been
+ * used, so a new one that catches on rises to the front by itself.
+ *
+ * Same rules as adding one by hand: not empty, under 18 characters, and no
+ * duplicate regardless of case. Anything else is left as a one-off note.
+ */
+export function rememberCategory(cats: string[], note: string): string[] {
+  const name = note.trim()
+  if (!name || name.length > MAX_CAT) return cats
+  if (cats.some((c) => c.toLowerCase() === name.toLowerCase())) return cats
+  return [...cats, name]
+}
+
 /** A brand new account: no expenses, and a zero balance in every currency. */
 export function freshData(): UserData {
   return {

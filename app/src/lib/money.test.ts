@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { clean, fmt, group, groupTyped, pressKey, toNumber } from './money'
+import { clean, fmt, group, groupTyped, sanitizeAmount, toNumber } from './money'
 
 describe('money formatting', () => {
   it('puts the code before a grouped integer', () => {
@@ -25,32 +25,34 @@ describe('money formatting', () => {
   })
 })
 
-describe('numpad rules', () => {
-  it('appends digits', () => {
-    expect(pressKey('12', '3')).toBe('123')
+describe('amount input rules', () => {
+  it('keeps plain digits', () => {
+    expect(sanitizeAmount('123')).toBe('123')
   })
 
-  it('ignores a second decimal point', () => {
-    expect(pressKey('1.5', '.')).toBeNull()
+  it('strips anything that is not a digit or a point', () => {
+    expect(sanitizeAmount('1a2 3,4')).toBe('1234')
   })
 
-  it('starts a decimal from zero', () => {
-    expect(pressKey('', '.')).toBe('0.')
+  it('keeps only the first decimal point', () => {
+    expect(sanitizeAmount('1.5.2')).toBe('1.52')
+    expect(sanitizeAmount('1..5')).toBe('1.5')
   })
 
   it('caps decimals at two', () => {
-    expect(pressKey('1.23', '4')).toBeNull()
-    expect(pressKey('1.2', '3')).toBe('1.23')
+    expect(sanitizeAmount('1.234')).toBe('1.23')
   })
 
   it('caps the whole input at nine characters', () => {
-    expect(pressKey('123456789', '1')).toBeNull()
-    expect(pressKey('12345678', '9')).toBe('123456789')
+    expect(sanitizeAmount('1234567890')).toBe('123456789')
   })
 
-  it('backspaces', () => {
-    expect(pressKey('123', '⌫')).toBe('12')
-    expect(pressKey('', '⌫')).toBe('')
+  it('allows a leading point through as typed', () => {
+    expect(sanitizeAmount('.5')).toBe('.5')
+  })
+
+  it('is empty for empty input', () => {
+    expect(sanitizeAmount('')).toBe('')
   })
 })
 
