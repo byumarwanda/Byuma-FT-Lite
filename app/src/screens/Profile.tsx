@@ -1,0 +1,260 @@
+import type { App } from '../useApp'
+import type { Settings } from '../types'
+import { ACCENT, DANGER, FormError, LINE, pick } from '../components/ui'
+import { ChevronRight } from '../components/icons'
+
+const border = (app: App, field: string) => (app.errField === field ? DANGER : LINE)
+
+export function Profile({ app }: { app: App }) {
+  const { account, data, selCurs, mainCur } = app
+  const name = account?.name || 'You'
+  const email = account?.email || 'not set'
+
+  const rows = [
+    { label: 'Name', value: name, to: 'name' as const },
+    { label: 'Email', value: email, to: 'email' as const },
+    { label: 'Password', value: '••••••••', to: 'password' as const },
+    { label: 'Categories', value: String(data.cats.length), to: 'cats' as const },
+    { label: 'Currencies', value: selCurs.join(' · '), to: 'curs' as const },
+  ]
+
+  const toggles: { k: keyof Settings; label: string }[] = [
+    { k: 'round', label: 'Round amounts' },
+    { k: 'reminder', label: 'Evening reminder' },
+    { k: 'hide', label: 'Hide totals' },
+  ]
+
+  return (
+    <div className="page">
+      <div className="profile-head">
+        <span className="avatar" style={{ background: ACCENT }}>
+          {name.trim().charAt(0).toUpperCase() || '?'}
+        </span>
+        <div style={{ minWidth: 0 }}>
+          <div className="profile-name">{name}</div>
+          <div className="profile-email">{email}</div>
+        </div>
+      </div>
+
+      <div className="section-label">Account</div>
+      <div className="list-card">
+        {rows.map((r) => (
+          <button
+            key={r.label}
+            type="button"
+            className="row-btn"
+            onClick={() => app.go(r.to, 'profile')}
+          >
+            <span className="row-label">{r.label}</span>
+            <span className="row-right">
+              <span className="row-value">{r.value}</span>
+              <ChevronRight size={12} color="#9497a5" />
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div className="section-label">Main currency</div>
+      <div className="main-cur">
+        {selCurs.map((c) => (
+          <button
+            key={c}
+            type="button"
+            className="main-cur-btn"
+            style={pick(mainCur === c, '#faf9fc', '#4b4f5e')}
+            onClick={() => app.setMainCur(c)}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      <div className="section-label">Settings</div>
+      <div className="list-card">
+        {toggles.map((t) => (
+          <div className="toggle-row" key={t.k}>
+            <div className="toggle-label">{t.label}</div>
+            <button
+              type="button"
+              className="toggle"
+              role="switch"
+              aria-checked={data.settings[t.k]}
+              aria-label={t.label}
+              onClick={() => app.setSetting(t.k)}
+              style={{
+                background: data.settings[t.k] ? ACCENT : 'rgba(20,22,31,.14)',
+                justifyContent: data.settings[t.k] ? 'flex-end' : 'flex-start',
+              }}
+            >
+              <span />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-label">Data</div>
+      <div className="list-card">
+        <div className="data-row">
+          <span className="data-label">Expenses</span>
+          <span className="data-value">{data.items.length}</span>
+        </div>
+        <button type="button" className="danger-row" onClick={app.askClear}>
+          Delete all expenses
+        </button>
+      </div>
+
+      <button type="button" className="signout" onClick={app.askSignOut}>
+        Sign out
+      </button>
+    </div>
+  )
+}
+
+export function ChangeName({ app }: { app: App }) {
+  return (
+    <div className="page">
+      <input
+        className="field"
+        type="text"
+        placeholder="Name"
+        value={app.fName}
+        onChange={(e) => {
+          app.setFName(e.target.value)
+          app.clearErr()
+        }}
+        style={{ borderColor: border(app, 'name') }}
+      />
+      <FormError message={app.formError} />
+      <button
+        type="button"
+        className="btn-primary mt-22"
+        style={{ background: ACCENT }}
+        onClick={app.saveName}
+      >
+        Save
+      </button>
+    </div>
+  )
+}
+
+export function ChangeEmail({ app }: { app: App }) {
+  return (
+    <div className="page">
+      <div className="now-card">
+        <div className="now-label">Now</div>
+        <div className="now-value">{app.account?.email}</div>
+      </div>
+      <input
+        className="field mt-9"
+        type="email"
+        autoCapitalize="none"
+        autoComplete="email"
+        placeholder="New email"
+        value={app.fEmail}
+        onChange={(e) => {
+          app.setFEmail(e.target.value)
+          app.clearErr()
+        }}
+        style={{ borderColor: border(app, 'email') }}
+      />
+      <input
+        className="field"
+        type="password"
+        autoComplete="current-password"
+        placeholder="Password"
+        value={app.fPass}
+        onChange={(e) => {
+          app.setFPass(e.target.value)
+          app.clearErr()
+        }}
+        style={{ borderColor: border(app, 'pass') }}
+      />
+      <FormError message={app.formError} />
+      <button
+        type="button"
+        className="btn-primary mt-22"
+        style={{ background: ACCENT }}
+        onClick={() => void app.saveEmail()}
+      >
+        Save
+      </button>
+    </div>
+  )
+}
+
+export function ChangePassword({ app }: { app: App }) {
+  const len = app.fNew.length
+  const score =
+    len === 0
+      ? 0
+      : len < 8
+        ? 1
+        : /[0-9]/.test(app.fNew) && /[^a-zA-Z0-9]/.test(app.fNew)
+          ? 3
+          : 2
+  const colors = ['rgba(20,22,31,.1)', DANGER, '#c08a2e', '#1f7a5c']
+  const word = ['', 'weak', 'fair', 'strong'][score]
+
+  return (
+    <div className="page">
+      <input
+        className="field"
+        type="password"
+        autoComplete="current-password"
+        placeholder="Current password"
+        value={app.fPass}
+        onChange={(e) => {
+          app.setFPass(e.target.value)
+          app.clearErr()
+        }}
+        style={{ borderColor: border(app, 'pass') }}
+      />
+      <input
+        className="field"
+        type="password"
+        autoComplete="new-password"
+        placeholder="New password"
+        value={app.fNew}
+        onChange={(e) => {
+          app.setFNew(e.target.value)
+          app.clearErr()
+        }}
+        style={{ borderColor: border(app, 'new') }}
+      />
+      <input
+        className="field"
+        type="password"
+        autoComplete="new-password"
+        placeholder="Repeat new password"
+        value={app.fNew2}
+        onChange={(e) => {
+          app.setFNew2(e.target.value)
+          app.clearErr()
+        }}
+        style={{ borderColor: border(app, 'new2') }}
+      />
+
+      <div className="pw-meter">
+        {[1, 2, 3].map((seg) => (
+          <span
+            key={seg}
+            className="pw-seg"
+            style={{ background: score >= seg ? colors[score] : colors[0] }}
+          />
+        ))}
+        <span className="pw-word">{word}</span>
+      </div>
+
+      <FormError message={app.formError} />
+
+      <button
+        type="button"
+        className="btn-primary mt-22"
+        style={{ background: ACCENT }}
+        onClick={() => void app.savePassword()}
+      >
+        Change password
+      </button>
+    </div>
+  )
+}

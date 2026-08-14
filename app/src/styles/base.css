@@ -1,0 +1,208 @@
+/* ------------------------------------------------------------------
+   Fonts — self-hosted so the app works with no internet.
+------------------------------------------------------------------ */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/sans-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/sans-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/serif-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/serif-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ------------------------------------------------------------------
+   The scaling rule that makes the design responsive.
+
+   The design is drawn on a 390px-wide canvas. Every length in this
+   project is written with the design's exact pixel number and is
+   converted to rem at build time (1rem = 10 design px).
+
+   The root font-size below is a fraction of the viewport width, so
+   every margin, padding, radius and font size keeps exactly the same
+   proportion to the screen and to each other on any phone:
+
+     Tecno Spark 7T   360px wide  ->  1rem = 9.23px  (design x 0.923)
+     iPhone 14/15 Pro 393px wide  ->  1rem = 10.08px (design x 1.008)
+     iPhone 17 Pro Max 440px wide ->  1rem = 11.28px (design x 1.128)
+
+   Above 440px the app stops growing and centres itself, so a tablet or
+   a desktop browser shows the phone layout rather than a stretched one.
+------------------------------------------------------------------ */
+html {
+  font-size: clamp(8px, calc(min(100vw, 440px) / 39), 11.29px);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+body {
+  margin: 0;
+  background: #eae9f1;
+  color: #14161f;
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums lining-nums;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+input,
+button {
+  font-family: inherit;
+  font-variant-numeric: inherit;
+}
+
+input::placeholder {
+  color: #83869a;
+  font-weight: 400;
+}
+
+/* iOS zooms the page in when a focused input's text is under 16px. The
+   design uses smaller text than that, so zooming is disabled on the
+   viewport tag and the inputs keep their designed size. */
+input {
+  font-size: inherit;
+}
+
+/* ------------------------------------------------------------------
+   The phone shell.
+
+   On a phone the app fills the screen. On a wider screen it is shown
+   inside the same bezel as the design prototype.
+------------------------------------------------------------------ */
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  height: 100dvh;
+  overflow: hidden;
+  background: #f5f4f9;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 520px) and (min-height: 900px) {
+  .shell {
+    padding: 2px;
+  }
+  .phone {
+    height: 866px;
+    max-height: calc(100dvh - 24px);
+    border-radius: 4.5rem;
+    box-shadow:
+      0 0 0 1.1rem #d9d7e1,
+      0 1px 2px rgba(20, 22, 31, 0.14);
+  }
+}
+
+/* The strip the phone's own status bar sits in. The design reserves
+   46px above the top bar; on a notched phone we reserve the real inset
+   instead so nothing hides under the notch. */
+.statusbar {
+  flex: none;
+  height: max(4.6rem, env(safe-area-inset-top));
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ------------------------------------------------------------------
+   Motion — the four keyframes from the design, all short.
+------------------------------------------------------------------ */
+@keyframes l-rise {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes l-drop {
+  0% {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes l-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes l-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

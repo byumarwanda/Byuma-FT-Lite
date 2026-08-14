@@ -1,0 +1,1770 @@
+/* ------------------------------------------------------------------
+   Every length here is the design's own pixel number. The build turns
+   them into rem (1rem = 10 design px) so they scale with the phone.
+   Only colours that change at runtime are set from JavaScript.
+------------------------------------------------------------------ */
+
+/* ---------- shared type ---------- */
+.serif {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+}
+
+/* Section label: 12.5px / 400 / .09em / uppercase / muted */
+.label-sm {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.section-label {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 26px 0 10px;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  /* content-box: the design's 38px is the content row, the 26px sits above it */
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  padding: 26px 22px 0;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-title {
+  font: 600 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  background: none;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ---------- page padding ---------- */
+.page {
+  padding: 22px 22px 34px;
+}
+
+.page-auth {
+  padding: 64px 26px 34px;
+}
+
+/* ---------- headlines ---------- */
+.wordmark {
+  font: 600 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.headline-auth {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 36px;
+  line-height: 1.12;
+  margin-top: 26px;
+}
+
+.headline-30 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 30px;
+  line-height: 1.15;
+}
+
+.headline-26 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.headline-24 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+/* ---------- inputs ---------- */
+.field {
+  width: 100%;
+  height: 54px;
+  padding: 0 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--surface);
+  outline: none;
+  font: 400 15px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.field + .field {
+  margin-top: 9px;
+}
+
+.field-group {
+  margin-top: 34px;
+}
+
+/* ---------- buttons ---------- */
+.btn-primary {
+  width: 100%;
+  height: 56px;
+  border: 0;
+  border-radius: 16px;
+  color: #fff;
+  font: 500 15.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.btn-save {
+  width: 100%;
+  height: 54px;
+  border: 0;
+  border-radius: 15px;
+  color: #fff;
+  font: 500 15px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+  margin-top: 14px;
+}
+
+.btn-quiet {
+  width: 100%;
+  height: 54px;
+  border: 1px solid var(--hairline);
+  border-radius: 15px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.mt-22 {
+  margin-top: 22px;
+}
+.mt-9 {
+  margin-top: 9px;
+}
+
+/* ---------- inline form error ---------- */
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  animation: l-drop 0.18s ease both;
+}
+
+.form-error span {
+  font: 400 13px/1.4 'Instrument Sans', system-ui, sans-serif;
+  color: var(--danger);
+}
+
+/* ---------- auth footer ---------- */
+.auth-alt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 26px;
+}
+
+.auth-alt-text {
+  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.auth-alt-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+/* ==================================================================
+   2.1 Home — the recorder
+================================================================== */
+.recorder {
+  position: relative;
+  padding: 96px 22px 22px;
+  background: var(--surface);
+  border-radius: 0 0 30px 30px;
+  box-shadow: 0 1px 2px rgba(20, 22, 31, 0.05);
+}
+
+.amount-display {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  cursor: text;
+  min-height: 78px;
+}
+
+.amount-code {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 26px;
+  line-height: 1;
+  padding-bottom: 12px;
+}
+
+.amount-figure {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 70px;
+  line-height: 1;
+}
+
+.amount-caret {
+  width: 2px;
+  height: 52px;
+  animation: l-caret 1.1s steps(1) infinite;
+  margin-bottom: 4px;
+}
+
+.amount-hidden-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
+.methods {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+/* 44px rather than the design's 54px: the three methods were pulling too
+   much attention away from the amount. They stay clearly taller than the
+   36px category chips, and 44px is still the minimum comfortable tap
+   target. The 13px radius matches the numpad keys right below them. */
+.method-btn {
+  flex: 1;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 13px;
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.note-field {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin-top: 10px;
+  padding: 0 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--sunken);
+  outline: none;
+  text-align: center;
+  font: 400 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+/* The category strip scrolls sideways, but it keeps the same strict 22px
+   margin as everything else on the screen. The chips run full-bleed
+   underneath so they can scroll past that margin, and a mask fades them
+   out exactly across it — on the right while there is more to reach, on
+   the left once the strip has been scrolled. With nothing to scroll to,
+   neither edge fades. */
+.chips {
+  position: relative;
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-left: -22px;
+  margin-right: -22px;
+  padding: 1px 22px 2px;
+}
+
+/* The fade *finishes* on the margin line, so no chip is ever painted in
+   the outer 22px — the strip begins and ends exactly where the numpad,
+   the note field and the buttons do. The 28px inside it is the soft edge. */
+.chips[data-fade='right'] {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 50px),
+    transparent calc(100% - 22px)
+  );
+}
+
+.chips[data-fade='left'] {
+  mask-image: linear-gradient(to right, transparent 22px, #000 50px);
+}
+
+.chips[data-fade='both'] {
+  mask-image: linear-gradient(
+    to right,
+    transparent 22px,
+    #000 50px,
+    #000 calc(100% - 50px),
+    transparent calc(100% - 22px)
+  );
+}
+
+.chip {
+  flex: none;
+  white-space: nowrap;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.chip-add {
+  flex: none;
+  white-space: nowrap;
+  height: 36px;
+  padding: 0 13px;
+  border: 1px dashed rgba(20, 22, 31, 0.2);
+  border-radius: 11px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.numpad {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-top: 18px;
+}
+
+.key {
+  height: 52px;
+  border: 1px solid rgba(20, 22, 31, 0.09);
+  border-radius: 13px;
+  background: var(--key);
+  box-shadow: 0 1px 0 rgba(20, 22, 31, 0.05);
+  color: var(--ink);
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 23px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.key-back {
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+  font-size: 16px;
+}
+
+.key:active {
+  background: #dcdaea;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  .key:hover {
+    background: #e6e4f0;
+  }
+}
+
+.cta {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 16px;
+  font: 500 15.5px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+/* ---------- below the card ---------- */
+.below {
+  padding: 22px 22px 30px;
+}
+
+.spent-figure {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 40px;
+  line-height: 1.05;
+  margin-top: 8px;
+}
+
+.mixbar {
+  display: flex;
+  gap: 3px;
+  height: 7px;
+  margin-top: 18px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(20, 22, 31, 0.07);
+}
+
+.mixbar span {
+  border-radius: 4px;
+}
+
+.mixlegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 13px;
+}
+
+.mixlegend > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dot-7 {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.mix-name {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.mix-sum {
+  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.btn-analytics {
+  width: 100%;
+  height: 54px;
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 15px;
+  color: #fff;
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+/* ---------- timeline ---------- */
+.timeline {
+  margin-top: 34px;
+  position: relative;
+}
+
+.tl-group {
+  position: relative;
+  padding-left: 26px;
+  padding-bottom: 22px;
+}
+
+.tl-rule {
+  position: absolute;
+  left: 4px;
+  top: 16px;
+  bottom: 0;
+  width: 1px;
+  background: rgba(20, 22, 31, 0.1);
+}
+
+.tl-dot {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--canvas);
+}
+
+.tl-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tl-day {
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.tl-sum {
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.tl-card {
+  margin-top: 11px;
+  background: var(--surface);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.tl-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 15px;
+  cursor: pointer;
+}
+
+.tl-tile {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tl-note {
+  flex: 1;
+  min-width: 0;
+  font: 400 13.5px/1.3 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tl-amount {
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.x-btn {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--icon-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.x-btn-lg {
+  width: 26px;
+  height: 26px;
+}
+
+@media (hover: hover) {
+  .x-btn:hover {
+    background: rgba(20, 22, 31, 0.05);
+    color: var(--ink-2);
+  }
+  .x-btn-lg:hover {
+    color: var(--danger);
+  }
+}
+
+/* ---------- inline editor ---------- */
+.editor {
+  padding: 2px 15px 16px;
+  animation: l-rise 0.2s ease both;
+}
+
+.editor-amt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--sunken);
+}
+
+.editor-amt-label {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.editor-amt input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  text-align: right;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.editor-note {
+  width: 100%;
+  height: 46px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--sunken);
+  outline: none;
+  font: 400 14px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.editor-methods {
+  display: flex;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.editor-method {
+  flex: 1;
+  height: 44px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.editor-cancel {
+  padding: 0 16px;
+  height: 44px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.editor-save {
+  flex: 1;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+/* ---------- empty states ---------- */
+.empty {
+  padding: 56px 0 34px;
+  text-align: center;
+  animation: l-rise 0.24s ease both;
+}
+
+.empty-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(20, 22, 31, 0.06);
+}
+
+.empty-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  line-height: 1.2;
+  margin-top: 18px;
+}
+
+.empty-sub {
+  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 9px;
+}
+
+/* ==================================================================
+   3.1 Analytics
+================================================================== */
+.cur-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+.cur-tabs-flush {
+  margin-top: 0;
+}
+
+.cur-tab {
+  flex: 1;
+  height: 42px;
+  border: 1px solid var(--hairline);
+  border-radius: 13px;
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 20px 18px;
+}
+
+.card-balance {
+  margin-top: 9px;
+}
+
+.card-month {
+  margin-top: 26px;
+}
+
+.figure-42 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 42px;
+  line-height: 1.05;
+  margin-top: 10px;
+}
+
+.bal-rows {
+  margin-top: 18px;
+}
+
+.bal-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid rgba(20, 22, 31, 0.07);
+}
+
+.bal-row:first-child {
+  border-top-color: transparent;
+}
+
+.bal-label {
+  flex: 1;
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.bal-value {
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  text-align: right;
+}
+
+.bal-warn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  animation: l-drop 0.18s ease both;
+}
+
+.bal-warn span {
+  font: 500 13px/1.35 'Instrument Sans', system-ui, sans-serif;
+}
+
+.card-footer {
+  display: flex;
+  align-items: stretch;
+  margin: 18px -18px -20px;
+  border-top: 1px solid rgba(20, 22, 31, 0.08);
+}
+
+.card-footer-btn {
+  flex: 1;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.card-footer-btn:first-child {
+  border-radius: 0 0 0 18px;
+}
+
+.card-footer-btn:last-child {
+  border-radius: 0 0 18px 0;
+}
+
+@media (hover: hover) {
+  .card-footer-btn:hover {
+    background: rgba(20, 22, 31, 0.035);
+    color: var(--ink);
+  }
+}
+
+.card-footer-divider {
+  width: 1px;
+  background: rgba(20, 22, 31, 0.08);
+}
+
+/* ---------- how you paid / by category ---------- */
+.card-list {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 6px 18px 18px;
+}
+
+.paid-row {
+  padding-top: 16px;
+}
+
+.paid-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.dot-9 {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.paid-label {
+  flex: 1;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.paid-sum {
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.paid-pct {
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  width: 38px;
+  text-align: right;
+}
+
+.track-8 {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--canvas);
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.track-7 {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--canvas);
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+.track-8 span,
+.track-7 span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.cat-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cat-name {
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-sum {
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+  flex: none;
+}
+
+/* ---------- last months ---------- */
+.card-months {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 20px 18px 16px;
+}
+
+.months {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 110px;
+}
+
+.month {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+}
+
+.month-figure {
+  font: 500 11px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-bottom: 7px;
+  white-space: nowrap;
+}
+
+.month-bar {
+  width: 100%;
+  border-radius: 7px;
+}
+
+.month-labels {
+  display: flex;
+  gap: 10px;
+  margin-top: 9px;
+}
+
+.month-labels span {
+  flex: 1;
+  text-align: center;
+  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+/* ==================================================================
+   3.2 Update balance
+================================================================== */
+.bal-inputs {
+  margin-top: 20px;
+}
+
+.money-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+  margin-bottom: 9px;
+  padding: 0 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.money-code {
+  flex: none;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+.money-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  text-align: right;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.rates-card {
+  margin-top: 4px;
+  padding: 14px 16px 4px;
+  border: 1px solid rgba(20, 22, 31, 0.1);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 0;
+}
+
+.rate-row-label {
+  flex: 1;
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.rate-input {
+  width: 96px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--sunken);
+  outline: none;
+  text-align: right;
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.rate-unit {
+  width: 38px;
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.extra-link {
+  margin-top: 4px;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--ink-2);
+  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.extra-card {
+  margin-top: 4px;
+  padding: 16px;
+  border: 1px solid rgba(20, 22, 31, 0.1);
+  border-radius: 16px;
+  background: var(--surface);
+  animation: l-rise 0.2s ease both;
+}
+
+/* Same treatment inside the card, against the card's own 16px padding. */
+.extra-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-left: -16px;
+  margin-right: -16px;
+  padding: 0 16px 2px;
+}
+
+.extra-chips[data-fade='right'] {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 40px),
+    transparent calc(100% - 16px)
+  );
+}
+
+.extra-chips[data-fade='left'] {
+  mask-image: linear-gradient(to right, transparent 16px, #000 40px);
+}
+
+.extra-chips[data-fade='both'] {
+  mask-image: linear-gradient(
+    to right,
+    transparent 16px,
+    #000 40px,
+    #000 calc(100% - 40px),
+    transparent calc(100% - 16px)
+  );
+}
+
+.extra-chip {
+  flex: none;
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.extra-amt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  margin-top: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 13px;
+  background: var(--sunken);
+}
+
+.extra-amt-code {
+  flex: none;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+.extra-amt input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  text-align: right;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.extra-rate {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 13px;
+  background: var(--sunken);
+}
+
+.extra-rate-label,
+.extra-rate-unit {
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.extra-rate-unit {
+  color: var(--muted);
+}
+
+.extra-rate input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  text-align: right;
+  font: 500 15px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.extra-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.extra-preview {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.extra-remove {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--muted);
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.helper {
+  font: 400 12.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 14px;
+}
+
+/* ==================================================================
+   3.3 Limits
+================================================================== */
+.limits-body {
+  margin-top: 22px;
+}
+
+.limit-block {
+  margin-bottom: 14px;
+}
+
+.limit-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.dot-8 {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.limit-label {
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.limit-hint {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.limit-row {
+  margin-top: 9px;
+  margin-bottom: 0;
+}
+
+.limit-preview {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 15px 16px;
+  border-radius: 14px;
+  background: rgba(20, 22, 31, 0.04);
+}
+
+.limit-preview-label {
+  font: 400 13px/1.4 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.limit-preview-value {
+  font: 500 15px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+/* ==================================================================
+   3.4 Currencies
+================================================================== */
+.add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.add-input {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--surface);
+  outline: none;
+  font: 400 15px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.add-input-cur {
+  letter-spacing: 0.04em;
+}
+
+.add-btn {
+  flex: none;
+  padding: 0 20px;
+  height: 52px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.cur-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 22px 0 10px;
+}
+
+.cur-meta span {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.list-card {
+  background: var(--surface);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.cur-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--divider);
+}
+
+.cur-row:first-child {
+  border-top-color: transparent;
+}
+
+.tick {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 1.5px solid rgba(20, 22, 31, 0.18);
+  border-radius: 8px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cur-name {
+  flex: none;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.cur-main {
+  flex: 1;
+  text-align: right;
+  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.cur-rate {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.cur-rate input {
+  width: 74px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  background: var(--sunken);
+  outline: none;
+  text-align: right;
+  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+/* ==================================================================
+   4.1 Profile
+================================================================== */
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+}
+
+.profile-name {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.profile-email {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 18px;
+  border: 0;
+  border-top: 1px solid var(--divider);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.row-btn:first-child {
+  border-top-color: transparent;
+}
+
+@media (hover: hover) {
+  .row-btn:hover {
+    background: var(--sunken);
+  }
+}
+
+.row-label {
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.row-right {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.row-value {
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.main-cur {
+  display: flex;
+  gap: 7px;
+}
+
+.main-cur-btn {
+  flex: 1;
+  height: 46px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px 18px;
+  border-top: 1px solid var(--divider);
+}
+
+.toggle-row:first-child {
+  border-top-color: transparent;
+}
+
+.toggle-label {
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.toggle {
+  width: 46px;
+  height: 28px;
+  flex: none;
+  border: 0;
+  border-radius: 14px;
+  padding: 3px;
+  display: flex;
+  cursor: pointer;
+}
+
+.toggle span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(20, 22, 31, 0.2);
+}
+
+.data-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 18px;
+}
+
+.data-label {
+  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.data-value {
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.danger-row {
+  width: 100%;
+  text-align: left;
+  padding: 15px 18px;
+  border: 0;
+  border-top: 1px solid var(--divider);
+  background: none;
+  color: var(--danger);
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.signout {
+  width: 100%;
+  height: 52px;
+  margin-top: 26px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .signout:hover {
+    background: rgba(20, 22, 31, 0.04);
+  }
+}
+
+/* ---------- 4.3 change email ---------- */
+.now-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 15px 16px;
+}
+
+.now-label {
+  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.now-value {
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  margin-top: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 4.4 password strength ---------- */
+.pw-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pw-seg {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+}
+
+.pw-word {
+  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  width: 52px;
+  text-align: right;
+}
+
+/* ---------- 2.2 categories ---------- */
+.cat-list {
+  margin-top: 22px;
+}
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border-top: 1px solid var(--divider);
+}
+
+.cat-row:first-child {
+  border-top-color: transparent;
+}
+
+.cat-row-name {
+  flex: 1;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.cat-row-count {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+/* ==================================================================
+   1.4 Error screen
+================================================================== */
+.error-page {
+  padding: 120px 30px 34px;
+  text-align: center;
+}
+
+.error-badge {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(20, 22, 31, 0.06);
+}
+
+.error-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 28px;
+  line-height: 1.2;
+  margin-top: 20px;
+}
+
+.error-sub {
+  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+.error-primary {
+  margin-top: 26px;
+}
+
+/* ==================================================================
+   Overlays
+================================================================== */
+.toast {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: max(56px, calc(env(safe-area-inset-top) + 10px));
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(20, 22, 31, 0.16);
+  animation: l-drop 0.2s ease both;
+}
+
+.toast span:last-child {
+  flex: 1;
+  font: 500 13.5px/1.35 'Instrument Sans', system-ui, sans-serif;
+  color: #fff;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  background: rgba(20, 22, 31, 0.42);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet {
+  width: 100%;
+  background: var(--surface);
+  border-radius: 26px 26px 45px 45px;
+  padding: 24px 22px calc(30px + env(safe-area-inset-bottom));
+  animation: l-rise 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.sheet-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.sheet-body {
+  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+.sheet-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 24px;
+}
+
+.sheet-cancel {
+  flex: 1;
+  height: 52px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.sheet-go {
+  flex: 1;
+  height: 52px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.freeze {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  background: rgba(245, 244, 249, 0.74);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(20, 22, 31, 0.12);
+  animation: l-spin 0.7s linear infinite;
+}
+
+.freeze-label {
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
