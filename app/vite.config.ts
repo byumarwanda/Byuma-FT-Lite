@@ -1,7 +1,22 @@
+import { execSync } from 'node:child_process'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import pxtorem from 'postcss-pxtorem'
+
+// Stamped into the bottom of the Profile screen, so anyone can tell which
+// day's version of the app their phone is actually running.
+let commit = ''
+try {
+  commit = execSync('git rev-parse --short HEAD', {
+    stdio: ['ignore', 'pipe', 'ignore'],
+  })
+    .toString()
+    .trim()
+} catch {
+  // building outside a git checkout — the date alone still identifies it
+}
+const build = new Date().toISOString().slice(0, 10) + (commit ? ` · ${commit}` : '')
 
 // The design is authored at a 390px-wide canvas. Every length in the CSS is
 // written with the exact pixel number from the design and converted to rem at
@@ -9,6 +24,9 @@ import pxtorem from 'postcss-pxtorem'
 // viewport (see base.css), so all spacing keeps its proportion on any phone.
 export default defineConfig({
   base: process.env.BASE_PATH || '/',
+  define: {
+    __BUILD__: JSON.stringify(build),
+  },
   plugins: [
     react(),
     VitePWA({

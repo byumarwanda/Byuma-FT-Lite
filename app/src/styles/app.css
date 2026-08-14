@@ -1532,6 +1532,13 @@
   }
 }
 
+.app-version {
+  margin-top: 16px;
+  text-align: center;
+  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
 /* ---------- 4.3 change email ---------- */
 .now-card {
   background: var(--surface);

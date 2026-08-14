@@ -66,6 +66,19 @@ You will land on the home screen with **no expenses**, exactly as in the
 design. Go to **Analytics → Update balance** whenever you want to tell the
 app how much money you actually have.
 
+### When the app is improved
+
+The address above is the only link, and it never changes — it always serves
+the newest version. Your phone keeps a saved copy so the app opens even
+without internet; when a new version is published, the app notices the next
+time you open it (or bring it back to the front) with internet on, downloads
+the new version in the background, and refreshes itself within a few
+seconds. You never reinstall anything and the icon on your home screen stays
+the same.
+
+To see which version you are running: open **Profile** and look at the very
+bottom — a small line shows the day that version was published.
+
 ---
 
 ## 2. How the money works
@@ -193,6 +206,9 @@ Two smaller adjustments you asked for during the build:
 - The **Cash / MoMo / Bank** buttons are 44px tall instead of 54px, so they
   stop competing with the amount. They are still clearly taller than the
   category chips.
+- A small **Version** line sits at the very bottom of Profile, under
+  Sign out. It shows the day the running version was published, so you can
+  tell at a glance that an update has arrived.
 
 ---
 
