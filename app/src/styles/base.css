@@ -141,13 +141,11 @@ input {
   }
 }
 
-/* The strip the phone's own status bar sits in. The design reserves
-   46px above the top bar; on a notched phone we reserve the real inset
-   instead so nothing hides under the notch. */
-.statusbar {
-  flex: none;
-  height: max(4.6rem, env(safe-area-inset-top));
-}
+/* The design reserves 46px at the top for the status bar it drew itself.
+   On a real phone the operating system already draws that bar above the
+   page, so reserving it again produced a second empty band. Nothing is
+   reserved here now; only a notched phone's real inset is added back, in
+   the padding of whatever sits at the top of each screen. */
 
 .scroll {
   flex: 1;

@@ -28,13 +28,16 @@
 
 /* ---------- top bar ---------- */
 .topbar {
-  /* content-box: the design's 38px is the content row, the 26px sits above it */
+  /* content-box: the design's 38px is the content row, the 26px sits above it.
+     A notched phone's inset is added on top so the title clears the notch;
+     on every other phone it is zero. */
   box-sizing: content-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 38px;
   padding: 26px 22px 0;
+  padding-top: calc(26px + env(safe-area-inset-top));
 }
 
 .topbar-left {
@@ -71,6 +74,7 @@
 
 .page-auth {
   padding: 64px 26px 34px;
+  padding-top: calc(64px + env(safe-area-inset-top));
 }
 
 /* ---------- headlines ---------- */
@@ -713,6 +717,11 @@
   font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
   color: var(--muted);
   margin-top: 9px;
+}
+
+/* Sits where the Analytics button sits once there are expenses. */
+.empty-action {
+  margin-top: 26px;
 }
 
 /* ==================================================================
@@ -1632,6 +1641,7 @@
 ================================================================== */
 .error-page {
   padding: 120px 30px 34px;
+  padding-top: calc(120px + env(safe-area-inset-top));
   text-align: center;
 }
 
@@ -1670,7 +1680,7 @@
   position: absolute;
   left: 16px;
   right: 16px;
-  top: max(56px, calc(env(safe-area-inset-top) + 10px));
+  top: calc(10px + env(safe-area-inset-top));
   z-index: 9;
   display: flex;
   align-items: center;

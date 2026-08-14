@@ -10,6 +10,7 @@ import {
   MICON,
   MLABEL,
   PlusIcon,
+  PlusSmallIcon,
   BinIcon,
 } from '../components/icons'
 import { ACCENT, ChipScroller, LINE, pick } from '../components/ui'
@@ -31,6 +32,10 @@ export function Home({ app }: { app: App }) {
   const ready = num > 0 && !!app.method
   const ctaLabel =
     num <= 0 ? 'Record expense' : !app.method ? 'Pick a method' : 'Record ' + app.fmt(num)
+
+  // A balance of zero everywhere means the person has not told the app what
+  // they have yet.
+  const hasBalance = app.selCurs.some((c) => (data.balances[c] ?? 0) !== 0)
 
   const total = sumIn(rates, items, mainCur)
   const allSum = total || 1
@@ -157,6 +162,31 @@ export function Home({ app }: { app: App }) {
             <div className="empty-sub">
               {data.cleared ? 'Nothing left to show.' : 'Your first one lands here.'}
             </div>
+
+            {/* With nothing recorded there is no Analytics button, which used to
+                leave a new person with no way to reach the balance at all. The
+                same slot now offers the balance until one has been set. */}
+            {hasBalance ? (
+              <button
+                type="button"
+                className="btn-analytics empty-action"
+                style={{ background: ACCENT }}
+                onClick={() => app.go('stats')}
+              >
+                <BarsIcon />
+                Analytics
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn-analytics empty-action"
+                style={{ background: ACCENT }}
+                onClick={() => app.goBalance('home')}
+              >
+                <PlusSmallIcon />
+                Add your balance
+              </button>
+            )}
           </div>
         ) : (
           <div>
