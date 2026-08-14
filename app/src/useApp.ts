@@ -360,7 +360,7 @@ export function useApp() {
     if (!account) return
     setConfirm({
       title: 'Turn off phone unlock?',
-      body: 'You will need your password to sign in, and to reset it if you forget.',
+      body: 'You will go back to typing your password to sign in.',
       cta: 'Turn off',
       yes: () => {
         const updated = { ...account, passkeyId: undefined }
@@ -396,14 +396,30 @@ export function useApp() {
     clearErr()
   }, [fEmail, fail, clearErr])
 
-  /** Prove who you are with the phone, which unlocks the new-password fields. */
+  /**
+   * Prove who you are with the phone, which unlocks the new-password fields.
+   * Accounts live only on this phone, so the phone's own screen lock is the
+   * identity check — whoever can pass it owns the phone and the accounts on
+   * it, whether or not phone unlock was ever switched on. An account that
+   * never enrolled gets its passkey made right here, so from then on the
+   * phone also remembers it at sign-in.
+   */
   const proveWithPhone = useCallback(async () => {
-    if (!recovering?.passkeyId) return
-    const ok = await verifyPasskey(recovering.passkeyId)
-    if (!ok) return fail('pass', 'That did not match. Try again.')
+    if (!recovering) return
+    if (recovering.passkeyId) {
+      const ok = await verifyPasskey(recovering.passkeyId)
+      if (!ok) return fail('pass', 'That did not match. Try again.')
+    } else {
+      const id = await registerPasskey(recovering.id, recovering.email, recovering.name)
+      if (!id) return fail('pass', 'Your phone did not confirm it. Try again.')
+      const updated = { ...recovering, passkeyId: id }
+      saveAccounts(loadAccounts().map((a) => (a.id === recovering.id ? updated : a)))
+      setRecovering(updated)
+      if (lastAccount?.id === updated.id) setLastAccount(updated)
+    }
     setRecovered(true)
     clearErr()
-  }, [recovering, fail, clearErr])
+  }, [recovering, lastAccount, fail, clearErr])
 
   const resetPassword = useCallback(async () => {
     if (!recovering || !recovered) return

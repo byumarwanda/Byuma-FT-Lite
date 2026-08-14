@@ -80,8 +80,8 @@ export function Profile({ app }: { app: App }) {
                 <div className="toggle-label">Unlock with your phone</div>
                 <div className="toggle-hint">
                   {phoneOn
-                    ? 'Sign in with your fingerprint, face or PIN. Also how you reset a forgotten password.'
-                    : 'Sign in without typing your password, and keep a way back in if you forget it.'}
+                    ? 'Sign in with your fingerprint, face or PIN.'
+                    : 'Sign in with one tap instead of typing your password.'}
                 </div>
               </div>
               <button
