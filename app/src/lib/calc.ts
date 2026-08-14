@@ -36,6 +36,47 @@ export function limitsFor(
 }
 
 /* ------------------------------------------------------------------
+   The ultimate total.
+
+   Money held in several currencies is one pot, not three. Every total
+   is converted at the current rates and added up, then shown in
+   whichever currency is being viewed. The currency tabs pick the
+   currency the single total is expressed in — they do not slice it.
+------------------------------------------------------------------ */
+
+/** Every currency's balance, added together and expressed in `display`. */
+export function totalBalance(
+  rates: Record<string, number>,
+  balances: Record<string, number>,
+  codes: string[],
+  display: string,
+): number {
+  return codes.reduce(
+    (sum, code) => sum + convert(rates, balances[code] ?? 0, code, display),
+    0,
+  )
+}
+
+/** The same for the limits: both are summed across currencies. */
+export function totalLimits(
+  rates: Record<string, number>,
+  limits: Record<string, Limits>,
+  codes: string[],
+  display: string,
+): Limits {
+  return codes.reduce<Limits>(
+    (sum, code) => {
+      const lim = limitsFor(limits, code)
+      return {
+        must: sum.must + convert(rates, lim.must, code, display),
+        net: sum.net + convert(rates, lim.net, code, display),
+      }
+    },
+    { must: 0, net: 0 },
+  )
+}
+
+/* ------------------------------------------------------------------
    Spending draws the balance down.
 
    An expense lowers the total of the currency it was recorded in, and

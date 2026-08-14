@@ -18,6 +18,8 @@ import {
   applyEdit,
   applyRecord,
   limitsFor,
+  totalBalance,
+  totalLimits,
 } from './lib/calc'
 import { hashPassword, verifyPassword } from './lib/crypto'
 import {
@@ -467,14 +469,28 @@ export function useApp() {
   const saveLimits = useCallback(() => {
     const must = Number(fLim.must) || 0
     const net = Number(fLim.net) || 0
-    const bal = data.balances[activeCur] ?? 0
-    if (must > bal) return fail('limmust', 'More than your balance.')
+    // The limits are held per currency but they are spent from one pot, so
+    // what matters is whether the whole Must would exceed the whole balance.
+    const nextLimits = { ...data.limits, [activeCur]: { must, net } }
+    const wholeBalance = totalBalance(data.rates, data.balances, selCurs, activeCur)
+    const wholeMust = totalLimits(data.rates, nextLimits, selCurs, activeCur).must
+    if (wholeMust > wholeBalance) return fail('limmust', 'More than your balance.')
     freeze('Saving limits', FREEZE.saveLimits, () => {
       setData((d) => ({ ...d, limits: { ...d.limits, [activeCur]: { must, net } } }))
       setScreen('stats')
       showToast('Limits saved.', 'ok')
     })
-  }, [fLim, data.balances, activeCur, fail, freeze, showToast])
+  }, [
+    fLim,
+    data.limits,
+    data.balances,
+    data.rates,
+    selCurs,
+    activeCur,
+    fail,
+    freeze,
+    showToast,
+  ])
 
   /* ---------------- rates ---------------- */
 
@@ -702,8 +718,12 @@ export function useApp() {
     [data.cats, catFreq],
   )
 
-  const limits: Limits = limitsFor(data.limits, activeCur)
-  const balance = data.balances[activeCur] ?? 0
+  // The card shows one ultimate total, not a slice per currency: every
+  // currency's money and limits are converted at the current rates and added
+  // up, then expressed in whichever currency is being viewed.
+  const balance = totalBalance(data.rates, data.balances, selCurs, activeCur)
+  const limits: Limits = totalLimits(data.rates, data.limits, selCurs, activeCur)
+
 
   return {
     // state
