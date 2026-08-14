@@ -103,10 +103,9 @@ for (const device of DEVICES) {
   await page.waitForSelector('text=No expenses yet', { timeout: 8000 })
   await shoot(page, device, '1.3-empty')
 
-  // 2.1 Record an expense
-  for (const k of ['2', '4', '0', '0']) {
-    await page.click(`.key >> text="${k}"`)
-  }
+  // 2.1 Record an expense — the amount is typed on the phone's own keyboard
+  await page.click('.amount-display')
+  await page.fill('input[aria-label="Amount"]', '2400')
   await page.click('.method-btn >> text=MoMo')
   await page.click('.chip >> text=Groceries')
   await shoot(page, device, '2.1-typing')
@@ -118,7 +117,8 @@ for (const device of DEVICES) {
     ['850', 'Cash'],
     ['12500', 'Bank'],
   ]) {
-    for (const d of amount.split('')) await page.click(`.key >> text="${d}"`)
+    await page.click('.amount-display')
+    await page.fill('input[aria-label="Amount"]', amount)
     await page.click(`.method-btn >> text=${method}`)
     await page.click('.cta')
   }

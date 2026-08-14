@@ -1,5 +1,5 @@
 import type { App } from '../useApp'
-import { spendable } from '../lib/calc'
+import { spendable, totalLimits } from '../lib/calc'
 import { clean } from '../lib/money'
 import { estRate } from '../lib/rates'
 import { ChipScroller, DANGER, FormError, LINE, VIOLET, pick } from '../components/ui'
@@ -156,6 +156,16 @@ export function LimitsScreen({ app }: { app: App }) {
   const must = Number(app.fLim.must) || 0
   const net = Number(app.fLim.net) || 0
 
+  // Limits are typed one currency at a time but spent from one pot, so the
+  // preview shows what is left of the whole balance once every currency's
+  // limits are counted — with the figures being typed here standing in.
+  const wholeLimits = totalLimits(
+    app.data.rates,
+    { ...app.data.limits, [activeCur]: { must, net } },
+    app.selCurs,
+    activeCur,
+  )
+
   const rows = [
     { k: 'must' as const, label: 'Must', hint: 'strict', dot: DANGER },
     { k: 'net' as const, label: 'Safety net', hint: 'flexible', dot: VIOLET },
@@ -200,7 +210,7 @@ export function LimitsScreen({ app }: { app: App }) {
       <div className="limit-preview">
         <span className="limit-preview-label">Spendable after limits</span>
         <span className="limit-preview-value">
-          {app.fmtIn(spendable(balance, { must, net }), activeCur)}
+          {app.fmtIn(spendable(balance, wholeLimits), activeCur)}
         </span>
       </div>
 

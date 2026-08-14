@@ -211,38 +211,43 @@
 ================================================================== */
 .recorder {
   position: relative;
-  padding: 96px 22px 22px;
+  padding: 76px 22px 30px;
   background: var(--surface);
   border-radius: 0 0 30px 30px;
   box-shadow: 0 1px 2px rgba(20, 22, 31, 0.05);
 }
 
+/* The amount is the point of the screen, so it takes the room the numpad
+   used to and is tapped to open the phone's own keyboard. The padding makes
+   the whole block an easy target rather than just the glyphs. */
 .amount-display {
   position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 6px;
+  gap: 7px;
   cursor: text;
-  min-height: 78px;
+  min-height: 92px;
+  padding: 8px 0 14px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .amount-code {
   font-family: 'Instrument Serif', Georgia, serif;
-  font-size: 26px;
+  font-size: 28px;
   line-height: 1;
-  padding-bottom: 12px;
+  padding-bottom: 13px;
 }
 
 .amount-figure {
   font-family: 'Instrument Serif', Georgia, serif;
-  font-size: 70px;
+  font-size: 78px;
   line-height: 1;
 }
 
 .amount-caret {
   width: 2px;
-  height: 52px;
+  height: 58px;
   animation: l-caret 1.1s steps(1) infinite;
   margin-bottom: 4px;
 }
@@ -259,13 +264,13 @@
   position: relative;
   display: flex;
   gap: 8px;
-  margin-top: 22px;
+  margin-top: 34px;
 }
 
 /* 44px rather than the design's 54px: the three methods were pulling too
    much attention away from the amount. They stay clearly taller than the
    36px category chips, and 44px is still the minimum comfortable tap
-   target. The 13px radius matches the numpad keys right below them. */
+   target. */
 .method-btn {
   flex: 1;
   height: 44px;
@@ -283,7 +288,7 @@
   position: relative;
   width: 100%;
   height: 50px;
-  margin-top: 10px;
+  margin-top: 16px;
   padding: 0 16px;
   border: 1px solid var(--hairline);
   border-radius: 14px;
@@ -304,7 +309,7 @@
   position: relative;
   display: flex;
   gap: 7px;
-  margin-top: 10px;
+  margin-top: 16px;
   overflow-x: auto;
   scrollbar-width: none;
   margin-left: -22px;
@@ -313,8 +318,8 @@
 }
 
 /* The fade *finishes* on the margin line, so no chip is ever painted in
-   the outer 22px — the strip begins and ends exactly where the numpad,
-   the note field and the buttons do. The 28px inside it is the soft edge. */
+   the outer 22px — the strip begins and ends exactly where the note field
+   and the buttons do. The 28px inside it is the soft edge. */
 .chips[data-fade='right'] {
   mask-image: linear-gradient(
     to right,
@@ -361,52 +366,11 @@
   cursor: pointer;
 }
 
-.numpad {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 7px;
-  margin-top: 18px;
-}
-
-.key {
-  height: 52px;
-  border: 1px solid rgba(20, 22, 31, 0.09);
-  border-radius: 13px;
-  background: var(--key);
-  box-shadow: 0 1px 0 rgba(20, 22, 31, 0.05);
-  color: var(--ink);
-  font-family: 'Instrument Serif', Georgia, serif;
-  font-size: 23px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.key-back {
-  font-family: 'Instrument Sans', system-ui, sans-serif;
-  font-size: 16px;
-}
-
-.key:active {
-  background: #dcdaea;
-  box-shadow: none;
-}
-
-@media (hover: hover) {
-  .key:hover {
-    background: #e6e4f0;
-  }
-}
-
 .cta {
   position: relative;
   width: 100%;
   height: 56px;
-  margin-top: 14px;
+  margin-top: 30px;
   border: 0;
   border-radius: 16px;
   font: 500 15.5px/1 'Instrument Sans', system-ui, sans-serif;
@@ -1777,4 +1741,130 @@
 .freeze-label {
   font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
   color: var(--ink-2);
+}
+
+/* ==================================================================
+   Password reveal
+================================================================== */
+.field-wrap {
+  position: relative;
+}
+
+.field-wrap .field {
+  padding-right: 50px;
+}
+
+.field-wrap + .field-wrap,
+.field + .field-wrap,
+.field-wrap + .field {
+  margin-top: 9px;
+}
+
+.reveal {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 11px;
+  background: none;
+  color: var(--icon-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .reveal:hover {
+    color: var(--ink-2);
+  }
+}
+
+/* ==================================================================
+   Unlock with the phone
+================================================================== */
+.unlock {
+  width: 100%;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid var(--hairline);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .unlock:hover {
+    background: var(--sunken);
+  }
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.auth-divider span:first-child,
+.auth-divider span:last-child {
+  flex: 1;
+  height: 1px;
+  background: rgba(20, 22, 31, 0.1);
+}
+
+.auth-divider-word {
+  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.forgot-link {
+  display: block;
+  margin: 16px auto 0;
+  border: 0;
+  background: none;
+  padding: 4px 8px;
+  color: var(--muted);
+  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .forgot-link:hover {
+    color: var(--ink-2);
+  }
+}
+
+.forgot-note {
+  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.danger-btn {
+  width: 100%;
+  height: 54px;
+  margin-top: 14px;
+  border: 1px solid rgba(180, 85, 58, 0.35);
+  border-radius: 15px;
+  background: none;
+  color: var(--danger);
+  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.toggle-hint {
+  font: 400 12px/1.45 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 5px;
+  padding-right: 8px;
 }

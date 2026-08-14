@@ -9,6 +9,8 @@ import {
   spendable,
   sumIn,
   topCategories,
+  totalBalance,
+  totalLimits,
 } from './calc'
 import { BASE_RATES, convert, estRate, withRate } from './rates'
 import type { Expense } from '../types'
@@ -171,5 +173,58 @@ describe('top categories', () => {
       (i) => i.note || i.method,
     )
     expect(top[0].name).toBe('momo')
+  })
+})
+
+describe('the ultimate total', () => {
+  // 1 USD = 1420 RWF, 1 TL = 34 RWF
+  const balances = { RWF: 840_000, TL: 9_600, USD: 1_240 }
+  const codes = ['RWF', 'TL', 'USD']
+
+  it('adds every currency into one figure', () => {
+    // 840,000 + 9,600x34 + 1,240x1420 = 840,000 + 326,400 + 1,760,800
+    expect(totalBalance(BASE_RATES, balances, codes, 'RWF')).toBe(2_927_200)
+  })
+
+  it('gives the same money whichever currency it is shown in', () => {
+    const inRwf = totalBalance(BASE_RATES, balances, codes, 'RWF')
+    const inUsd = totalBalance(BASE_RATES, balances, codes, 'USD')
+    expect(inUsd).toBeCloseTo(inRwf / 1420, 6)
+  })
+
+  it('counts only the currencies that are picked', () => {
+    expect(totalBalance(BASE_RATES, balances, ['RWF'], 'RWF')).toBe(840_000)
+    expect(totalBalance(BASE_RATES, balances, ['RWF', 'TL'], 'RWF')).toBe(1_166_400)
+  })
+
+  it('treats a currency with no balance as zero', () => {
+    expect(totalBalance(BASE_RATES, { RWF: 500 }, ['RWF', 'USD'], 'RWF')).toBe(500)
+  })
+
+  it('sums the limits across currencies too', () => {
+    const limits = {
+      RWF: { must: 460_000, net: 140_000 },
+      USD: { must: 100, net: 200 },
+    }
+    const whole = totalLimits(BASE_RATES, limits, ['RWF', 'USD'], 'RWF')
+    expect(whole.must).toBe(460_000 + 142_000)
+    expect(whole.net).toBe(140_000 + 284_000)
+  })
+
+  it('drives spendable off the whole pot, not one currency', () => {
+    const limits = {
+      RWF: { must: 460_000, net: 140_000 },
+      TL: { must: 0, net: 0 },
+      USD: { must: 0, net: 0 },
+    }
+    const bal = totalBalance(BASE_RATES, balances, codes, 'RWF')
+    const lim = totalLimits(BASE_RATES, limits, codes, 'RWF')
+    // 2,927,200 − 460,000 − 105,000
+    expect(spendable(bal, lim)).toBe(2_362_200)
+  })
+
+  it('follows an edited rate', () => {
+    const cheaper = withRate(BASE_RATES, 'USD', 1000, 'RWF')
+    expect(totalBalance(cheaper, { USD: 2 }, ['USD'], 'RWF')).toBe(2000)
   })
 })

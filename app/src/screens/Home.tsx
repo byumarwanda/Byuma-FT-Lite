@@ -1,8 +1,8 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import type { App } from '../useApp'
 import type { Expense, Method } from '../types'
 import { amountIn, byDay, sumIn } from '../lib/calc'
-import { clean, groupTyped } from '../lib/money'
+import { groupTyped, sanitizeAmount } from '../lib/money'
 import {
   BarsIcon,
   CrossIcon,
@@ -15,8 +15,6 @@ import {
 } from '../components/icons'
 import { ACCENT, ChipScroller, LINE, pick } from '../components/ui'
 
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫']
-
 const MIXCOL: Record<Method, string> = {
   cash: ACCENT,
   momo: '#4b4f5e',
@@ -25,6 +23,7 @@ const MIXCOL: Record<Method, string> = {
 
 export function Home({ app }: { app: App }) {
   const hidden = useRef<HTMLInputElement>(null)
+  const cta = useRef<HTMLButtonElement>(null)
   const { data, mainCur, num, amt } = app
   const items = data.items
   const rates = data.rates
@@ -36,6 +35,16 @@ export function Home({ app }: { app: App }) {
   // A balance of zero everywhere means the person has not told the app what
   // they have yet.
   const hasBalance = app.selCurs.some((c) => (data.balances[c] ?? 0) !== 0)
+
+  // The phone's keyboard covers the bottom of the screen while an amount or a
+  // new category is being typed. The moment the expense is ready to record,
+  // bring the button into view so it is never buried under the keyboard.
+  useEffect(() => {
+    if (ready) cta.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [ready])
+
+  // Choosing a category is the last step, so let the keyboard go with it.
+  const done = () => (document.activeElement as HTMLElement | null)?.blur()
 
   const total = sumIn(rates, items, mainCur)
   const allSum = total || 1
@@ -66,10 +75,11 @@ export function Home({ app }: { app: App }) {
           type="text"
           inputMode="decimal"
           aria-label="Amount"
+          enterKeyHint="done"
           value={amt}
-          onChange={(e) => {
-            const next = clean(e.target.value)
-            if (next.length <= 9) app.setAmt(next)
+          onChange={(e) => app.setAmt(sanitizeAmount(e.target.value))}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur()
           }}
         />
 
@@ -94,8 +104,12 @@ export function Home({ app }: { app: App }) {
           className="note-field"
           type="text"
           placeholder="What was it for?"
+          enterKeyHint="done"
           value={app.note}
           onChange={(e) => app.setNote(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur()
+          }}
         />
 
         <ChipScroller className="chips">
@@ -107,7 +121,10 @@ export function Home({ app }: { app: App }) {
                 type="button"
                 className="chip"
                 style={pick(on, '#fff', '#4b4f5e')}
-                onClick={() => app.setNote(on ? '' : c)}
+                onClick={() => {
+                  app.setNote(on ? '' : c)
+                  done()
+                }}
               >
                 {c}
               </button>
@@ -123,21 +140,8 @@ export function Home({ app }: { app: App }) {
           </button>
         </ChipScroller>
 
-        <div className="numpad">
-          {KEYS.map((k) => (
-            <button
-              key={k}
-              type="button"
-              className={k === '⌫' ? 'key key-back' : 'key'}
-              aria-label={k === '⌫' ? 'Backspace' : k}
-              onClick={() => app.setAmt((cur) => pressed(cur, k))}
-            >
-              {k}
-            </button>
-          ))}
-        </div>
-
         <button
+          ref={cta}
           type="button"
           className="cta"
           onClick={app.record}
@@ -265,17 +269,6 @@ export function Home({ app }: { app: App }) {
   )
 }
 
-function pressed(current: string, key: string): string {
-  if (key === '⌫') return current.slice(0, -1)
-  if (key === '.') {
-    if (current.includes('.')) return current
-    return current === '' ? '0.' : current + '.'
-  }
-  if (current.includes('.') && current.split('.')[1].length >= 2) return current
-  if (current.length >= 9) return current
-  return current + key
-}
-
 function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) {
   const Icon = MICON[item.method]
   const editing = app.editId === item.id
@@ -317,7 +310,7 @@ function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) 
               inputMode="decimal"
               aria-label="Amount"
               value={app.eAmt}
-              onChange={(e) => app.setEAmt(clean(e.target.value))}
+              onChange={(e) => app.setEAmt(sanitizeAmount(e.target.value))}
             />
           </div>
           <input

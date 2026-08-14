@@ -9,6 +9,9 @@ import { BASE_CURS, BASE_RATES } from './rates'
 
 const K_ACCOUNTS = 'byuma.accounts.v1'
 const K_SESSION = 'byuma.session.v1'
+// Who signed in last on this phone, so the sign-in screen can offer to
+// unlock with the phone instead of asking for the password.
+const K_LAST = 'byuma.last.v1'
 const K_DATA = 'byuma.data.v1.'
 
 function read<T>(key: string, fallback: T): T {
@@ -31,6 +34,24 @@ function write(key: string, value: unknown): void {
 }
 
 export const BASE_CATS = ['Transport', 'Food', 'Groceries', 'Coffee', 'Bills', 'Rent']
+
+/** The Categories screen's own limit, applied wherever one is created. */
+export const MAX_CAT = 18
+
+/**
+ * A note typed straight into the recorder becomes a category, so the next
+ * time it is one tap away. The chips are ordered by how often each has been
+ * used, so a new one that catches on rises to the front by itself.
+ *
+ * Same rules as adding one by hand: not empty, under 18 characters, and no
+ * duplicate regardless of case. Anything else is left as a one-off note.
+ */
+export function rememberCategory(cats: string[], note: string): string[] {
+  const name = note.trim()
+  if (!name || name.length > MAX_CAT) return cats
+  if (cats.some((c) => c.toLowerCase() === name.toLowerCase())) return cats
+  return [...cats, name]
+}
 
 /** A brand new account: no expenses, and a zero balance in every currency. */
 export function freshData(): UserData {
@@ -108,6 +129,24 @@ export function saveSession(id: string | null): void {
     return
   }
   write(K_SESSION, id)
+}
+
+export function loadLastAccountId(): string | null {
+  return read<string | null>(K_LAST, null)
+}
+
+export function saveLastAccountId(id: string): void {
+  write(K_LAST, id)
+}
+
+export function removeAccount(accountId: string): void {
+  saveAccounts(loadAccounts().filter((a) => a.id !== accountId))
+  try {
+    localStorage.removeItem(K_DATA + accountId)
+    if (loadLastAccountId() === accountId) localStorage.removeItem(K_LAST)
+  } catch {
+    /* ignore */
+  }
 }
 
 export function loadData(accountId: string): UserData {
