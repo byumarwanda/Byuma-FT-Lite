@@ -142,6 +142,8 @@ export function Profile({ app }: { app: App }) {
       <button type="button" className="signout" onClick={app.askSignOut}>
         Sign out
       </button>
+
+      <div className="app-version">Version {__BUILD__}</div>
     </div>
   )
 }

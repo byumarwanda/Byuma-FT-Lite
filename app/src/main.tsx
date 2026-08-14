@@ -4,6 +4,9 @@ import './styles/tokens.css'
 import './styles/base.css'
 import './styles/app.css'
 import App from './App'
+import { keepAppFresh } from './pwa'
+
+keepAppFresh()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
