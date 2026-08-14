@@ -7,12 +7,20 @@ import pxtorem from 'postcss-pxtorem'
 // written with the exact pixel number from the design and converted to rem at
 // build time, with 1rem = 10 design px. The root font-size then scales with the
 // viewport (see base.css), so all spacing keeps its proportion on any phone.
+// Stamped into the build so the app can show which version it is running.
+const BUILD =
+  new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC'
+
 export default defineConfig({
   base: process.env.BASE_PATH || '/',
+  define: { __BUILD__: JSON.stringify(BUILD) },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // main.tsx registers the worker itself so it can force the new version
+      // in and reload; the plugin's own one-line script never does that.
+      injectRegister: null,
       includeAssets: ['favicon.svg', 'icons/*.png', 'fonts/*.woff2'],
       manifest: {
         name: 'Byuma FT',
@@ -32,6 +40,11 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Take over from the previous worker at once and bin its caches,
+        // rather than waiting for every tab to close.
+        clientsClaim: true,
+        skipWaiting: true,
+        cleanupOutdatedCaches: true,
       },
     }),
   ],

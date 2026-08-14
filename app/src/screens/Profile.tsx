@@ -139,6 +139,9 @@ export function Profile({ app }: { app: App }) {
         </button>
       </div>
 
+      {/* So it is always possible to tell which build is actually running. */}
+      <div className="build-stamp">Version {__BUILD__}</div>
+
       <button type="button" className="signout" onClick={app.askSignOut}>
         Sign out
       </button>

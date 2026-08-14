@@ -1868,3 +1868,10 @@
   margin-top: 5px;
   padding-right: 8px;
 }
+
+.build-stamp {
+  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--icon-faint);
+  text-align: center;
+  margin-top: 22px;
+}
