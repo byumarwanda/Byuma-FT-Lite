@@ -1,4 +1,4 @@
-import type { Expense, Limits, Method } from '../types'
+import type { Expense, Income, Method, Plan, Prio, Safety } from '../types'
 import { convert } from './rates'
 
 export const DAY = 864e5
@@ -6,33 +6,106 @@ export const DAY = 864e5
 /**
  * The heart of the app.
  *
- *   spendable = balance − must − 0.75 × safety net
+ *   spendable = balance
+ *             − all of P1 − half of P2 − a fifth of P3
+ *             − 70% of the safety net
+ *             + expected income that is counted in
  *
- * The Must limit is money already committed, so all of it is taken off.
- * The safety net is a cushion a person will dip into, so only three
- * quarters of it is taken off.
+ * A P1 plan is certain, so all of it is set aside. P2 is likely (half)
+ * and P3 is loose (a fifth). The safety net is what should remain if
+ * every plan happened; a person dips into a cushion in real life, so
+ * only 70% of it is held back. Expected income is someone else's money
+ * until it arrives — it counts only when its switch is on.
  */
-export function spendable(balance: number, lim: Limits): number {
-  return balance - lim.must - 0.75 * lim.net
+export const PRIO_TAKE: Record<Prio, number> = { 1: 1, 2: 0.5, 3: 0.2 }
+export const SAFETY_TAKE = 0.7
+
+/** What one plan sets aside, in the display currency. */
+export function planTake(
+  rates: Record<string, number>,
+  plan: Plan,
+  display: string,
+): number {
+  return convert(rates, plan.amt * PRIO_TAKE[plan.prio], plan.cur, display)
 }
 
-/** Balance is below the strict limit — the red warning. */
-export function overMust(balance: number, lim: Limits): boolean {
-  return balance < lim.must
+/** What all plans set aside together. */
+export function plansTake(
+  rates: Record<string, number>,
+  plans: Plan[],
+  display: string,
+): number {
+  return plans.reduce((s, p) => s + planTake(rates, p, display), 0)
 }
 
-/** Not over the must, but the cushion is eaten into — the violet warning. */
-export function overNet(balance: number, lim: Limits): boolean {
-  return !overMust(balance, lim) && spendable(balance, lim) < 0
+/** The held-back share of the safety net. */
+export function safetyTake(
+  rates: Record<string, number>,
+  safety: Safety,
+  display: string,
+): number {
+  return convert(rates, safety.amt * SAFETY_TAKE, safety.cur, display)
 }
 
-export const EMPTY_LIMITS: Limits = { must: 0, net: 0 }
+/** Expected income whose switch is on. */
+export function countedIncome(
+  rates: Record<string, number>,
+  incomes: Income[],
+  display: string,
+): number {
+  return incomes
+    .filter((i) => i.counted)
+    .reduce((s, i) => s + convert(rates, i.amt, i.cur, display), 0)
+}
 
-export function limitsFor(
-  limits: Record<string, Limits>,
-  code: string,
-): Limits {
-  return limits[code] ?? EMPTY_LIMITS
+export function spendableNow(
+  rates: Record<string, number>,
+  balance: number,
+  plans: Plan[],
+  safety: Safety,
+  incomes: Income[],
+  display: string,
+): number {
+  return (
+    balance -
+    plansTake(rates, plans, display) -
+    safetyTake(rates, safety, display) +
+    countedIncome(rates, incomes, display)
+  )
+}
+
+/**
+ * How far the balance falls short of the P1 plans alone — the red warning
+ * when above zero. Counted income does not rescue it: P1 money is owed in
+ * full, and income that has not arrived cannot pay it.
+ */
+export function p1Shortfall(
+  rates: Record<string, number>,
+  balance: number,
+  plans: Plan[],
+  display: string,
+): number {
+  const p1 = plansTake(
+    rates,
+    plans.filter((p) => p.prio === 1),
+    display,
+  )
+  return Math.max(0, p1 - balance)
+}
+
+/** P1s are covered but the spendable has run out — the violet warning. */
+export function intoSafety(
+  rates: Record<string, number>,
+  balance: number,
+  plans: Plan[],
+  safety: Safety,
+  incomes: Income[],
+  display: string,
+): boolean {
+  return (
+    p1Shortfall(rates, balance, plans, display) === 0 &&
+    spendableNow(rates, balance, plans, safety, incomes, display) < 0
+  )
 }
 
 /* ------------------------------------------------------------------
@@ -54,25 +127,6 @@ export function totalBalance(
   return codes.reduce(
     (sum, code) => sum + convert(rates, balances[code] ?? 0, code, display),
     0,
-  )
-}
-
-/** The same for the limits: both are summed across currencies. */
-export function totalLimits(
-  rates: Record<string, number>,
-  limits: Record<string, Limits>,
-  codes: string[],
-  display: string,
-): Limits {
-  return codes.reduce<Limits>(
-    (sum, code) => {
-      const lim = limitsFor(limits, code)
-      return {
-        must: sum.must + convert(rates, lim.must, code, display),
-        net: sum.net + convert(rates, lim.net, code, display),
-      }
-    },
-    { must: 0, net: 0 },
   )
 }
 
@@ -167,6 +221,14 @@ export function dayLabel(at: number, now: number = Date.now()): string {
   if (off === 1) return 'Yesterday'
   const d = new Date(at)
   return d.getDate() + ' ' + MON[d.getMonth()]
+}
+
+/** "12 Sep", with the year added only when it is not this year. */
+export function shortDate(iso: string, now: number = Date.now()): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  if (!y || !m || !d) return ''
+  const label = d + ' ' + MON[m - 1]
+  return y === new Date(now).getFullYear() ? label : label + ' ' + y
 }
 
 export function monthIndex(at: number): number {

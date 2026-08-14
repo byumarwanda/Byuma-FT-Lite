@@ -11,9 +11,35 @@ export interface Expense {
   at: number
 }
 
-export interface Limits {
-  must: number
-  net: number
+/** How hard a plan is committed. P1 is certain, P2 likely, P3 loose. */
+export type Prio = 1 | 2 | 3
+
+/** Money set aside for something that is going to happen. */
+export interface Plan {
+  id: string
+  /** What it is — "Rent", "School fees". */
+  name: string
+  amt: number
+  cur: string
+  prio: Prio
+  /** Estimated day it happens, as yyyy-mm-dd, or '' when unknown. */
+  date: string
+}
+
+/** Money expected to arrive. Counted into spendable only when asked to. */
+export interface Income {
+  id: string
+  name: string
+  amt: number
+  cur: string
+  date: string
+  counted: boolean
+}
+
+/** What should remain if every plan happened and the musts were paid. */
+export interface Safety {
+  amt: number
+  cur: string
 }
 
 export interface Settings {
@@ -34,7 +60,9 @@ export interface UserData {
   manualRates: string[]
   ratesFetchedAt: number | null
   balances: Record<string, number>
-  limits: Record<string, Limits>
+  plans: Plan[]
+  incomes: Income[]
+  safety: Safety
   settings: Settings
   items: Expense[]
   /** True after "Delete all expenses", so the wiped empty state differs from the fresh one. */
@@ -59,7 +87,7 @@ export type Screen =
   | 'home'
   | 'stats'
   | 'balance'
-  | 'limits'
+  | 'plans'
   | 'curs'
   | 'profile'
   | 'name'

@@ -149,6 +149,25 @@ export function PasswordField({
   )
 }
 
+/**
+ * The eye beside a money figure. One tap hides the totals from anyone
+ * glancing at the screen; it is the same switch as "Hide totals" in
+ * Profile, so the eye and the toggle always agree.
+ */
+export function HideEye({ hidden, onToggle }: { hidden: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      className="eye-btn"
+      aria-label={hidden ? 'Show amounts' : 'Hide amounts'}
+      aria-pressed={hidden}
+      onClick={onToggle}
+    >
+      {hidden ? <EyeIcon /> : <EyeOffIcon />}
+    </button>
+  )
+}
+
 export function FormError({ message }: { message: string }) {
   if (!message) return null
   return (

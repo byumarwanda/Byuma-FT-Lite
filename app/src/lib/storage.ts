@@ -1,5 +1,5 @@
-import type { Account, UserData } from '../types'
-import { BASE_CURS, BASE_RATES } from './rates'
+import type { Account, Income, Plan, Prio, Safety, UserData } from '../types'
+import { BASE_CURS, BASE_RATES, convert } from './rates'
 
 /**
  * Everything is kept in this phone's own storage. Accounts live under one
@@ -65,19 +65,54 @@ export function freshData(): UserData {
     ratesFetchedAt: null,
     // "a zero balance in every currency", exactly as the design starts.
     balances: { RWF: 0, TL: 0, USD: 0 },
-    limits: {
-      RWF: { must: 0, net: 0 },
-      TL: { must: 0, net: 0 },
-      USD: { must: 0, net: 0 },
-    },
+    plans: [],
+    incomes: [],
+    safety: { amt: 0, cur: 'RWF' },
     settings: { round: false, reminder: true, hide: false },
     items: [],
     cleared: false,
   }
 }
 
+/** The shape saves had before Limits became Plans. */
+interface LegacyLimits {
+  limits?: Record<string, { must?: number; net?: number }>
+}
+
+const PRIOS: Prio[] = [1, 2, 3]
+
+function asPlans(v: unknown): Plan[] {
+  if (!Array.isArray(v)) return []
+  return v
+    .filter((p): p is Plan => !!p && typeof p === 'object')
+    .map((p) => ({
+      id: typeof p.id === 'string' ? p.id : newId(),
+      name: typeof p.name === 'string' ? p.name : '',
+      amt: typeof p.amt === 'number' && p.amt > 0 ? p.amt : 0,
+      cur: typeof p.cur === 'string' ? p.cur : 'RWF',
+      prio: PRIOS.includes(p.prio) ? p.prio : 1,
+      date: typeof p.date === 'string' ? p.date : '',
+    }))
+    .filter((p) => p.amt > 0)
+}
+
+function asIncomes(v: unknown): Income[] {
+  if (!Array.isArray(v)) return []
+  return v
+    .filter((i): i is Income => !!i && typeof i === 'object')
+    .map((i) => ({
+      id: typeof i.id === 'string' ? i.id : newId(),
+      name: typeof i.name === 'string' ? i.name : '',
+      amt: typeof i.amt === 'number' && i.amt > 0 ? i.amt : 0,
+      cur: typeof i.cur === 'string' ? i.cur : 'RWF',
+      date: typeof i.date === 'string' ? i.date : '',
+      counted: !!i.counted,
+    }))
+    .filter((i) => i.amt > 0)
+}
+
 /** Fill in anything a stored blob is missing, so an old save never crashes. */
-export function normalise(raw: Partial<UserData> | null): UserData {
+export function normalise(raw: (Partial<UserData> & LegacyLimits) | null): UserData {
   const base = freshData()
   if (!raw) return base
   const selCurs =
@@ -86,16 +121,42 @@ export function normalise(raw: Partial<UserData> | null): UserData {
     typeof raw.mainCur === 'string' && selCurs.includes(raw.mainCur)
       ? raw.mainCur
       : selCurs[0]
+  const rates = { ...base.rates, ...(raw.rates ?? {}) }
+
+  // A save from the Limits days: each currency's Must was taken in full,
+  // which is exactly what a P1 plan means, so each becomes one. The safety
+  // nets were one cushion spread over currencies — they are added up into
+  // a single pot in the main currency, at the save's own rates.
+  let plans = asPlans(raw.plans)
+  let safety: Safety =
+    raw.safety && typeof raw.safety.amt === 'number'
+      ? { amt: raw.safety.amt, cur: raw.safety.cur || mainCur }
+      : { amt: 0, cur: mainCur }
+  if (!raw.plans && !raw.safety && raw.limits) {
+    for (const [cur, lim] of Object.entries(raw.limits)) {
+      if (lim?.must && lim.must > 0) {
+        plans.push({ id: newId(), name: 'Musts', amt: lim.must, cur, prio: 1, date: '' })
+      }
+    }
+    const net = Object.entries(raw.limits).reduce(
+      (s, [cur, lim]) => s + convert(rates, lim?.net ?? 0, cur, mainCur),
+      0,
+    )
+    safety = { amt: net, cur: mainCur }
+  }
+
   return {
     cats: Array.isArray(raw.cats) ? raw.cats : base.cats,
     allCurs: Array.isArray(raw.allCurs) && raw.allCurs.length ? raw.allCurs : base.allCurs,
     selCurs,
     mainCur,
-    rates: { ...base.rates, ...(raw.rates ?? {}) },
+    rates,
     manualRates: Array.isArray(raw.manualRates) ? raw.manualRates : [],
     ratesFetchedAt: typeof raw.ratesFetchedAt === 'number' ? raw.ratesFetchedAt : null,
     balances: { ...(raw.balances ?? {}) },
-    limits: { ...(raw.limits ?? {}) },
+    plans,
+    incomes: asIncomes(raw.incomes),
+    safety,
     settings: { ...base.settings, ...(raw.settings ?? {}) },
     items: Array.isArray(raw.items) ? raw.items : [],
     cleared: !!raw.cleared,

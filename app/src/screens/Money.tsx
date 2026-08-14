@@ -1,10 +1,11 @@
 import type { App } from '../useApp'
-import { spendable, totalLimits } from '../lib/calc'
-import { clean } from '../lib/money'
+import type { Income, Plan, Prio } from '../types'
+import { shortDate } from '../lib/calc'
+import { clean, MINUS } from '../lib/money'
 import { estRate } from '../lib/rates'
-import { ChipScroller, DANGER, FormError, LINE, VIOLET, pick } from '../components/ui'
+import { ChipScroller, DANGER, FormError, LINE, pick } from '../components/ui'
 import { ACCENT } from '../components/ui'
-import { CurrencyTabs } from './Stats'
+import { CrossIcon } from '../components/icons'
 
 const border = (app: App, field: string) => (app.errField === field ? DANGER : LINE)
 
@@ -151,77 +152,342 @@ export function Balance({ app }: { app: App }) {
   )
 }
 
-export function LimitsScreen({ app }: { app: App }) {
-  const { activeCur, balance } = app
-  const must = Number(app.fLim.must) || 0
-  const net = Number(app.fLim.net) || 0
-
-  // Limits are typed one currency at a time but spent from one pot, so the
-  // preview shows what is left of the whole balance once every currency's
-  // limits are counted — with the figures being typed here standing in.
-  const wholeLimits = totalLimits(
-    app.data.rates,
-    { ...app.data.limits, [activeCur]: { must, net } },
-    app.selCurs,
-    activeCur,
+/** Currency chips inside a form — only shown when there is a choice. */
+function CurPick({
+  curs,
+  value,
+  onPick,
+}: {
+  curs: string[]
+  value: string
+  onPick: (c: string) => void
+}) {
+  if (curs.length < 2) return null
+  return (
+    <div className="pick-row">
+      {curs.map((c) => (
+        <button
+          key={c}
+          type="button"
+          className="pick-chip"
+          style={pick(c === value, '#faf9fc', '#4b4f5e')}
+          onClick={() => onPick(c)}
+        >
+          {c}
+        </button>
+      ))}
+    </div>
   )
+}
 
-  const rows = [
-    { k: 'must' as const, label: 'Must', hint: 'strict', dot: DANGER },
-    { k: 'net' as const, label: 'Safety net', hint: 'flexible', dot: VIOLET },
-  ]
+function DateRow({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="date-row">
+      <span className="date-label">Around when?</span>
+      <input
+        className="date-input"
+        type="date"
+        aria-label="Estimated date"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  )
+}
+
+const PRIO_WORDS: { p: Prio; word: string }[] = [
+  { p: 1, word: 'all of it' },
+  { p: 2, word: 'half' },
+  { p: 3, word: 'a fifth' },
+]
+
+const PRIO_COLOR: Record<Prio, string> = { 1: DANGER, 2: '#7b5ec7', 3: '#8f92a0' }
+
+// A missing date sorts last, so the vague plans sink below the dated ones.
+const byPlan = (a: Plan, b: Plan) =>
+  a.prio - b.prio || (a.date || '￿').localeCompare(b.date || '￿')
+const byWhen = (a: Income, b: Income) =>
+  (a.date || '￿').localeCompare(b.date || '￿')
+
+/**
+ * Plans, the safety net, and expected income — the three dials behind
+ * spendable. Rows save the moment they are added or changed; there is no
+ * screen-wide Save because there is nothing else to confirm.
+ */
+export function PlansScreen({ app }: { app: App }) {
+  const { data, selCurs, activeCur } = app
+  const pf = app.planForm
+  const inf = app.incomeForm
+  const plans = data.plans.slice().sort(byPlan)
+  const incomes = data.incomes.slice().sort(byWhen)
 
   return (
     <div className="page">
-      <CurrencyTabs app={app} flush />
-
-      <div className="limits-body">
-        {rows.map((r) => (
-          <div className="limit-block" key={r.k}>
-            <div className="limit-head">
-              <span className="dot-8" style={{ background: r.dot }} />
-              <span className="limit-label">{r.label}</span>
-              <span className="limit-hint">{r.hint}</span>
-            </div>
-            <div
-              className="money-row limit-row"
-              style={{ borderColor: border(app, 'lim' + r.k) }}
-            >
-              <span className="money-code">{activeCur}</span>
-              <input
-                className="money-input"
-                type="text"
-                inputMode="decimal"
-                aria-label={r.label}
-                placeholder="0"
-                value={app.fLim[r.k]}
-                onChange={(e) => {
-                  app.setFLim({ ...app.fLim, [r.k]: clean(e.target.value) })
-                  app.clearErr()
+      {/* ---------------- plans ---------------- */}
+      {plans.length > 0 && (
+        <div className="list-card mt-22">
+          {plans.map((p) => (
+            <div className="plan-row" key={p.id} onClick={() => app.openPlanForm(p)}>
+              <span
+                className="prio-badge"
+                style={{ color: PRIO_COLOR[p.prio], borderColor: PRIO_COLOR[p.prio] }}
+              >
+                P{p.prio}
+              </span>
+              <span className="plan-main">
+                <span className="plan-name">{p.name}</span>
+                {p.date && <span className="plan-date">{shortDate(p.date)}</span>}
+              </span>
+              <span className="plan-amt">{app.fmtIn(p.amt, p.cur)}</span>
+              <button
+                type="button"
+                className="x-btn"
+                aria-label={'Remove ' + p.name}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  app.askDeletePlan(p)
                 }}
-              />
+              >
+                <CrossIcon />
+              </button>
             </div>
+          ))}
+        </div>
+      )}
+
+      {pf ? (
+        <div className="mini-form">
+          <input
+            className="field"
+            type="text"
+            placeholder="What is it? Rent, school fees…"
+            value={pf.name}
+            onChange={(e) => {
+              app.setPlanForm({ ...pf, name: e.target.value })
+              app.clearErr()
+            }}
+            style={{ borderColor: border(app, 'pname') }}
+          />
+          <div className="money-row mt-9" style={{ borderColor: border(app, 'pamt') }}>
+            <span className="money-code">{pf.cur}</span>
+            <input
+              className="money-input"
+              type="text"
+              inputMode="decimal"
+              aria-label="Amount"
+              placeholder="0"
+              value={pf.amt}
+              onChange={(e) => {
+                app.setPlanForm({ ...pf, amt: clean(e.target.value) })
+                app.clearErr()
+              }}
+            />
           </div>
-        ))}
+          <CurPick curs={selCurs} value={pf.cur} onPick={(c) => app.setPlanForm({ ...pf, cur: c })} />
+
+          <div className="prio-seg">
+            {PRIO_WORDS.map(({ p, word }) => (
+              <button
+                key={p}
+                type="button"
+                className="prio-btn"
+                style={pick(pf.prio === p, '#faf9fc', '#4b4f5e')}
+                onClick={() => app.setPlanForm({ ...pf, prio: p })}
+              >
+                <span className="prio-btn-p">P{p}</span>
+                <span className="prio-btn-word">{word}</span>
+              </button>
+            ))}
+          </div>
+
+          <DateRow value={pf.date} onChange={(v) => app.setPlanForm({ ...pf, date: v })} />
+          <FormError message={app.formError} />
+          <div className="form-actions">
+            <button type="button" className="editor-cancel" onClick={() => app.setPlanForm(null)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="editor-save"
+              style={{ background: ACCENT, borderColor: LINE }}
+              onClick={app.savePlan}
+            >
+              {pf.id ? 'Save changes' : 'Add plan'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" className="extra-link mt-14" onClick={() => app.openPlanForm()}>
+          ＋ Add a plan
+        </button>
+      )}
+      <div className="helper">
+        A plan sets money aside before it is spent: all of a P1, half of a P2, a
+        fifth of a P3.
       </div>
 
-      <FormError message={app.formError} />
-
-      <div className="limit-preview">
-        <span className="limit-preview-label">Spendable after limits</span>
-        <span className="limit-preview-value">
-          {app.fmtIn(spendable(balance, wholeLimits), activeCur)}
-        </span>
+      {/* ---------------- safety net ---------------- */}
+      <div className="section-label">Safety net</div>
+      <div className="money-row" style={{ marginBottom: 0 }}>
+        <span className="money-code">{data.safety.cur}</span>
+        <input
+          className="money-input"
+          type="text"
+          inputMode="decimal"
+          aria-label="Safety net"
+          placeholder="0"
+          value={app.fSafety}
+          onChange={(e) => app.editSafety(e.target.value)}
+        />
+      </div>
+      <CurPick curs={selCurs} value={data.safety.cur} onPick={app.setSafetyCur} />
+      <div className="helper">
+        What should remain if every plan happened and the musts were paid. 70%
+        of it is held back.
       </div>
 
-      <button
-        type="button"
-        className="btn-save"
-        style={{ background: ACCENT }}
-        onClick={app.saveLimits}
-      >
-        Save
-      </button>
+      {/* ---------------- expected income ---------------- */}
+      <div className="section-label">Expected income</div>
+      {incomes.length > 0 && (
+        <div className="list-card">
+          {incomes.map((i) => (
+            <div className="plan-row" key={i.id} onClick={() => app.openIncomeForm(i)}>
+              <span className="plan-main">
+                <span className="plan-name">{i.name}</span>
+                {i.date && <span className="plan-date">{shortDate(i.date)}</span>}
+              </span>
+              <span className="plan-amt">{app.fmtIn(i.amt, i.cur)}</span>
+              <button
+                type="button"
+                className="toggle toggle-sm"
+                role="switch"
+                aria-checked={i.counted}
+                aria-label={'Count ' + i.name + ' into spendable'}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  app.toggleCounted(i.id)
+                }}
+                style={{
+                  background: i.counted ? ACCENT : 'rgba(20,22,31,.14)',
+                  justifyContent: i.counted ? 'flex-end' : 'flex-start',
+                }}
+              >
+                <span />
+              </button>
+              <button
+                type="button"
+                className="x-btn"
+                aria-label={'Remove ' + i.name}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  app.askDeleteIncome(i)
+                }}
+              >
+                <CrossIcon />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {inf ? (
+        <div className="mini-form">
+          <input
+            className="field"
+            type="text"
+            placeholder="Where from? Salary, a client…"
+            value={inf.name}
+            onChange={(e) => {
+              app.setIncomeForm({ ...inf, name: e.target.value })
+              app.clearErr()
+            }}
+            style={{ borderColor: border(app, 'iname') }}
+          />
+          <div className="money-row mt-9" style={{ borderColor: border(app, 'iamt') }}>
+            <span className="money-code">{inf.cur}</span>
+            <input
+              className="money-input"
+              type="text"
+              inputMode="decimal"
+              aria-label="Amount"
+              placeholder="0"
+              value={inf.amt}
+              onChange={(e) => {
+                app.setIncomeForm({ ...inf, amt: clean(e.target.value) })
+                app.clearErr()
+              }}
+            />
+          </div>
+          <CurPick curs={selCurs} value={inf.cur} onPick={(c) => app.setIncomeForm({ ...inf, cur: c })} />
+          <DateRow value={inf.date} onChange={(v) => app.setIncomeForm({ ...inf, date: v })} />
+
+          <div className="count-row">
+            <span className="toggle-label">Count it in already</span>
+            <button
+              type="button"
+              className="toggle"
+              role="switch"
+              aria-checked={inf.counted}
+              aria-label="Count it in already"
+              onClick={() => app.setIncomeForm({ ...inf, counted: !inf.counted })}
+              style={{
+                background: inf.counted ? ACCENT : 'rgba(20,22,31,.14)',
+                justifyContent: inf.counted ? 'flex-end' : 'flex-start',
+              }}
+            >
+              <span />
+            </button>
+          </div>
+
+          <FormError message={app.formError} />
+          <div className="form-actions">
+            <button type="button" className="editor-cancel" onClick={() => app.setIncomeForm(null)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="editor-save"
+              style={{ background: ACCENT, borderColor: LINE }}
+              onClick={app.saveIncome}
+            >
+              {inf.id ? 'Save changes' : 'Add income'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button type="button" className="extra-link mt-14" onClick={() => app.openIncomeForm()}>
+          ＋ Add income
+        </button>
+      )}
+      <div className="helper">
+        The switch on a row counts that money into spendable before it arrives.
+      </div>
+
+      {/* ---------------- how spendable is born ---------------- */}
+      <div className="sum-card">
+        <div className="sum-row">
+          <span>Balance</span>
+          <span>{app.fmtIn(app.balance, activeCur)}</span>
+        </div>
+        <div className="sum-row">
+          <span>Plans</span>
+          <span>{MINUS + ' ' + app.fmtIn(app.plansOff, activeCur)}</span>
+        </div>
+        <div className="sum-row">
+          <span>Safety net · 70%</span>
+          <span>{MINUS + ' ' + app.fmtIn(app.safetyOff, activeCur)}</span>
+        </div>
+        {app.incomeIn > 0 && (
+          <div className="sum-row">
+            <span>Income counted</span>
+            <span>{'+ ' + app.fmtIn(app.incomeIn, activeCur)}</span>
+          </div>
+        )}
+        <div className="sum-total">
+          <span>Spendable</span>
+          <span>{app.fmtIn(app.spend, activeCur)}</span>
+        </div>
+      </div>
     </div>
   )
 }

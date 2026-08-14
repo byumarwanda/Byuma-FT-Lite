@@ -1181,61 +1181,227 @@
 }
 
 /* ==================================================================
-   3.3 Limits
+   3.3 Plans, safety net, expected income
 ================================================================== */
-.limits-body {
-  margin-top: 22px;
+.mt-14 {
+  margin-top: 14px;
 }
 
-.limit-block {
-  margin-bottom: 14px;
-}
-
-.limit-head {
+.plan-row {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
+  padding: 13px 14px 13px 18px;
+  border-top: 1px solid var(--divider);
+  cursor: pointer;
 }
 
-.dot-8 {
-  width: 8px;
-  height: 8px;
+.plan-row:first-child {
+  border-top-color: transparent;
+}
+
+@media (hover: hover) {
+  .plan-row:hover {
+    background: var(--sunken);
+  }
+}
+
+.prio-badge {
   flex: none;
-  border-radius: 50%;
+  width: 30px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 7px;
+  font: 600 11px/1 'Instrument Sans', system-ui, sans-serif;
 }
 
-.limit-label {
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+.plan-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.limit-hint {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+.plan-name {
+  font: 500 14px/1.1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-date {
+  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
   color: var(--muted);
 }
 
-.limit-row {
-  margin-top: 9px;
-  margin-bottom: 0;
+.plan-amt {
+  flex: none;
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
 }
 
-.limit-preview {
+/* the income row's smaller count-it-in switch */
+.toggle-sm {
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+}
+
+.toggle-sm span {
+  width: 18px;
+  height: 18px;
+}
+
+.mini-form {
+  margin-top: 14px;
+}
+
+.pick-row {
   display: flex;
-  align-items: baseline;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.pick-chip {
+  flex: none;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 11px;
+  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.prio-seg {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.prio-btn {
+  flex: 1;
+  height: 52px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.prio-btn-p {
+  font: 600 14px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.prio-btn-word {
+  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
+  opacity: 0.72;
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 54px;
+  margin-top: 9px;
+  padding: 0 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.date-label {
+  flex: none;
+  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.date-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  outline: none;
+  font: 400 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.count-row {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 6px;
-  padding: 15px 16px;
+  margin-top: 14px;
+  padding: 0 2px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* how spendable is born — the running sum at the foot of the screen */
+.sum-card {
+  margin-top: 26px;
+  padding: 16px;
   border-radius: 14px;
   background: rgba(20, 22, 31, 0.04);
 }
 
-.limit-preview-label {
-  font: 400 13px/1.4 'Instrument Sans', system-ui, sans-serif;
+.sum-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  font: 400 13px/1.2 'Instrument Sans', system-ui, sans-serif;
   color: var(--ink-2);
 }
 
-.limit-preview-value {
-  font: 500 15px/1 'Instrument Sans', system-ui, sans-serif;
+.sum-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  font: 500 15px/1.2 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+/* the eye that hides the totals, sitting beside a figure's label */
+.label-eye {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.eye-btn {
+  width: 30px;
+  height: 30px;
+  margin: -8px 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--icon-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .eye-btn:hover {
+    color: var(--ink-2);
+  }
 }
 
 /* ==================================================================
