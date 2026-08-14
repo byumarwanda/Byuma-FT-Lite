@@ -161,14 +161,15 @@ export function SignIn({ app }: { app: App }) {
 
 /**
  * There is no email server behind this app, so a reset link cannot be sent.
- * What the phone can do is prove it is you, using the same fingerprint, face
- * or PIN that unlocks it — but only if that was switched on beforehand.
- * Without it nothing can tell one person from another, and the only honest
- * offer is to start the account over.
+ * What the phone can do is prove it is you: accounts live only on this phone,
+ * so passing the same fingerprint, face or PIN that unlocks the phone IS the
+ * identity check — no prior setup needed. Only a phone with no screen lock
+ * the app can use has nothing to check against, and there the only honest
+ * offer left is to start the account over.
  */
 export function Forgot({ app }: { app: App }) {
   const acc = app.recovering
-  const canProve = app.canUsePhone && !!acc?.passkeyId
+  const canProve = app.canUsePhone
 
   return (
     <div className="page">
@@ -208,8 +209,10 @@ export function Forgot({ app }: { app: App }) {
         <>
           <div className="forgot-note">
             {canProve
-              ? 'Confirm it is you with the same fingerprint, face or PIN that unlocks this phone. Then you can pick a new password.'
-              : 'This account never turned on phone unlock, so nothing on this phone can prove who you are. Your password cannot be recovered.'}
+              ? acc.passkeyId
+                ? 'Confirm it is you with the same fingerprint, face or PIN that unlocks this phone. Then you can pick a new password.'
+                : 'Your account lives only on this phone, so the phone can vouch for you. Confirm with the same fingerprint, face or PIN that unlocks it, then pick a new password. The phone will remember your account afterwards, so next time you can sign in with one tap.'
+              : 'This phone has no screen lock the app can check, so nothing can prove who you are. Your password cannot be recovered.'}
           </div>
 
           {canProve ? (

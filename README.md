@@ -137,17 +137,24 @@ fingerprint never leaves your phone; the app only ever learns whether your
 phone said yes.
 
 **If you forget your password.** Tap **Forgot your password?** on the sign-in
-screen.
+screen. Your account lives only on this phone, so the phone itself can vouch
+for you: confirm with the same fingerprint, face or PIN that unlocks the
+phone, and set a new password straight away. Your expenses are untouched.
+This works even if you never turned on phone unlock — and after it, phone
+unlock is on for that account, so the next sign-in is one tap.
 
-- If you turned on phone unlock, confirm with your fingerprint, face or PIN
-  and you can set a new password straight away. Your expenses are untouched.
-- If you did not, nothing on the phone can prove who you are — there is no
-  email server behind this app to send a reset link to. The only honest
-  option left is to erase that account and start over, which deletes its
-  expenses. The app says so plainly before it does anything.
+Be clear-eyed about what that means: anyone who can unlock your phone can
+also reset a password in this app. On your own phone that person is you; if
+you share your phone and its PIN, you share what the PIN can open.
 
-**So turn on phone unlock early.** It is both the fast way in and the only
-way back if the password goes.
+Only a phone with no screen lock at all (or a browser that cannot ask for
+one) has nothing to check against. There is no email server behind this app
+to send a reset link to, so the only honest option left there is to erase
+that account and start over, which deletes its expenses. The app says so
+plainly before it does anything.
+
+**Phone unlock is still worth turning on early** — it is the fast way in:
+one tap instead of typing a password.
 
 ---
 
