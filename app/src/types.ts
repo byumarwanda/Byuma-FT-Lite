@@ -5,6 +5,8 @@ export interface Expense {
   amount: number
   method: Method
   note: string
+  /** A longer clarification, offered only inside the editor. */
+  detail?: string
   /** The currency the expense was recorded in — the main currency at the time. */
   cur: string
   /** Real timestamp. The day grouping on the timeline is derived from this. */

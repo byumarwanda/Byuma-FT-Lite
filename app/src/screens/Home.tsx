@@ -314,7 +314,7 @@ function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) 
               type="text"
               inputMode="decimal"
               aria-label="Amount"
-              value={app.eAmt}
+              value={app.eAmt ? groupTyped(app.eAmt) : ''}
               onChange={(e) => app.setEAmt(sanitizeAmount(e.target.value))}
             />
           </div>
@@ -324,6 +324,13 @@ function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) 
             placeholder="What was it for?"
             value={app.eNote}
             onChange={(e) => app.setENote(e.target.value)}
+          />
+          <input
+            className="editor-note"
+            type="text"
+            placeholder="Details, if it needs any"
+            value={app.eDetail}
+            onChange={(e) => app.setEDetail(e.target.value)}
           />
           <div className="editor-methods">
             {METHODS.map(({ k, label }) => (

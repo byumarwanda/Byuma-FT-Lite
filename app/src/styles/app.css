@@ -907,7 +907,29 @@
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  height: 110px;
+  height: 170px;
+}
+
+/* Bars or the day line — the little switch on the section's right. */
+.seg-mini {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.seg-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.day-graph {
+  display: block;
+  width: 100%;
+  height: 170px;
 }
 
 .month {
@@ -1187,17 +1209,63 @@
   margin-top: 14px;
 }
 
+/* One line per section: label, the (i), and the section's total. */
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 26px 0 10px;
+}
+
+.section-head .section-label {
+  margin: 0;
+}
+
+.section-total {
+  margin-left: auto;
+  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.info-btn {
+  width: 24px;
+  height: 24px;
+  margin: -5px 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--icon-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .info-btn:hover {
+    color: var(--ink-2);
+  }
+}
+
+.info-note {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(20, 22, 31, 0.04);
+  font: 400 12.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
 .plan-row {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 13px 14px 13px 18px;
-  border-top: 1px solid var(--divider);
   cursor: pointer;
 }
 
-.plan-row:first-child {
-  border-top-color: transparent;
+.plan-item + .plan-item {
+  border-top: 1px solid var(--divider);
 }
 
 @media (hover: hover) {
@@ -1259,6 +1327,19 @@
 
 .mini-form {
   margin-top: 14px;
+}
+
+/* The form dropped in under its own row, inside the white card. */
+.mini-form-card {
+  margin-top: 0;
+  padding: 4px 14px 14px;
+  border-top: 1px solid var(--divider);
+}
+
+.mini-form-card .field,
+.mini-form-card .money-row,
+.mini-form-card .date-row {
+  background: var(--sunken);
 }
 
 .pick-row {
@@ -1347,6 +1428,33 @@
   display: flex;
   gap: 8px;
   margin-top: 14px;
+}
+
+.safety-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.btn-set {
+  flex: 1;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.btn-reset {
+  padding: 0 18px;
+  height: 44px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
 }
 
 /* how spendable is born — the running sum at the foot of the screen */

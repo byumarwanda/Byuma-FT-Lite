@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import type { App } from '../useApp'
 import type { Method } from '../types'
-import { monthIndex, monthName, sumIn, topCategories } from '../lib/calc'
+import { amountIn, dayOffset, monthIndex, monthName, sumIn, topCategories } from '../lib/calc'
 import { MINUS } from '../lib/money'
 import { ChevronRight, METHODS, MLABEL, WarnIcon } from '../components/icons'
 import { ACCENT, DANGER, HideEye, VIOLET, pick } from '../components/ui'
@@ -33,6 +34,9 @@ export function Stats({ app }: { app: App }) {
   const { data, activeCur, balance, plansOff, safetyOff, incomeIn, spend, mainCur } = app
   const rates = data.rates
   const items = data.items
+
+  // Last months: the design's bars, or a line that records every single day.
+  const [monthsView, setMonthsView] = useState<'bars' | 'graph'>('bars')
 
   const red = app.shortfall > 0
   const violet = !red && spend < 0
@@ -189,26 +193,50 @@ export function Stats({ app }: { app: App }) {
       </div>
 
       {/* ---------------- last months ---------------- */}
-      <div className="section-label">Last months</div>
-      <div className="card-months">
-        <div className="months">
-          {months.map((m) => (
-            <div className="month" key={m.mi}>
-              <span className="month-figure">
-                {m.mi === thisMonth && m.v ? app.priv(app.fmt(m.v)) : ''}
-              </span>
-              <span
-                className="month-bar"
-                style={{
-                  // Inline styles skip the build's px-to-rem step, so the
-                  // design's px are converted here (1rem = 10 design px).
-                  height: Math.max(6, Math.round((m.v / monthMax) * 78)) / 10 + 'rem',
-                  background: m.mi === thisMonth ? ACCENT : 'rgba(20,22,31,.15)',
-                }}
-              />
-            </div>
-          ))}
+      <div className="section-head">
+        <span className="section-label">Last months</span>
+        <div className="seg-mini">
+          <button
+            type="button"
+            className="seg-btn"
+            style={pick(monthsView === 'bars', '#fff', '#4b4f5e')}
+            onClick={() => setMonthsView('bars')}
+          >
+            Bars
+          </button>
+          <button
+            type="button"
+            className="seg-btn"
+            style={pick(monthsView === 'graph', '#fff', '#4b4f5e')}
+            onClick={() => setMonthsView('graph')}
+          >
+            Graph
+          </button>
         </div>
+      </div>
+      <div className="card-months">
+        {monthsView === 'bars' ? (
+          <div className="months">
+            {months.map((m) => (
+              <div className="month" key={m.mi}>
+                <span className="month-figure">
+                  {m.mi === thisMonth && m.v ? app.priv(app.fmt(m.v)) : ''}
+                </span>
+                <span
+                  className="month-bar"
+                  style={{
+                    // Inline styles skip the build's px-to-rem step, so the
+                    // design's px are converted here (1rem = 10 design px).
+                    height: Math.max(6, Math.round((m.v / monthMax) * 130)) / 10 + 'rem',
+                    background: m.mi === thisMonth ? ACCENT : 'rgba(20,22,31,.15)',
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <DayGraph app={app} />
+        )}
         <div className="month-labels">
           {months.map((m) => (
             <span key={m.mi}>{monthName(m.mi)}</span>
@@ -216,5 +244,45 @@ export function Stats({ app }: { app: App }) {
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * The same six months, but day by day: every day's spending is one point
+ * on the line, so a single heavy day stands up as its own spike instead
+ * of hiding inside a month's bar.
+ */
+function DayGraph({ app }: { app: App }) {
+  const DAYS = 183
+  const daily = new Array<number>(DAYS).fill(0)
+  for (const i of app.data.items) {
+    const off = dayOffset(i.at)
+    if (off >= 0 && off < DAYS) {
+      daily[DAYS - 1 - off] += amountIn(app.data.rates, i, app.mainCur)
+    }
+  }
+  const max = Math.max(...daily, 1)
+  const pts = daily
+    .map((v, ix) => ix + ',' + Math.round((100 - (v / max) * 90) * 10) / 10)
+    .join(' ')
+
+  return (
+    <svg
+      className="day-graph"
+      viewBox={'0 0 ' + (DAYS - 1) + ' 100'}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label="Spending per day over the last six months"
+    >
+      <polygon points={'0,100 ' + pts + ' ' + (DAYS - 1) + ',100'} fill="rgba(59,69,201,.08)" />
+      <polyline
+        points={pts}
+        fill="none"
+        stroke={ACCENT}
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
   )
 }
