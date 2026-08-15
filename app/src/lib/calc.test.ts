@@ -5,6 +5,7 @@ import {
   countedIncome,
   dayLabel,
   dayOffset,
+  dayStamp,
   intoSafety,
   p1Shortfall,
   plansTake,
@@ -145,6 +146,10 @@ describe('short dates', () => {
     expect(shortDate(y + '-09-12')).toBe('12 Sep')
     expect(shortDate('2030-01-05')).toBe('5 Jan 2030')
     expect(shortDate('')).toBe('')
+  })
+
+  it('stamps a timestamp as day and month for the graph axis', () => {
+    expect(dayStamp(new Date(2026, 7, 13, 12, 0).getTime())).toBe('13 Aug')
   })
 })
 
