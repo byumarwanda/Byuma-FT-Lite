@@ -260,8 +260,10 @@ Two smaller adjustments you asked for during the build:
   swipeable slides whose pictures are working miniatures of the app's own
   cards. Skippable, and it holds still for phones that ask for reduced
   motion.
-- The **Analytics button** sits quieter now — a white card with the
-  accent in the ink, instead of a solid block shouting over the screen.
+- The **Analytics button** sits quieter now — a soft wash of the accent
+  instead of a solid block shouting over the screen.
+- Profile → Data ends with **Delete account** — it removes the account
+  and everything under it from the phone, after saying so plainly.
 
 ---
 

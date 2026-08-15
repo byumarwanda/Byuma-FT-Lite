@@ -431,8 +431,8 @@
   font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
 }
 
-/* A door, not a billboard: surface and hairline like every card, with
-   the accent kept to the ink so it still reads as the way to Analytics. */
+/* A door, not a billboard: a soft wash of the accent instead of a solid
+   block, so it stands out from the white cards without shouting. */
 .btn-analytics {
   width: 100%;
   height: 54px;
@@ -441,17 +441,17 @@
   align-items: center;
   justify-content: center;
   gap: 9px;
-  border: 1px solid var(--hairline);
+  border: 1px solid rgba(59, 69, 201, 0.3);
   border-radius: 15px;
-  background: var(--surface);
+  background: rgba(59, 69, 201, 0.08);
   color: var(--accent);
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 600 14.5px/1 'Instrument Sans', system-ui, sans-serif;
   cursor: pointer;
 }
 
 @media (hover: hover) {
   .btn-analytics:hover {
-    background: var(--sunken);
+    background: rgba(59, 69, 201, 0.13);
   }
 }
 
@@ -2203,6 +2203,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 22px;
+}
+
+.tour-count {
+  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
 }
 
 .tour-skip {

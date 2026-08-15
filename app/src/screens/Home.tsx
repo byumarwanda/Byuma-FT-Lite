@@ -183,7 +183,7 @@ export function Home({ app }: { app: App }) {
               <button
                 type="button"
                 className="btn-analytics empty-action"
-                style={{ background: ACCENT }}
+                style={{ background: ACCENT, borderColor: ACCENT, color: '#fff' }}
                 onClick={() => app.goBalance('home')}
               >
                 <PlusSmallIcon />

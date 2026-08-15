@@ -361,11 +361,11 @@ export function useApp() {
       setData(fresh)
       setBalCur(fresh.mainCur)
       // A brand-new person gets the short tour first; the phone's back
-      // button (and Skip) both land on home.
+      // button (and Skip) both land on home. No toast here — it would sit
+      // exactly over the tour's own header.
       setScreen('tour')
       setBack('home')
       resetForms()
-      showToast('Account ready.', 'ok')
     })
   }, [fName, fEmail, fPass, fail, freeze, resetForms, showToast])
 
@@ -1091,6 +1091,35 @@ export function useApp() {
     })
   }, [account, fPass, fNew, fNew2, fail, freeze, resetForms, showToast])
 
+  /**
+   * The whole account, gone from this phone: the account itself, its
+   * expenses, plans and settings. Said plainly before anything happens.
+   */
+  const askDeleteAccount = useCallback(() => {
+    if (!account) return
+    setConfirm({
+      title: 'Delete your account?',
+      body:
+        'Your account and everything saved under ' +
+        account.email +
+        ' on this phone are deleted. This cannot be undone.',
+      cta: 'Delete account',
+      danger: true,
+      yes: () =>
+        freeze('Deleting account', FREEZE.erase, () => {
+          removeAccount(account.id)
+          saveSession(null)
+          setLastAccount((l) => (l && l.id === account.id ? null : l))
+          setAccount(null)
+          setData(freshData())
+          setScreen('signup')
+          setBack('home')
+          resetForms()
+          showToast('Account deleted.', 'ok')
+        }),
+    })
+  }, [account, freeze, resetForms, showToast])
+
   const setSetting = useCallback((key: keyof Settings) => {
     setData((d) => ({ ...d, settings: { ...d.settings, [key]: !d.settings[key] } }))
   }, [])
@@ -1252,6 +1281,7 @@ export function useApp() {
     openEditor,
     saveEdit,
     askClear,
+    askDeleteAccount,
     saveBalance,
     openExtra,
     addCur,
