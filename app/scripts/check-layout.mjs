@@ -108,8 +108,9 @@ for (const device of DEVICES) {
   await shoot(page, device, '1.2-tour-2')
   await page.click('text=Skip')
 
-  // 1.3 Nothing recorded yet
+  // 1.3 Nothing recorded yet — let the entrance animation settle first
   await page.waitForSelector('text=No expenses yet', { timeout: 8000 })
+  await page.waitForTimeout(400)
   await shoot(page, device, '1.3-empty')
 
   // 2.1 Record an expense — the amount is typed on the phone's own keyboard

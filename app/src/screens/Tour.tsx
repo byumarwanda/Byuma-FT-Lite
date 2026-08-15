@@ -13,19 +13,19 @@ import { ACCENT, DANGER, VIOLET } from '../components/ui'
 const SLIDES = [
   {
     title: 'Record in seconds.',
-    body: 'Type the amount, tap how you paid, done. Categories you type once become one-tap chips.',
+    body: 'Type the amount. Tap how you paid. Tap Record. That is all.',
   },
   {
-    title: 'One balance, every currency.',
-    body: 'RWF, TL and USD are one pot. Tell the app what you have — spending draws it down by itself.',
+    title: 'All your money, one total.',
+    body: 'RWF, TL and USD add up into one balance. When you spend, it goes down by itself.',
   },
   {
     title: 'Plans protect your money.',
-    body: 'All of a P1 is set aside, half of a P2, a fifth of a P3, plus a safety net. What is left is truly spendable.',
+    body: 'Set money aside for things coming up, and keep a safety net. What is left is what you can freely spend.',
   },
   {
     title: 'Yours, on this phone.',
-    body: 'Everything lives on your phone and works without internet. Your fingerprint, face or PIN signs you in.',
+    body: 'Everything stays on your phone. It works without internet, and your fingerprint or PIN signs you in.',
   },
 ]
 
@@ -145,7 +145,10 @@ export function Tour({ app }: { app: App }) {
   return (
     <div className="tour">
       <div className="tour-top">
-        <span className="wordmark">BYUMA FT</span>
+        <span className="wordmark">Quick tour</span>
+        <span className="tour-count">
+          {ix + 1} of {SLIDES.length}
+        </span>
         <button type="button" className="tour-skip" onClick={() => app.go('home')}>
           Skip
         </button>

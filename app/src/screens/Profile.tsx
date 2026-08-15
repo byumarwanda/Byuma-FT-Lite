@@ -137,6 +137,9 @@ export function Profile({ app }: { app: App }) {
         <button type="button" className="danger-row" onClick={app.askClear}>
           Delete all expenses
         </button>
+        <button type="button" className="danger-row" onClick={app.askDeleteAccount}>
+          Delete account
+        </button>
       </div>
 
       <button type="button" className="signout" onClick={app.askSignOut}>
