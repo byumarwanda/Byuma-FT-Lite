@@ -254,6 +254,8 @@ Two smaller adjustments you asked for during the build:
   point, about eight days per view, sliding under the card's edge with a
   fade and docked at today. One shared scale keeps every rise and fall
   comparable, and the first tick and each 1st of a month name the month.
+  Tap any bar to read that day: it takes the accent and its amount
+  appears above it, with today playing that role until you pick another.
 - Editing an expense offers a **Details** line for clarification. It lives
   only inside the editor — the list stays as clean as the design drew it.
 - On the Plans screen each section keeps its explanation behind a small

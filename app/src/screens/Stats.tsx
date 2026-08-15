@@ -240,8 +240,12 @@ function dailySeries(app: App) {
 // One day of horizontal room; a week and a bit fills a phone's view.
 const DAY_W = 38
 
-/** The marks under a strip: the first tick and every 1st name the month. */
-function DayTicks({ now, span }: { now: number; span: number }) {
+/**
+ * The marks under a strip: the first tick and every 1st name the month.
+ * `mark` is the emphasized day — today unless a bar was picked.
+ */
+function DayTicks({ now, span, mark }: { now: number; span: number; mark?: number }) {
+  const strong = mark ?? span - 1
   return (
     <div className="day-ticks">
       {Array.from({ length: span }, (_, ix) => {
@@ -250,7 +254,7 @@ function DayTicks({ now, span }: { now: number; span: number }) {
         const label =
           ix === 0 || d.getDate() === 1 ? dayStamp(at, now) : String(d.getDate())
         return (
-          <span key={ix} className={ix === span - 1 ? 'day-tick-today' : undefined}>
+          <span key={ix} className={ix === strong ? 'day-tick-today' : undefined}>
             {label}
           </span>
         )
@@ -264,11 +268,20 @@ function DayTicks({ now, span }: { now: number; span: number }) {
  * starts at the first recorded day, grows a day at a time, opens docked at
  * today, and slides under the card's edge with a fade on the side holding
  * more days. One shared scale keeps every day comparable.
+ *
+ * Tapping a bar reads that day: it takes the accent, its amount appears
+ * above it, and its tick goes bold. The row is tall enough that the figure
+ * always has its headroom, so nothing shifts when it appears. Today plays
+ * that role until another day is picked.
  */
 function DayBars({ app }: { app: App }) {
   const scroller = useRef<HTMLDivElement | null>(null)
   const hideMonth = app.data.settings.hideMonth
   const { now, span, daily, max } = dailySeries(app)
+
+  // null means today; a number is a day the person tapped to read.
+  const [picked, setPicked] = useState<number | null>(null)
+  const sel = picked === null || picked >= span ? span - 1 : picked
 
   // Open at today.
   useEffect(() => {
@@ -286,8 +299,15 @@ function DayBars({ app }: { app: App }) {
       <div style={{ width: (span * DAY_W) / 10 + 'rem' }}>
         <div className="bar-row">
           {daily.map((v, ix) => (
-            <div className="bar-col" key={ix}>
-              {ix === span - 1 && v > 0 && (
+            <button
+              type="button"
+              className="bar-col"
+              key={ix}
+              aria-label={dayStamp(now - (span - 1 - ix) * DAY, now)}
+              aria-pressed={ix === sel}
+              onClick={() => setPicked(ix === span - 1 ? null : ix)}
+            >
+              {ix === sel && (
                 <span className="month-figure">{hideMonth ? '•••' : app.fmt(v)}</span>
               )}
               <span
@@ -296,13 +316,18 @@ function DayBars({ app }: { app: App }) {
                   // Inline styles skip the build's px-to-rem step, so the
                   // design's px are converted here (1rem = 10 design px).
                   height: Math.max(6, Math.round((v / max) * 130)) / 10 + 'rem',
-                  background: ix === span - 1 ? ACCENT : 'rgba(20,22,31,.15)',
+                  background:
+                    ix === sel
+                      ? ACCENT
+                      : ix === span - 1
+                        ? 'rgba(59,69,201,.35)'
+                        : 'rgba(20,22,31,.15)',
                 }}
               />
-            </div>
+            </button>
           ))}
         </div>
-        <DayTicks now={now} span={span} />
+        <DayTicks now={now} span={span} mark={sel} />
       </div>
     </ChipScroller>
   )
