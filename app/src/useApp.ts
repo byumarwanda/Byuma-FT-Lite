@@ -1160,13 +1160,6 @@ export function useApp() {
   const spend = balance - plansOff - safetyOff + incomeIn
   const shortfall = p1Shortfall(data.rates, balance, data.plans, activeCur)
 
-  // "Hide totals", from Profile or the eye beside a figure. Hiding the big
-  // figure while the rows beneath still add up to it would hide nothing, so
-  // every amount on the home and analytics screens goes through priv().
-  const hidden = data.settings.hide
-  const toggleHide = useCallback(() => setSetting('hide'), [setSetting])
-  const priv = useCallback((s: string) => (hidden ? '•••' : s), [hidden])
-
   return {
     // state
     ready,
@@ -1183,7 +1176,6 @@ export function useApp() {
     incomeIn,
     spend,
     shortfall,
-    hidden,
     amt,
     num,
     method,
@@ -1243,7 +1235,6 @@ export function useApp() {
     // helpers
     fmt,
     fmtIn,
-    priv,
     shownRate,
     editRate,
     canRemoveCur,
@@ -1264,7 +1255,6 @@ export function useApp() {
     saveSafety,
     resetSafety,
     setSafetyCur,
-    toggleHide,
     signUp,
     signIn,
     askSignOut,

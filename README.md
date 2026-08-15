@@ -241,9 +241,11 @@ Two smaller adjustments you asked for during the build:
 - **Limits grew into Plans** — named plans with P1/P2/P3 priorities, one
   safety net (70% held back instead of the design's 75%), and expected
   income you can count in. Section 2 has the current formula.
-- An **eye** beside "Spent so far" and "Spendable" hides every amount on
-  the home and analytics screens — the same switch as "Hide totals" in
-  Profile, so the toggle and the eye always agree.
+- Three independent **eyes**: Spendable, This month, and Spent so far
+  each hide on their own, so you can cover the balance while this month's
+  spending stays readable. Hiding covers only that figure and its own
+  little breakdown — the transaction list always stays visible. The old
+  "Hide totals" switch left Profile; the eyes are the switch now.
 - The **phone's back button** steps back one screen — or closes whatever
   sheet or form is open — instead of leaving the app. It only leaves from
   the home or sign-in screen, the way a phone app should.

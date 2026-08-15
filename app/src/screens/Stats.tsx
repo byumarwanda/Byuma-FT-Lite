@@ -50,8 +50,10 @@ export function Stats({ app }: { app: App }) {
   const red = app.shortfall > 0
   const violet = !red && spend < 0
 
-  // "Hide totals" masks the money, not the structure.
-  const m = (s: string) => (app.hidden ? '••••••' : s)
+  // Each figure hides on its own: the balance card and This month keep
+  // separate eyes, and the breakdowns below stay readable either way.
+  const { hideBal, hideMonth } = data.settings
+  const m = (s: string) => (hideBal ? '••••••' : s)
 
   const cells = [
     { label: 'Balance', text: app.fmtIn(balance, activeCur), color: '#4b4f5e' },
@@ -98,7 +100,7 @@ export function Stats({ app }: { app: App }) {
       <div className="card card-balance">
         <div className="label-eye">
           <span className="label-sm">Spendable</span>
-          <HideEye hidden={app.hidden} onToggle={app.toggleHide} />
+          <HideEye hidden={hideBal} onToggle={() => app.setSetting('hideBal')} />
         </div>
         <div
           className="figure-42"
@@ -150,8 +152,11 @@ export function Stats({ app }: { app: App }) {
 
       {/* ---------------- this month ---------------- */}
       <div className="card card-month">
-        <div className="label-sm">This month</div>
-        <div className="figure-42">{m(app.fmt(monthTotal))}</div>
+        <div className="label-eye">
+          <span className="label-sm">This month</span>
+          <HideEye hidden={hideMonth} onToggle={() => app.setSetting('hideMonth')} />
+        </div>
+        <div className="figure-42">{hideMonth ? '••••••' : app.fmt(monthTotal)}</div>
       </div>
 
       {/* ---------------- how you paid ---------------- */}
@@ -169,7 +174,7 @@ export function Stats({ app }: { app: App }) {
               <div className="paid-head">
                 <span className="dot-9" style={{ background: MIXCOL[k] }} />
                 <span className="paid-label">{label}</span>
-                <span className="paid-sum">{app.priv(app.fmt(v))}</span>
+                <span className="paid-sum">{app.fmt(v)}</span>
                 <span className="paid-pct">{pct}</span>
               </div>
               <div className="track-8">
@@ -187,7 +192,7 @@ export function Stats({ app }: { app: App }) {
           <div className="paid-row" key={c.name}>
             <div className="cat-head">
               <span className="cat-name">{c.name}</span>
-              <span className="cat-sum">{app.priv(app.fmt(c.value))}</span>
+              <span className="cat-sum">{app.fmt(c.value)}</span>
             </div>
             <div className="track-7">
               <span
@@ -230,7 +235,7 @@ export function Stats({ app }: { app: App }) {
               {months.map((m) => (
                 <div className="month" key={m.mi}>
                   <span className="month-figure">
-                    {m.mi === thisMonth && m.v ? app.priv(app.fmt(m.v)) : ''}
+                    {m.mi === thisMonth && m.v ? (hideMonth ? '•••' : app.fmt(m.v)) : ''}
                   </span>
                   <span
                     className="month-bar"
