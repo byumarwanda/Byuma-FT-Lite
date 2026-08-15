@@ -223,6 +223,12 @@ export function dayLabel(at: number, now: number = Date.now()): string {
   return d.getDate() + ' ' + MON[d.getMonth()]
 }
 
+/** "13 Aug" from a timestamp — the day marks along the graph's axis. */
+export function dayStamp(at: number): string {
+  const d = new Date(at)
+  return d.getDate() + ' ' + MON[d.getMonth()]
+}
+
 /** "12 Sep", with the year added only when it is not this year. */
 export function shortDate(iso: string, now: number = Date.now()): string {
   const [y, m, d] = iso.split('-').map(Number)

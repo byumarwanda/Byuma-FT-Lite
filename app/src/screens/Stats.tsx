@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import type { App } from '../useApp'
 import type { Method } from '../types'
-import { amountIn, dayOffset, monthIndex, monthName, sumIn, topCategories } from '../lib/calc'
+import {
+  amountIn,
+  DAY,
+  dayOffset,
+  dayStamp,
+  monthIndex,
+  monthName,
+  sumIn,
+  topCategories,
+} from '../lib/calc'
 import { MINUS } from '../lib/money'
 import { ChevronRight, METHODS, MLABEL, WarnIcon } from '../components/icons'
 import { ACCENT, DANGER, HideEye, VIOLET, pick } from '../components/ui'
@@ -216,73 +225,101 @@ export function Stats({ app }: { app: App }) {
       </div>
       <div className="card-months">
         {monthsView === 'bars' ? (
-          <div className="months">
-            {months.map((m) => (
-              <div className="month" key={m.mi}>
-                <span className="month-figure">
-                  {m.mi === thisMonth && m.v ? app.priv(app.fmt(m.v)) : ''}
-                </span>
-                <span
-                  className="month-bar"
-                  style={{
-                    // Inline styles skip the build's px-to-rem step, so the
-                    // design's px are converted here (1rem = 10 design px).
-                    height: Math.max(6, Math.round((m.v / monthMax) * 130)) / 10 + 'rem',
-                    background: m.mi === thisMonth ? ACCENT : 'rgba(20,22,31,.15)',
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+          <>
+            <div className="months">
+              {months.map((m) => (
+                <div className="month" key={m.mi}>
+                  <span className="month-figure">
+                    {m.mi === thisMonth && m.v ? app.priv(app.fmt(m.v)) : ''}
+                  </span>
+                  <span
+                    className="month-bar"
+                    style={{
+                      // Inline styles skip the build's px-to-rem step, so the
+                      // design's px are converted here (1rem = 10 design px).
+                      height: Math.max(6, Math.round((m.v / monthMax) * 130)) / 10 + 'rem',
+                      background: m.mi === thisMonth ? ACCENT : 'rgba(20,22,31,.15)',
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="month-labels">
+              {months.map((m) => (
+                <span key={m.mi}>{monthName(m.mi)}</span>
+              ))}
+            </div>
+          </>
         ) : (
           <DayGraph app={app} />
         )}
-        <div className="month-labels">
-          {months.map((m) => (
-            <span key={m.mi}>{monthName(m.mi)}</span>
-          ))}
-        </div>
       </div>
     </div>
   )
 }
 
 /**
- * The same six months, but day by day: every day's spending is one point
- * on the line, so a single heavy day stands up as its own spike instead
- * of hiding inside a month's bar.
+ * Day by day, from the first recorded day to today — the bars answer for
+ * the months, this line answers for the days. Every day is one point, so
+ * a single heavy day stands up as its own spike, and the axis carries day
+ * marks, not month names.
  */
 function DayGraph({ app }: { app: App }) {
-  const DAYS = 183
-  const daily = new Array<number>(DAYS).fill(0)
-  for (const i of app.data.items) {
-    const off = dayOffset(i.at)
-    if (off >= 0 && off < DAYS) {
-      daily[DAYS - 1 - off] += amountIn(app.data.rates, i, app.mainCur)
+  const { items } = app.data
+  const now = Date.now()
+
+  // The span runs from the first day anything was recorded to today.
+  const span = items.length
+    ? Math.max(...items.map((i) => dayOffset(i.at, now))) + 1
+    : 1
+  const daily = new Array<number>(span).fill(0)
+  for (const i of items) {
+    const off = dayOffset(i.at, now)
+    if (off >= 0 && off < span) {
+      daily[span - 1 - off] += amountIn(app.data.rates, i, app.mainCur)
     }
   }
   const max = Math.max(...daily, 1)
-  const pts = daily
+
+  // A single recorded day still draws as a line: the one value, held flat.
+  const ys = span === 1 ? [daily[0], daily[0]] : daily
+  const w = Math.max(span - 1, 1)
+  const pts = ys
     .map((v, ix) => ix + ',' + Math.round((100 - (v / max) * 90) * 10) / 10)
     .join(' ')
 
+  // Up to five day marks, the first day and today always among them.
+  const tickCount = Math.min(span, 5)
+  const ticks: number[] = []
+  for (let k = 0; k < tickCount; k++) {
+    const ix = Math.round((k * (span - 1)) / Math.max(tickCount - 1, 1))
+    if (!ticks.includes(ix)) ticks.push(ix)
+  }
+
   return (
-    <svg
-      className="day-graph"
-      viewBox={'0 0 ' + (DAYS - 1) + ' 100'}
-      preserveAspectRatio="none"
-      role="img"
-      aria-label="Spending per day over the last six months"
-    >
-      <polygon points={'0,100 ' + pts + ' ' + (DAYS - 1) + ',100'} fill="rgba(59,69,201,.08)" />
-      <polyline
-        points={pts}
-        fill="none"
-        stroke={ACCENT}
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+    <>
+      <svg
+        className="day-graph"
+        viewBox={'0 0 ' + w + ' 100'}
+        preserveAspectRatio="none"
+        role="img"
+        aria-label="Spending per day since the first recorded expense"
+      >
+        <polygon points={'0,100 ' + pts + ' ' + w + ',100'} fill="rgba(59,69,201,.08)" />
+        <polyline
+          points={pts}
+          fill="none"
+          stroke={ACCENT}
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <div className="day-labels">
+        {ticks.map((ix) => (
+          <span key={ix}>{dayStamp(now - (span - 1 - ix) * DAY)}</span>
+        ))}
+      </div>
+    </>
   )
 }

@@ -932,6 +932,19 @@
   height: 170px;
 }
 
+.day-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.day-labels span {
+  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .month {
   flex: 1;
   display: flex;
