@@ -912,11 +912,31 @@
   padding: 20px 18px 16px;
 }
 
-.months {
+.bar-row {
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  height: 170px;
+  min-height: 170px;
+}
+
+.bar-col {
+  flex: none;
+  width: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bar-label {
+  margin-top: 9px;
+  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.bar-label-now {
+  color: var(--ink-2);
+  font-weight: 600;
 }
 
 /* Bars or the day line — the little switch on the section's right. */
@@ -969,15 +989,6 @@
   font-weight: 600;
 }
 
-.month {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  height: 100%;
-}
-
 .month-figure {
   font: 500 11px/1 'Instrument Sans', system-ui, sans-serif;
   color: var(--muted);
@@ -986,21 +997,8 @@
 }
 
 .month-bar {
-  width: 100%;
+  width: 30px;
   border-radius: 7px;
-}
-
-.month-labels {
-  display: flex;
-  gap: 10px;
-  margin-top: 9px;
-}
-
-.month-labels span {
-  flex: 1;
-  text-align: center;
-  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
-  color: var(--muted);
 }
 
 /* ==================================================================

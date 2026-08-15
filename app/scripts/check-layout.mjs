@@ -202,7 +202,7 @@ for (const device of DEVICES) {
 
   // the day-by-day graph behind the Graph toggle
   await page.click('.seg-btn >> text=Graph')
-  await page.waitForSelector('.day-scroll')
+  await page.waitForSelector('.day-scroll-line')
   await shoot(page, device, '3.1-stats-graph')
   await page.click('.seg-btn >> text=Bars')
 

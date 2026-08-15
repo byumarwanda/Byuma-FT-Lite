@@ -76,20 +76,6 @@ export function Stats({ app }: { app: App }) {
   const cats = topCategories(rates, items, mainCur, (i) => i.note || MLABEL[i.method])
   const catMax = cats.length ? cats[0].value : 1
 
-  const months: { mi: number; v: number }[] = []
-  for (let k = 5; k >= 0; k--) {
-    const mi = thisMonth - k
-    months.push({
-      mi,
-      v: sumIn(
-        rates,
-        items.filter((i) => monthIndex(i.at) === mi),
-        mainCur,
-      ),
-    })
-  }
-  const monthMax = Math.max(...months.map((m) => m.v), 1)
-
   return (
     <div className="page">
       <div className="headline-30">Where the money went</div>
@@ -229,35 +215,76 @@ export function Stats({ app }: { app: App }) {
         </div>
       </div>
       <div className="card-months">
-        {monthsView === 'bars' ? (
-          <>
-            <div className="months">
-              {months.map((m) => (
-                <div className="month" key={m.mi}>
-                  <span className="month-figure">
-                    {m.mi === thisMonth && m.v ? (hideMonth ? '•••' : app.fmt(m.v)) : ''}
-                  </span>
-                  <span
-                    className="month-bar"
-                    style={{
-                      // Inline styles skip the build's px-to-rem step, so the
-                      // design's px are converted here (1rem = 10 design px).
-                      height: Math.max(6, Math.round((m.v / monthMax) * 130)) / 10 + 'rem',
-                      background: m.mi === thisMonth ? ACCENT : 'rgba(20,22,31,.15)',
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="month-labels">
-              {months.map((m) => (
-                <span key={m.mi}>{monthName(m.mi)}</span>
-              ))}
-            </div>
-          </>
-        ) : (
-          <DayGraph app={app} />
-        )}
+        {monthsView === 'bars' ? <MonthBars app={app} /> : <DayGraph app={app} />}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * The months, the same way as the days: one bar per month at a fixed
+ * width, starting at the first recorded month and growing as months pass.
+ * About six fill the view; the rest scrolls, docked at the current month.
+ */
+function MonthBars({ app }: { app: App }) {
+  const scroller = useRef<HTMLDivElement>(null)
+  const { items } = app.data
+  const hideMonth = app.data.settings.hideMonth
+  const thisMonth = monthIndex(Date.now())
+  const first = items.length ? Math.min(...items.map((i) => monthIndex(i.at))) : thisMonth
+  const span = thisMonth - first + 1
+
+  const months: { mi: number; v: number }[] = []
+  for (let k = 0; k < span; k++) {
+    const mi = first + k
+    months.push({
+      mi,
+      v: sumIn(
+        app.data.rates,
+        items.filter((i) => monthIndex(i.at) === mi),
+        app.mainCur,
+      ),
+    })
+  }
+  const max = Math.max(...months.map((m) => m.v), 1)
+
+  // The first tick, and every January, say which year they belong to.
+  const label = (mi: number) => {
+    const name = monthName(mi)
+    const year = Math.floor(mi / 12)
+    return mi % 12 === 0 || (mi === first && year !== Math.floor(thisMonth / 12))
+      ? name + ' ' + String(year).slice(2)
+      : name
+  }
+
+  // Open at the current month.
+  useEffect(() => {
+    const el = scroller.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [span])
+
+  return (
+    <div className="day-scroll day-scroll-bars" ref={scroller}>
+      <div className="bar-row" style={{ width: (span * 46) / 10 + 'rem' }}>
+        {months.map(({ mi, v }) => (
+          <div className="bar-col" key={mi}>
+            <span className="month-figure">
+              {mi === thisMonth && v ? (hideMonth ? '•••' : app.fmt(v)) : ''}
+            </span>
+            <span
+              className="month-bar"
+              style={{
+                // Inline styles skip the build's px-to-rem step, so the
+                // design's px are converted here (1rem = 10 design px).
+                height: Math.max(6, Math.round((v / max) * 130)) / 10 + 'rem',
+                background: mi === thisMonth ? ACCENT : 'rgba(20,22,31,.15)',
+              }}
+            />
+            <span className={mi === thisMonth ? 'bar-label bar-label-now' : 'bar-label'}>
+              {label(mi)}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -304,7 +331,7 @@ function DayGraph({ app }: { app: App }) {
   }, [span])
 
   return (
-    <div className="day-scroll" ref={scroller}>
+    <div className="day-scroll day-scroll-line" ref={scroller}>
       <div style={{ width: width / 10 + 'rem' }}>
         <svg
           className="day-line"
