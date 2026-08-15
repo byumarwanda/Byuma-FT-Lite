@@ -167,6 +167,7 @@ for (const device of DEVICES) {
   await page.click('text=Add plan')
   await page.waitForSelector('.plan-row')
   await page.fill('input[aria-label="Safety net"]', '140000')
+  await page.click('text=Set safety net')
 
   // expected income, counted in with the row's switch
   await page.click('text=＋ Add income')
@@ -178,10 +179,22 @@ for (const device of DEVICES) {
   await page.waitForTimeout(200)
   await shoot(page, device, '3.3-plans')
 
+  // editing drops the form in right under the row
+  await page.click('.plan-row >> text=Rent')
+  await page.waitForSelector('.mini-form-card')
+  await shoot(page, device, '3.3-plan-edit')
+  await page.click('.mini-form-card >> text=Cancel')
+
   await page.click('button[aria-label="Back"]')
   await page.waitForSelector('text=Where the money went', { timeout: 8000 })
   await page.waitForTimeout(300)
   await shoot(page, device, '3.1-stats-with-balance')
+
+  // the day-by-day graph behind the Graph toggle
+  await page.click('.seg-btn >> text=Graph')
+  await page.waitForSelector('.day-graph')
+  await shoot(page, device, '3.1-stats-graph')
+  await page.click('.seg-btn >> text=Bars')
 
   // 4.1 Profile
   await page.click('button[aria-label="Profile"]')

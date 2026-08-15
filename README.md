@@ -247,6 +247,13 @@ Two smaller adjustments you asked for during the build:
 - The **phone's back button** steps back one screen — or closes whatever
   sheet or form is open — instead of leaving the app. It only leaves from
   the home or sign-in screen, the way a phone app should.
+- **Last months** has a small switch: the design's bars, or a graph that
+  records every single day, so one heavy day shows as its own spike.
+- Editing an expense offers a **Details** line for clarification. It lives
+  only inside the editor — the list stays as clean as the design drew it.
+- On the Plans screen each section keeps its explanation behind a small
+  **(i)**, shows its own **total on the right**, and every amount field
+  groups thousands with commas as you type.
 
 ---
 
