@@ -935,23 +935,38 @@
   cursor: pointer;
 }
 
-.day-graph {
+/* The day strip: a week and a bit per view, the rest scrolls. */
+.day-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.day-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.day-line {
   display: block;
-  width: 100%;
-  height: 170px;
 }
 
-.day-labels {
+.day-ticks {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 9px;
+  margin-top: 5px;
 }
 
-.day-labels span {
-  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
+.day-ticks span {
+  flex: none;
+  width: 38px;
+  text-align: center;
+  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
   color: var(--muted);
   white-space: nowrap;
+}
+
+.day-ticks .day-tick-today {
+  color: var(--ink-2);
+  font-weight: 600;
 }
 
 .month {

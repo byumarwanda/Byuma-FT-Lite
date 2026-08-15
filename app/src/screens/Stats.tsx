@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { App } from '../useApp'
 import type { Method } from '../types'
 import {
@@ -264,12 +264,14 @@ export function Stats({ app }: { app: App }) {
 }
 
 /**
- * Day by day, from the first recorded day to today — the bars answer for
- * the months, this line answers for the days. Every day is one point, so
- * a single heavy day stands up as its own spike, and the axis carries day
- * marks, not month names.
+ * Day by day, one point per day at a fixed width, so a week and a bit
+ * fills the view and the rest scrolls away to the left. The strip starts
+ * at the first recorded day and grows a day at a time; it opens docked at
+ * today, and the shared scale keeps every rise and fall comparable no
+ * matter how far back you scroll.
  */
 function DayGraph({ app }: { app: App }) {
+  const scroller = useRef<HTMLDivElement>(null)
   const { items } = app.data
   const now = Date.now()
 
@@ -286,45 +288,68 @@ function DayGraph({ app }: { app: App }) {
   }
   const max = Math.max(...daily, 1)
 
-  // A single recorded day still draws as a line: the one value, held flat.
-  const ys = span === 1 ? [daily[0], daily[0]] : daily
-  const w = Math.max(span - 1, 1)
-  const pts = ys
-    .map((v, ix) => ix + ',' + Math.round((100 - (v / max) * 90) * 10) / 10)
-    .join(' ')
+  // Geometry in design px; inline sizes are converted to rem by hand
+  // (1rem = 10 design px), same as everywhere the build cannot reach.
+  const DAY_W = 38
+  const BASE = 124
+  const width = span * DAY_W
+  const x = (ix: number) => ix * DAY_W + DAY_W / 2
+  const y = (v: number) => Math.round((BASE - (v / max) * (BASE - 16)) * 10) / 10
+  const pts = daily.map((v, ix) => x(ix) + ',' + y(v)).join(' ')
 
-  // Up to five day marks, the first day and today always among them.
-  const tickCount = Math.min(span, 5)
-  const ticks: number[] = []
-  for (let k = 0; k < tickCount; k++) {
-    const ix = Math.round((k * (span - 1)) / Math.max(tickCount - 1, 1))
-    if (!ticks.includes(ix)) ticks.push(ix)
-  }
+  // Open at the newest day.
+  useEffect(() => {
+    const el = scroller.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [span])
 
   return (
-    <>
-      <svg
-        className="day-graph"
-        viewBox={'0 0 ' + w + ' 100'}
-        preserveAspectRatio="none"
-        role="img"
-        aria-label="Spending per day since the first recorded expense"
-      >
-        <polygon points={'0,100 ' + pts + ' ' + w + ',100'} fill="rgba(59,69,201,.08)" />
-        <polyline
-          points={pts}
-          fill="none"
-          stroke={ACCENT}
-          strokeWidth="1.4"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-      <div className="day-labels">
-        {ticks.map((ix) => (
-          <span key={ix}>{dayStamp(now - (span - 1 - ix) * DAY)}</span>
-        ))}
+    <div className="day-scroll" ref={scroller}>
+      <div style={{ width: width / 10 + 'rem' }}>
+        <svg
+          className="day-line"
+          viewBox={'0 0 ' + width + ' 140'}
+          style={{ width: width / 10 + 'rem', height: '14rem' }}
+          role="img"
+          aria-label="Spending per day since the first recorded expense"
+        >
+          <polygon
+            points={x(0) + ',' + BASE + ' ' + pts + ' ' + x(span - 1) + ',' + BASE}
+            fill="rgba(59,69,201,.08)"
+          />
+          <polyline
+            points={pts}
+            fill="none"
+            stroke={ACCENT}
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          {daily.map((v, ix) => (
+            <circle
+              key={ix}
+              cx={x(ix)}
+              cy={y(v)}
+              r={ix === span - 1 ? 4.5 : 3}
+              fill={ix === span - 1 ? ACCENT : '#fff'}
+              stroke={ACCENT}
+              strokeWidth="1.6"
+            />
+          ))}
+        </svg>
+        <div className="day-ticks">
+          {daily.map((_, ix) => {
+            const at = now - (span - 1 - ix) * DAY
+            const d = new Date(at)
+            // The first tick and every 1st of a month carry the month name.
+            const label = ix === 0 || d.getDate() === 1 ? dayStamp(at) : String(d.getDate())
+            return (
+              <span key={ix} className={ix === span - 1 ? 'day-tick-today' : undefined}>
+                {label}
+              </span>
+            )
+          })}
+        </div>
       </div>
-    </>
+    </div>
   )
 }
