@@ -912,9 +912,12 @@
   padding: 20px 18px 16px;
 }
 
+/* Columns stretch the row's full height, so even a 6px bar is an easy
+   full-column tap target, and the figure's headroom is always reserved —
+   nothing shifts when an amount appears. */
 .bar-row {
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   min-height: 155px;
 }
 
@@ -925,6 +928,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Bars or the day line — the little switch on the section's right. */
