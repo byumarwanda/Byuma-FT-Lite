@@ -44,10 +44,13 @@ export interface Safety {
   cur: string
 }
 
+/** The three hide flags are independent: each figure keeps its own eye. */
 export interface Settings {
   round: boolean
   reminder: boolean
-  hide: boolean
+  hideBal: boolean
+  hideMonth: boolean
+  hideSpent: boolean
 }
 
 /** Everything one signed-in person owns. Saved on the phone under their id. */

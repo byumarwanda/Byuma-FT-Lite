@@ -195,9 +195,14 @@ export function Home({ app }: { app: App }) {
           <div>
             <div className="label-eye">
               <span className="label-sm">Spent so far</span>
-              <HideEye hidden={app.hidden} onToggle={app.toggleHide} />
+              <HideEye
+                hidden={data.settings.hideSpent}
+                onToggle={() => app.setSetting('hideSpent')}
+              />
             </div>
-            <div className="spent-figure">{app.hidden ? '••••••' : app.fmt(total)}</div>
+            <div className="spent-figure">
+              {data.settings.hideSpent ? '••••••' : app.fmt(total)}
+            </div>
 
             <div className="mixbar">
               {METHODS.map(({ k }) => {
@@ -228,7 +233,9 @@ export function Home({ app }: { app: App }) {
                   <div key={k}>
                     <span className="dot-7" style={{ background: MIXCOL[k] }} />
                     <span className="mix-name">{label}</span>
-                    <span className="mix-sum">{app.priv(app.fmt(v))}</span>
+                    <span className="mix-sum">
+                      {data.settings.hideSpent ? '•••' : app.fmt(v)}
+                    </span>
                   </div>
                 )
               })}
@@ -249,9 +256,7 @@ export function Home({ app }: { app: App }) {
                   />
                   <div className="tl-head">
                     <span className="tl-day">{g.label}</span>
-                    <span className="tl-sum">
-                      {app.priv(app.fmt(sumIn(rates, g.items, mainCur)))}
-                    </span>
+                    <span className="tl-sum">{app.fmt(sumIn(rates, g.items, mainCur))}</span>
                   </div>
                   <div className="tl-card">
                     {g.items.map((item, ix) => (
@@ -286,7 +291,7 @@ function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) 
           <Icon />
         </span>
         <span className="tl-note">{item.note || MLABEL[item.method]}</span>
-        <span className="tl-amount">{app.priv(app.fmt(shown))}</span>
+        <span className="tl-amount">{app.fmt(shown)}</span>
         <button
           type="button"
           className="x-btn"

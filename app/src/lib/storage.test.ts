@@ -51,6 +51,16 @@ describe('reading an old save', () => {
     expect(d.safety).toEqual({ amt: 0, cur: 'RWF' })
   })
 
+  it('spreads the old single hide switch across the three eyes', () => {
+    const d = normalise({ settings: { round: false, reminder: true, hide: true } } as never)
+    expect(d.settings.hideBal).toBe(true)
+    expect(d.settings.hideMonth).toBe(true)
+    expect(d.settings.hideSpent).toBe(true)
+
+    const off = normalise({ settings: { round: false, reminder: true, hide: false } } as never)
+    expect(off.settings.hideBal).toBe(false)
+  })
+
   it('drops a stored plan that lost its amount', () => {
     const d = normalise({
       plans: [

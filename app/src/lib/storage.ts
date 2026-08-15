@@ -1,4 +1,4 @@
-import type { Account, Income, Plan, Prio, Safety, UserData } from '../types'
+import type { Account, Income, Plan, Prio, Safety, Settings, UserData } from '../types'
 import { BASE_CURS, BASE_RATES, convert } from './rates'
 
 /**
@@ -68,7 +68,13 @@ export function freshData(): UserData {
     plans: [],
     incomes: [],
     safety: { amt: 0, cur: 'RWF' },
-    settings: { round: false, reminder: true, hide: false },
+    settings: {
+      round: false,
+      reminder: true,
+      hideBal: false,
+      hideMonth: false,
+      hideSpent: false,
+    },
     items: [],
     cleared: false,
   }
@@ -145,6 +151,16 @@ export function normalise(raw: (Partial<UserData> & LegacyLimits) | null): UserD
     safety = { amt: net, cur: mainCur }
   }
 
+  // A save from when hiding was one switch: if it was on, all three of
+  // today's independent eyes start closed.
+  const rawSettings = (raw.settings ?? {}) as Partial<Settings> & { hide?: boolean }
+  const settings: Settings = { ...base.settings, ...rawSettings }
+  if (rawSettings.hide) {
+    settings.hideBal = true
+    settings.hideMonth = true
+    settings.hideSpent = true
+  }
+
   return {
     cats: Array.isArray(raw.cats) ? raw.cats : base.cats,
     allCurs: Array.isArray(raw.allCurs) && raw.allCurs.length ? raw.allCurs : base.allCurs,
@@ -157,7 +173,7 @@ export function normalise(raw: (Partial<UserData> & LegacyLimits) | null): UserD
     plans,
     incomes: asIncomes(raw.incomes),
     safety,
-    settings: { ...base.settings, ...(raw.settings ?? {}) },
+    settings,
     items: Array.isArray(raw.items) ? raw.items : [],
     cleared: !!raw.cleared,
   }
