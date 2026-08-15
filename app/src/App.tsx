@@ -1,6 +1,7 @@
 import { useApp } from './useApp'
 import { ConfirmSheet, Freeze, Toast, TopBar } from './components/ui'
 import { Forgot, SignIn, SignUp } from './screens/Auth'
+import { Tour } from './screens/Tour'
 import { Home } from './screens/Home'
 import { Stats } from './screens/Stats'
 import { Balance, PlansScreen } from './screens/Money'
@@ -42,7 +43,7 @@ export default function App() {
   }
 
   const chrome =
-    screen !== 'signup' && screen !== 'signin' && screen !== 'error'
+    screen !== 'signup' && screen !== 'signin' && screen !== 'error' && screen !== 'tour'
 
   return (
     <div className="shell">
@@ -62,6 +63,7 @@ export default function App() {
 
           {screen === 'signup' && <SignUp app={app} />}
           {screen === 'signin' && <SignIn app={app} />}
+          {screen === 'tour' && <Tour app={app} />}
           {screen === 'forgot' && <Forgot app={app} />}
           {screen === 'home' && <Home app={app} />}
           {screen === 'stats' && <Stats app={app} />}

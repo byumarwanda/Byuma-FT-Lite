@@ -86,6 +86,7 @@ export interface Account {
 export type Screen =
   | 'signup'
   | 'signin'
+  | 'tour'
   | 'home'
   | 'stats'
   | 'balance'
