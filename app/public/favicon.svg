@@ -1,5 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#3b45c9"/>
-  <text x="32" y="45" font-family="Georgia, 'Times New Roman', serif" font-size="38"
-        fill="#ffffff" text-anchor="middle">B</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The Byuma FT mark: three spending hills on the accent tile — two soft
+       indigo days behind one tall white one. -->
+  <rect width="512" height="512" rx="112" fill="#3b45c9"/>
+  <path d="M 45 376 C 103 376, 112 248, 160 248 C 208 248, 217 376, 275 376 Z" fill="#8d93e0"/>
+  <path d="M 126 376 C 191 376, 201 168, 256 168 C 311 168, 321 376, 386 376 Z" fill="#ffffff"/>
+  <path d="M 280 376 C 330 376, 338 262, 380 262 C 422 262, 430 376, 480 376 Z" fill="#8d93e0"/>
 </svg>
