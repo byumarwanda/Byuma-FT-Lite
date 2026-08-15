@@ -7,13 +7,12 @@ import {
   dayOffset,
   dayStamp,
   monthIndex,
-  monthName,
   sumIn,
   topCategories,
 } from '../lib/calc'
 import { MINUS } from '../lib/money'
 import { ChevronRight, METHODS, MLABEL, WarnIcon } from '../components/icons'
-import { ACCENT, DANGER, HideEye, VIOLET, pick } from '../components/ui'
+import { ACCENT, ChipScroller, DANGER, HideEye, VIOLET, pick } from '../components/ui'
 
 const MIXCOL: Record<Method, string> = {
   cash: ACCENT,
@@ -192,9 +191,9 @@ export function Stats({ app }: { app: App }) {
         ))}
       </div>
 
-      {/* ---------------- last months ---------------- */}
+      {/* ---------------- day by day ---------------- */}
       <div className="section-head">
-        <span className="section-label">Last months</span>
+        <span className="section-label">Day by day</span>
         <div className="seg-mini">
           <button
             type="button"
@@ -215,94 +214,16 @@ export function Stats({ app }: { app: App }) {
         </div>
       </div>
       <div className="card-months">
-        {monthsView === 'bars' ? <MonthBars app={app} /> : <DayGraph app={app} />}
+        {monthsView === 'bars' ? <DayBars app={app} /> : <DayGraph app={app} />}
       </div>
     </div>
   )
 }
 
-/**
- * The months, the same way as the days: one bar per month at a fixed
- * width, starting at the first recorded month and growing as months pass.
- * About six fill the view; the rest scrolls, docked at the current month.
- */
-function MonthBars({ app }: { app: App }) {
-  const scroller = useRef<HTMLDivElement>(null)
-  const { items } = app.data
-  const hideMonth = app.data.settings.hideMonth
-  const thisMonth = monthIndex(Date.now())
-  const first = items.length ? Math.min(...items.map((i) => monthIndex(i.at))) : thisMonth
-  const span = thisMonth - first + 1
-
-  const months: { mi: number; v: number }[] = []
-  for (let k = 0; k < span; k++) {
-    const mi = first + k
-    months.push({
-      mi,
-      v: sumIn(
-        app.data.rates,
-        items.filter((i) => monthIndex(i.at) === mi),
-        app.mainCur,
-      ),
-    })
-  }
-  const max = Math.max(...months.map((m) => m.v), 1)
-
-  // The first tick, and every January, say which year they belong to.
-  const label = (mi: number) => {
-    const name = monthName(mi)
-    const year = Math.floor(mi / 12)
-    return mi % 12 === 0 || (mi === first && year !== Math.floor(thisMonth / 12))
-      ? name + ' ' + String(year).slice(2)
-      : name
-  }
-
-  // Open at the current month.
-  useEffect(() => {
-    const el = scroller.current
-    if (el) el.scrollLeft = el.scrollWidth
-  }, [span])
-
-  return (
-    <div className="day-scroll day-scroll-bars" ref={scroller}>
-      <div className="bar-row" style={{ width: (span * 46) / 10 + 'rem' }}>
-        {months.map(({ mi, v }) => (
-          <div className="bar-col" key={mi}>
-            <span className="month-figure">
-              {mi === thisMonth && v ? (hideMonth ? '•••' : app.fmt(v)) : ''}
-            </span>
-            <span
-              className="month-bar"
-              style={{
-                // Inline styles skip the build's px-to-rem step, so the
-                // design's px are converted here (1rem = 10 design px).
-                height: Math.max(6, Math.round((v / max) * 130)) / 10 + 'rem',
-                background: mi === thisMonth ? ACCENT : 'rgba(20,22,31,.15)',
-              }}
-            />
-            <span className={mi === thisMonth ? 'bar-label bar-label-now' : 'bar-label'}>
-              {label(mi)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/**
- * Day by day, one point per day at a fixed width, so a week and a bit
- * fills the view and the rest scrolls away to the left. The strip starts
- * at the first recorded day and grows a day at a time; it opens docked at
- * today, and the shared scale keeps every rise and fall comparable no
- * matter how far back you scroll.
- */
-function DayGraph({ app }: { app: App }) {
-  const scroller = useRef<HTMLDivElement>(null)
+/** Every day since the first recorded one, summed in the main currency. */
+function dailySeries(app: App) {
   const { items } = app.data
   const now = Date.now()
-
-  // The span runs from the first day anything was recorded to today.
   const span = items.length
     ? Math.max(...items.map((i) => dayOffset(i.at, now))) + 1
     : 1
@@ -313,11 +234,88 @@ function DayGraph({ app }: { app: App }) {
       daily[span - 1 - off] += amountIn(app.data.rates, i, app.mainCur)
     }
   }
-  const max = Math.max(...daily, 1)
+  return { now, span, daily, max: Math.max(...daily, 1) }
+}
 
-  // Geometry in design px; inline sizes are converted to rem by hand
-  // (1rem = 10 design px), same as everywhere the build cannot reach.
-  const DAY_W = 38
+// One day of horizontal room; a week and a bit fills a phone's view.
+const DAY_W = 38
+
+/** The marks under a strip: the first tick and every 1st name the month. */
+function DayTicks({ now, span }: { now: number; span: number }) {
+  return (
+    <div className="day-ticks">
+      {Array.from({ length: span }, (_, ix) => {
+        const at = now - (span - 1 - ix) * DAY
+        const d = new Date(at)
+        const label =
+          ix === 0 || d.getDate() === 1 ? dayStamp(at, now) : String(d.getDate())
+        return (
+          <span key={ix} className={ix === span - 1 ? 'day-tick-today' : undefined}>
+            {label}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
+/**
+ * One bar per day: 14 August is its own bar, 15 August the next. The strip
+ * starts at the first recorded day, grows a day at a time, opens docked at
+ * today, and slides under the card's edge with a fade on the side holding
+ * more days. One shared scale keeps every day comparable.
+ */
+function DayBars({ app }: { app: App }) {
+  const scroller = useRef<HTMLDivElement | null>(null)
+  const hideMonth = app.data.settings.hideMonth
+  const { now, span, daily, max } = dailySeries(app)
+
+  // Open at today.
+  useEffect(() => {
+    const el = scroller.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [span])
+
+  return (
+    <ChipScroller
+      className="day-scroll day-scroll-bars"
+      scrollRef={(el) => {
+        scroller.current = el
+      }}
+    >
+      <div style={{ width: (span * DAY_W) / 10 + 'rem' }}>
+        <div className="bar-row">
+          {daily.map((v, ix) => (
+            <div className="bar-col" key={ix}>
+              {ix === span - 1 && v > 0 && (
+                <span className="month-figure">{hideMonth ? '•••' : app.fmt(v)}</span>
+              )}
+              <span
+                className="month-bar"
+                style={{
+                  // Inline styles skip the build's px-to-rem step, so the
+                  // design's px are converted here (1rem = 10 design px).
+                  height: Math.max(6, Math.round((v / max) * 130)) / 10 + 'rem',
+                  background: ix === span - 1 ? ACCENT : 'rgba(20,22,31,.15)',
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        <DayTicks now={now} span={span} />
+      </div>
+    </ChipScroller>
+  )
+}
+
+/**
+ * The same days as a line: one point per day, so the growth and the fall
+ * read as a single path. Same width per day, same docking, same fade.
+ */
+function DayGraph({ app }: { app: App }) {
+  const scroller = useRef<HTMLDivElement | null>(null)
+  const { now, span, daily, max } = dailySeries(app)
+
   const BASE = 124
   const width = span * DAY_W
   const x = (ix: number) => ix * DAY_W + DAY_W / 2
@@ -331,7 +329,12 @@ function DayGraph({ app }: { app: App }) {
   }, [span])
 
   return (
-    <div className="day-scroll day-scroll-line" ref={scroller}>
+    <ChipScroller
+      className="day-scroll day-scroll-line"
+      scrollRef={(el) => {
+        scroller.current = el
+      }}
+    >
       <div style={{ width: width / 10 + 'rem' }}>
         <svg
           className="day-line"
@@ -363,20 +366,8 @@ function DayGraph({ app }: { app: App }) {
             />
           ))}
         </svg>
-        <div className="day-ticks">
-          {daily.map((_, ix) => {
-            const at = now - (span - 1 - ix) * DAY
-            const d = new Date(at)
-            // The first tick and every 1st of a month carry the month name.
-            const label = ix === 0 || d.getDate() === 1 ? dayStamp(at) : String(d.getDate())
-            return (
-              <span key={ix} className={ix === span - 1 ? 'day-tick-today' : undefined}>
-                {label}
-              </span>
-            )
-          })}
-        </div>
+        <DayTicks now={now} span={span} />
       </div>
-    </div>
+    </ChipScroller>
   )
 }

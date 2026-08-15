@@ -915,28 +915,16 @@
 .bar-row {
   display: flex;
   align-items: flex-end;
-  min-height: 170px;
+  min-height: 155px;
 }
 
 .bar-col {
   flex: none;
-  width: 46px;
+  width: 38px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-}
-
-.bar-label {
-  margin-top: 9px;
-  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.bar-label-now {
-  color: var(--ink-2);
-  font-weight: 600;
 }
 
 /* Bars or the day line — the little switch on the section's right. */
@@ -955,15 +943,40 @@
   cursor: pointer;
 }
 
-/* The day strip: a week and a bit per view, the rest scrolls. */
+/* The day strips: a week and a bit per view, the rest slides under the
+   card's own edge, fading out across it on the side holding more days. */
 .day-scroll {
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  margin: 0 -18px;
+  padding: 0 18px;
 }
 
 .day-scroll::-webkit-scrollbar {
   display: none;
+}
+
+.day-scroll[data-fade='right'] {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 46px),
+    transparent calc(100% - 14px)
+  );
+}
+
+.day-scroll[data-fade='left'] {
+  mask-image: linear-gradient(to right, transparent 14px, #000 46px);
+}
+
+.day-scroll[data-fade='both'] {
+  mask-image: linear-gradient(
+    to right,
+    transparent 14px,
+    #000 46px,
+    #000 calc(100% - 46px),
+    transparent calc(100% - 14px)
+  );
 }
 
 .day-line {
@@ -997,7 +1010,7 @@
 }
 
 .month-bar {
-  width: 30px;
+  width: 24px;
   border-radius: 7px;
 }
 

@@ -148,8 +148,10 @@ describe('short dates', () => {
     expect(shortDate('')).toBe('')
   })
 
-  it('stamps a timestamp as day and month for the graph axis', () => {
-    expect(dayStamp(new Date(2026, 7, 13, 12, 0).getTime())).toBe('13 Aug')
+  it('stamps a timestamp as day and month for the strip axis', () => {
+    const now = new Date(2026, 7, 15).getTime()
+    expect(dayStamp(new Date(2026, 7, 13, 12, 0).getTime(), now)).toBe('13 Aug')
+    expect(dayStamp(new Date(2027, 0, 5).getTime(), now)).toBe('5 Jan 27')
   })
 })
 
