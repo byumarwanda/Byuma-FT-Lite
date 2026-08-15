@@ -360,7 +360,10 @@ export function useApp() {
       setAccount(acc)
       setData(fresh)
       setBalCur(fresh.mainCur)
-      setScreen('home')
+      // A brand-new person gets the short tour first; the phone's back
+      // button (and Skip) both land on home.
+      setScreen('tour')
+      setBack('home')
       resetForms()
       showToast('Account ready.', 'ok')
     })

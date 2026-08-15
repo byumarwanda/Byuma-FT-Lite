@@ -409,7 +409,7 @@ export function PlansScreen({ app }: { app: App }) {
   const safetyDirty = (Number(app.fSafety) || 0) !== data.safety.amt
 
   return (
-    <div className="page">
+    <div className="page page-plans">
       {/* ---------------- plans ---------------- */}
       <SectionHead
         label="Plans"

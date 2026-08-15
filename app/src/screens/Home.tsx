@@ -174,7 +174,6 @@ export function Home({ app }: { app: App }) {
               <button
                 type="button"
                 className="btn-analytics empty-action"
-                style={{ background: ACCENT }}
                 onClick={() => app.go('stats')}
               >
                 <BarsIcon />
@@ -235,12 +234,7 @@ export function Home({ app }: { app: App }) {
               })}
             </div>
 
-            <button
-              type="button"
-              className="btn-analytics"
-              style={{ background: ACCENT }}
-              onClick={() => app.go('stats')}
-            >
+            <button type="button" className="btn-analytics" onClick={() => app.go('stats')}>
               <BarsIcon />
               Analytics
             </button>

@@ -256,6 +256,12 @@ Two smaller adjustments you asked for during the build:
 - On the Plans screen each section keeps its explanation behind a small
   **(i)**, shows its own **total on the right**, and every amount field
   groups thousands with commas as you type.
+- A short **first-run tour** appears once, right after sign-up: four
+  swipeable slides whose pictures are working miniatures of the app's own
+  cards. Skippable, and it holds still for phones that ask for reduced
+  motion.
+- The **Analytics button** sits quieter now — a white card with the
+  accent in the ink, instead of a solid block shouting over the screen.
 
 ---
 

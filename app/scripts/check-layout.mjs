@@ -99,6 +99,15 @@ for (const device of DEVICES) {
   await page.fill('input[placeholder="Password"]', 'ubuzima2026')
   await page.click('text=Create account')
 
+  // 1.2 The first-run tour: first slide, one Next, then Skip out
+  await page.waitForSelector('.tour-slide', { timeout: 8000 })
+  await page.waitForTimeout(700)
+  await shoot(page, device, '1.2-tour')
+  await page.click('text=Next')
+  await page.waitForTimeout(600)
+  await shoot(page, device, '1.2-tour-2')
+  await page.click('text=Skip')
+
   // 1.3 Nothing recorded yet
   await page.waitForSelector('text=No expenses yet', { timeout: 8000 })
   await shoot(page, device, '1.3-empty')
