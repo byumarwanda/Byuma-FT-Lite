@@ -912,11 +912,19 @@
   padding: 20px 18px 16px;
 }
 
-.months {
+.bar-row {
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  height: 170px;
+  min-height: 155px;
+}
+
+.bar-col {
+  flex: none;
+  width: 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 /* Bars or the day line — the little switch on the section's right. */
@@ -935,32 +943,63 @@
   cursor: pointer;
 }
 
-.day-graph {
+/* The day strips: a week and a bit per view, the rest slides under the
+   card's own edge, fading out across it on the side holding more days. */
+.day-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -18px;
+  padding: 0 18px;
+}
+
+.day-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.day-scroll[data-fade='right'] {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 46px),
+    transparent calc(100% - 14px)
+  );
+}
+
+.day-scroll[data-fade='left'] {
+  mask-image: linear-gradient(to right, transparent 14px, #000 46px);
+}
+
+.day-scroll[data-fade='both'] {
+  mask-image: linear-gradient(
+    to right,
+    transparent 14px,
+    #000 46px,
+    #000 calc(100% - 46px),
+    transparent calc(100% - 14px)
+  );
+}
+
+.day-line {
   display: block;
-  width: 100%;
-  height: 170px;
 }
 
-.day-labels {
+.day-ticks {
   display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 9px;
+  margin-top: 5px;
 }
 
-.day-labels span {
-  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
+.day-ticks span {
+  flex: none;
+  width: 38px;
+  text-align: center;
+  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
   color: var(--muted);
   white-space: nowrap;
 }
 
-.month {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  height: 100%;
+.day-ticks .day-tick-today {
+  color: var(--ink-2);
+  font-weight: 600;
 }
 
 .month-figure {
@@ -971,21 +1010,8 @@
 }
 
 .month-bar {
-  width: 100%;
+  width: 24px;
   border-radius: 7px;
-}
-
-.month-labels {
-  display: flex;
-  gap: 10px;
-  margin-top: 9px;
-}
-
-.month-labels span {
-  flex: 1;
-  text-align: center;
-  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
-  color: var(--muted);
 }
 
 /* ==================================================================

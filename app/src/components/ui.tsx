@@ -23,9 +23,12 @@ export const LINE = 'rgba(20,22,31,.12)'
 export function ChipScroller({
   className,
   children,
+  scrollRef,
 }: {
   className: string
   children: ReactNode
+  /** Hands the scrolling element out, for callers that dock the scroll. */
+  scrollRef?: (el: HTMLDivElement | null) => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [fade, setFade] = useState<'none' | 'left' | 'right' | 'both'>('none')
@@ -51,7 +54,15 @@ export function ChipScroller({
   }, [update, children])
 
   return (
-    <div ref={ref} className={className} data-fade={fade} onScroll={update}>
+    <div
+      ref={(el) => {
+        ref.current = el
+        scrollRef?.(el)
+      }}
+      className={className}
+      data-fade={fade}
+      onScroll={update}
+    >
       {children}
     </div>
   )

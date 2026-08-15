@@ -249,10 +249,11 @@ Two smaller adjustments you asked for during the build:
 - The **phone's back button** steps back one screen — or closes whatever
   sheet or form is open — instead of leaving the app. It only leaves from
   the home or sign-in screen, the way a phone app should.
-- **Last months** has a small switch: the design's bars answer for the
-  months, and the graph answers for the days — one point per day, from
-  the first day anything was recorded to today, with day marks along the
-  axis. One heavy day shows as its own spike.
+- **Day by day** (Last months in the design): bars or a line, both per
+  day — every day since your first record has its own bar and its own
+  point, about eight days per view, sliding under the card's edge with a
+  fade and docked at today. One shared scale keeps every rise and fall
+  comparable, and the first tick and each 1st of a month name the month.
 - Editing an expense offers a **Details** line for clarification. It lives
   only inside the editor — the list stays as clean as the design drew it.
 - On the Plans screen each section keeps its explanation behind a small
