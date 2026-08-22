@@ -47,11 +47,18 @@
 }
 
 /* The screen title is the same lettering as the wordmark, so the name of
-   the app and the name of the screen read as one voice. */
+   the app and the name of the screen read as one voice. Serif is kept for
+   the display headlines and the money figures. */
 .topbar-title {
-  font: 400 15px/1 var(--font-title);
-  letter-spacing: 0.14em;
+  font: 600 12.5px/1 var(--font-text);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+/* FT drops to grey, so the initials read as a mark rather than as two
+   more letters of the word. */
+.wordmark-ft {
+  color: var(--muted);
 }
 
 .icon-btn {
@@ -81,8 +88,8 @@
 
 /* ---------- headlines ---------- */
 .wordmark {
-  font: 400 15px/1 var(--font-title);
-  letter-spacing: 0.14em;
+  font: 600 12.5px/1 var(--font-text);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
@@ -2621,15 +2628,15 @@
   gap: 4px;
   /* Flush to the bottom edge. On a phone with a gesture bar the inset is
      added underneath, so the icons clear it without the bar lifting off. */
-  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  /* A pill with air all round it, resting just above where the phone's own
+     buttons sit. It looks like it floats, but it is still a row of the
+     phone rather than a layer over it, so scrolling can never move it. */
+  margin: 0 14px calc(11px + env(safe-area-inset-bottom));
+  padding: 6px;
   background: #fff;
-  /* Stuck to the bottom edge, but the two top corners still curve, so the
-     bar keeps the rounded shape it had while it floated. */
-  border-radius: 26px 26px 0 0;
-  border-top: 1px solid var(--hairline);
-  /* A shadow thrown upwards, so the bar keeps a visible edge against
-     whatever colour scrolls up behind it. */
-  box-shadow: 0 -2px 10px rgba(20, 22, 31, 0.05);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  box-shadow: 0 2px 12px rgba(20, 22, 31, 0.06);
 }
 
 /* The last stretch of the page dissolves into the bar instead of running
@@ -2637,10 +2644,13 @@
 .tabbar::before {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  /* Reaches back out over the pill's own side margins, so the fade covers
+     the full width the page scrolls in — and no more than that, or it
+     would push the phone sideways. */
+  left: -14px;
+  right: -14px;
   bottom: 100%;
-  height: 22px;
+  height: 20px;
   pointer-events: none;
   background: linear-gradient(to top, rgba(245, 244, 249, 0.95), rgba(245, 244, 249, 0));
 }
@@ -2650,7 +2660,8 @@
   min-width: 0;
   height: 46px;
   border: 0;
-  border-radius: 14px;
+  /* A pill inside a pill, the way the reference has it. */
+  border-radius: 999px;
   background: none;
   color: var(--muted);
   display: flex;

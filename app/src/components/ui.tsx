@@ -72,6 +72,20 @@ export function ChipScroller({
   )
 }
 
+/**
+ * The app's name, with FT dropped to grey so the initials read as a mark
+ * rather than as two more letters of the word. Text only — whatever holds
+ * it carries the lettering, so it looks the same in the top bar and on the
+ * sign-in screen.
+ */
+export function Wordmark() {
+  return (
+    <>
+      BYUMA <span className="wordmark-ft">FT</span>
+    </>
+  )
+}
+
 export function TopBar({
   title,
   showBack,
@@ -81,7 +95,7 @@ export function TopBar({
   onProfile,
   white,
 }: {
-  title: string
+  title: ReactNode
   showBack: boolean
   showProfile: boolean
   profileActive: boolean
