@@ -2628,10 +2628,12 @@
   gap: 4px;
   /* Flush to the bottom edge. On a phone with a gesture bar the inset is
      added underneath, so the icons clear it without the bar lifting off. */
-  /* A pill with air all round it, resting just above where the phone's own
-     buttons sit. It looks like it floats, but it is still a row of the
-     phone rather than a layer over it, so scrolling can never move it. */
-  margin: 0 14px calc(11px + env(safe-area-inset-bottom));
+  /* A pill with air down either side, resting on the bottom edge itself.
+     The inset is nothing on a phone with buttons; on one with a home bar
+     it lifts the pill just clear of it. It looks like it floats, but it is
+     still a row of the phone rather than a layer over it, so scrolling can
+     never move it. */
+  margin: 0 14px env(safe-area-inset-bottom);
   padding: 6px;
   background: #fff;
   border: 1px solid var(--hairline);
@@ -2658,7 +2660,7 @@
 .tab {
   flex: 1;
   min-width: 0;
-  height: 46px;
+  height: 53px;
   border: 0;
   /* A pill inside a pill, the way the reference has it. */
   border-radius: 999px;
