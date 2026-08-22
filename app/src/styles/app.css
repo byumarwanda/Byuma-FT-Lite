@@ -431,6 +431,8 @@
   font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
 }
 
+/* A door, not a billboard: a soft wash of the accent instead of a solid
+   block, so it stands out from the white cards without shouting. */
 .btn-analytics {
   width: 100%;
   height: 54px;
@@ -439,11 +441,18 @@
   align-items: center;
   justify-content: center;
   gap: 9px;
-  border: 0;
+  border: 1px solid rgba(59, 69, 201, 0.3);
   border-radius: 15px;
-  color: #fff;
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  background: rgba(59, 69, 201, 0.08);
+  color: var(--accent);
+  font: 600 14.5px/1 'Instrument Sans', system-ui, sans-serif;
   cursor: pointer;
+}
+
+@media (hover: hover) {
+  .btn-analytics:hover {
+    background: rgba(59, 69, 201, 0.13);
+  }
 }
 
 /* ---------- timeline ---------- */
@@ -903,20 +912,102 @@
   padding: 20px 18px 16px;
 }
 
-.months {
+/* Columns stretch the row's full height, so even a 6px bar is an easy
+   full-column tap target, and the figure's headroom is always reserved —
+   nothing shifts when an amount appears. */
+.bar-row {
   display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  height: 110px;
+  align-items: stretch;
+  min-height: 155px;
 }
 
-.month {
-  flex: 1;
+.bar-col {
+  flex: none;
+  width: 38px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   align-items: center;
-  height: 100%;
+  justify-content: flex-end;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Bars or the day line — the little switch on the section's right. */
+.seg-mini {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.seg-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+/* The day strips: a week and a bit per view, the rest slides under the
+   card's own edge, fading out across it on the side holding more days. */
+.day-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -18px;
+  padding: 0 18px;
+}
+
+.day-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.day-scroll[data-fade='right'] {
+  mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 46px),
+    transparent calc(100% - 14px)
+  );
+}
+
+.day-scroll[data-fade='left'] {
+  mask-image: linear-gradient(to right, transparent 14px, #000 46px);
+}
+
+.day-scroll[data-fade='both'] {
+  mask-image: linear-gradient(
+    to right,
+    transparent 14px,
+    #000 46px,
+    #000 calc(100% - 46px),
+    transparent calc(100% - 14px)
+  );
+}
+
+.day-line {
+  display: block;
+}
+
+.day-ticks {
+  display: flex;
+  margin-top: 5px;
+}
+
+.day-ticks span {
+  flex: none;
+  width: 38px;
+  text-align: center;
+  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.day-ticks .day-tick-today {
+  color: var(--ink-2);
+  font-weight: 600;
 }
 
 .month-figure {
@@ -927,21 +1018,8 @@
 }
 
 .month-bar {
-  width: 100%;
+  width: 24px;
   border-radius: 7px;
-}
-
-.month-labels {
-  display: flex;
-  gap: 10px;
-  margin-top: 9px;
-}
-
-.month-labels span {
-  flex: 1;
-  text-align: center;
-  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
-  color: var(--muted);
 }
 
 /* ==================================================================
@@ -1187,17 +1265,63 @@
   margin-top: 14px;
 }
 
+/* One line per section: label, the (i), and the section's total. */
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 26px 0 10px;
+}
+
+.section-head .section-label {
+  margin: 0;
+}
+
+.section-total {
+  margin-left: auto;
+  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.info-btn {
+  width: 24px;
+  height: 24px;
+  margin: -5px 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--icon-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .info-btn:hover {
+    color: var(--ink-2);
+  }
+}
+
+.info-note {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(20, 22, 31, 0.04);
+  font: 400 12.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
 .plan-row {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 13px 14px 13px 18px;
-  border-top: 1px solid var(--divider);
   cursor: pointer;
 }
 
-.plan-row:first-child {
-  border-top-color: transparent;
+.plan-item + .plan-item {
+  border-top: 1px solid var(--divider);
 }
 
 @media (hover: hover) {
@@ -1259,6 +1383,19 @@
 
 .mini-form {
   margin-top: 14px;
+}
+
+/* The form dropped in under its own row, inside the white card. */
+.mini-form-card {
+  margin-top: 0;
+  padding: 4px 14px 14px;
+  border-top: 1px solid var(--divider);
+}
+
+.mini-form-card .field,
+.mini-form-card .money-row,
+.mini-form-card .date-row {
+  background: var(--sunken);
 }
 
 .pick-row {
@@ -1347,6 +1484,33 @@
   display: flex;
   gap: 8px;
   margin-top: 14px;
+}
+
+.safety-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.btn-set {
+  flex: 1;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.btn-reset {
+  padding: 0 18px;
+  height: 44px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
 }
 
 /* how spendable is born — the running sum at the foot of the screen */
@@ -2042,6 +2206,402 @@
   padding-right: 8px;
 }
 
+/* ==================================================================
+   Plans — room to breathe between the three sections
+================================================================== */
+.page-plans .section-head {
+  margin: 40px 0 12px;
+}
+
+.page-plans > .section-head:first-child {
+  margin-top: 24px;
+}
+
+.page-plans .sum-card {
+  margin-top: 40px;
+}
+
+/* ==================================================================
+   1.2 First-run tour
+================================================================== */
+.tour {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 0 34px;
+  padding-top: calc(18px + env(safe-area-inset-top));
+}
+
+.tour-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+}
+
+.tour-count {
+  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.tour-skip {
+  border: 0;
+  background: none;
+  padding: 8px 0 8px 14px;
+  color: var(--muted);
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.tour-track {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  margin-top: 8px;
+}
+
+.tour-track::-webkit-scrollbar {
+  display: none;
+}
+
+.tour-slide {
+  flex: none;
+  width: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 30px 0;
+  text-align: center;
+}
+
+.tour-art {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.tour-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.tour-body {
+  margin-top: 10px;
+  max-width: 300px;
+  font: 400 14px/1.55 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.tour-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin: 20px 0;
+}
+
+.tour-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(20, 22, 31, 0.16);
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.tour-dot-on {
+  width: 20px;
+}
+
+.tour-foot {
+  padding: 0 22px;
+}
+
+/* ---------- the slide pictures: miniatures of the real screens ---------- */
+.tm-card {
+  width: 272px;
+  padding: 18px;
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(20, 22, 31, 0.1);
+  text-align: left;
+}
+
+.tm-float {
+  animation: tm-float 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes tm-float {
+  from {
+    transform: translateY(3px);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+.tm-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tm-code {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 16px;
+  color: var(--ink-2);
+}
+
+.tm-figure {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 40px;
+  line-height: 1;
+}
+
+.tm-caret {
+  width: 2px;
+  height: 30px;
+  align-self: center;
+  background: var(--accent);
+  animation: tm-blink 1.1s steps(1) infinite;
+}
+
+@keyframes tm-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.tm-row {
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.tm-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.tm-pill-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.tm-chip {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 15px;
+  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.tm-cta {
+  margin-top: 14px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  animation: tm-breathe 2.6s ease-in-out infinite;
+}
+
+@keyframes tm-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.tm-label {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tm-big {
+  margin-top: 10px;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.tm-bob {
+  animation: tm-bob 2.8s ease-in-out infinite;
+}
+
+.tm-bob-2 {
+  animation-delay: 0.4s;
+}
+
+.tm-bob-3 {
+  animation-delay: 0.8s;
+}
+
+@keyframes tm-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.tm-pop {
+  opacity: 0;
+  animation: tm-pop 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes tm-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.tm-d1 {
+  animation-delay: 0.1s;
+}
+
+.tm-d2 {
+  animation-delay: 0.25s;
+}
+
+.tm-d3 {
+  animation-delay: 0.4s;
+}
+
+.tm-d4 {
+  animation-delay: 0.55s;
+}
+
+.tm-plan {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.tm-plan + .tm-plan {
+  margin-top: 12px;
+}
+
+.tm-badge {
+  flex: none;
+  width: 28px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid;
+  border-radius: 6px;
+  font: 600 10.5px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.tm-plan-name {
+  flex: 1;
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+}
+
+.tm-plan-amt {
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.tm-spend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top: 1px solid var(--divider);
+  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink-2);
+}
+
+.tm-spend-val {
+  font: 600 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+.tm-phone {
+  position: relative;
+  width: 158px;
+  height: 224px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--surface);
+  border-radius: 32px;
+  box-shadow: 0 18px 40px rgba(20, 22, 31, 0.1);
+}
+
+.tm-notch {
+  position: absolute;
+  top: 12px;
+  width: 44px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(20, 22, 31, 0.12);
+}
+
+.tm-finger {
+  animation: tm-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes tm-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+}
+
+.tm-phone-word {
+  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+/* The tour holds still for anyone who asked their phone for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .tour * {
+    animation: none !important;
+  }
+
+  .tour .tm-pop {
+    opacity: 1;
+  }
+}
 
 /* ==================================================================
    Tab bar — the four destinations

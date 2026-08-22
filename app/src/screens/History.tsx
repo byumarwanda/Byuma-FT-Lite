@@ -1,21 +1,30 @@
 import type { App } from '../useApp'
+import { today } from '../useApp'
 import type { Expense } from '../types'
 import { amountIn, byDay, sumIn } from '../lib/calc'
-import { sanitizeAmount } from '../lib/money'
-import { BinIcon, CrossIcon, METHODS, MICON, MLABEL, PlusIcon } from '../components/icons'
+import { groupTyped, sanitizeAmount } from '../lib/money'
+import {
+  BinIcon,
+  CrossIcon,
+  METHODS,
+  MICON,
+  MLABEL,
+  PlusIcon,
+} from '../components/icons'
 import { ACCENT, LINE, pick } from '../components/ui'
 
 /**
  * Everything recorded, newest first, grouped by day. Lifted off the recorder
- * so that screen is only about capturing an expense in a few seconds; looking
- * back is a different job and now has its own tab.
+ * so that screen is only about capturing an expense in a few seconds; reading
+ * back over the week is a different job and now has its own tab.
  *
- * Tapping a row opens the editor beneath it — amount, note, method and date.
- * The cross deletes, and always asks first.
+ * Tapping a row opens the editor beneath it - amount, note, details, method
+ * and the day it happened. The cross deletes, and always asks first.
  */
 export function History({ app }: { app: App }) {
   const { data, mainCur } = app
   const items = data.items
+  const rates = data.rates
   const groups = byDay(items)
 
   if (items.length === 0) {
@@ -32,7 +41,7 @@ export function History({ app }: { app: App }) {
           <button
             type="button"
             className="btn-analytics empty-action"
-            style={{ background: ACCENT }}
+            style={{ background: ACCENT, borderColor: ACCENT, color: '#fff' }}
             onClick={() => app.go('home')}
           >
             Record one
@@ -61,7 +70,7 @@ export function History({ app }: { app: App }) {
             />
             <div className="tl-head">
               <span className="tl-day">{g.label}</span>
-              <span className="tl-sum">{sumIn(data.rates, g.items, mainCur) ? app.fmt(sumIn(data.rates, g.items, mainCur)) : app.fmt(0)}</span>
+              <span className="tl-sum">{app.fmt(sumIn(rates, g.items, mainCur))}</span>
             </div>
             <div className="tl-card">
               {g.items.map((item, ix) => (
@@ -93,7 +102,7 @@ function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) 
           <Icon />
         </span>
         <span className="tl-note">{item.note || MLABEL[item.method]}</span>
-        <span className="tl-amount">{app.priv(app.fmt(shown))}</span>
+        <span className="tl-amount">{app.fmt(shown)}</span>
         <button
           type="button"
           className="x-btn"
@@ -115,7 +124,7 @@ function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) 
               type="text"
               inputMode="decimal"
               aria-label="Amount"
-              value={app.eAmt}
+              value={app.eAmt ? groupTyped(app.eAmt) : ''}
               onChange={(e) => app.setEAmt(sanitizeAmount(e.target.value))}
             />
           </div>
@@ -126,11 +135,19 @@ function Row({ app, item, first }: { app: App; item: Expense; first: boolean }) 
             value={app.eNote}
             onChange={(e) => app.setENote(e.target.value)}
           />
+          <input
+            className="editor-note"
+            type="text"
+            placeholder="Details, if it needs any"
+            value={app.eDetail}
+            onChange={(e) => app.setEDetail(e.target.value)}
+          />
           <div className="editor-date">
             <span className="editor-date-label">Date</span>
             <input
               type="date"
               aria-label="Date"
+              max={today()}
               value={app.eDate}
               onChange={(e) => app.setEDate(e.target.value)}
             />

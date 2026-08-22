@@ -1,6 +1,7 @@
 import { useApp } from './useApp'
 import { ConfirmSheet, Freeze, TabBar, Toast, TopBar, type Tab } from './components/ui'
 import { Forgot, SignIn, SignUp } from './screens/Auth'
+import { Tour } from './screens/Tour'
 import { Home } from './screens/Home'
 import { History } from './screens/History'
 import { Stats } from './screens/Stats'
@@ -44,7 +45,7 @@ export default function App() {
   }
 
   const chrome =
-    screen !== 'signup' && screen !== 'signin' && screen !== 'error'
+    screen !== 'signup' && screen !== 'signin' && screen !== 'error' && screen !== 'tour'
 
   // The four destinations reachable from the tab bar. Everything else is
   // something you stepped into, and keeps the back chevron instead.
@@ -71,6 +72,7 @@ export default function App() {
 
           {screen === 'signup' && <SignUp app={app} />}
           {screen === 'signin' && <SignIn app={app} />}
+          {screen === 'tour' && <Tour app={app} />}
           {screen === 'forgot' && <Forgot app={app} />}
           {screen === 'home' && <Home app={app} />}
           {screen === 'history' && <History app={app} />}

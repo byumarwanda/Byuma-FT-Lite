@@ -223,6 +223,18 @@ export function dayLabel(at: number, now: number = Date.now()): string {
   return d.getDate() + ' ' + MON[d.getMonth()]
 }
 
+/**
+ * "13 Aug" from a timestamp — the day marks along a strip's axis. A day
+ * from another year says so: "5 Jan 27".
+ */
+export function dayStamp(at: number, now: number = Date.now()): string {
+  const d = new Date(at)
+  const label = d.getDate() + ' ' + MON[d.getMonth()]
+  return d.getFullYear() === new Date(now).getFullYear()
+    ? label
+    : label + ' ' + String(d.getFullYear()).slice(2)
+}
+
 /** "12 Sep", with the year added only when it is not this year. */
 export function shortDate(iso: string, now: number = Date.now()): string {
   const [y, m, d] = iso.split('-').map(Number)

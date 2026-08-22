@@ -3,7 +3,12 @@ import type { App } from '../useApp'
 import type { Method } from '../types'
 import { sumIn } from '../lib/calc'
 import { groupTyped, sanitizeAmount } from '../lib/money'
-import { METHODS, PlusSmallIcon, EyeIcon, EyeOffIcon } from '../components/icons'
+import {
+  METHODS,
+  PlusSmallIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from '../components/icons'
 import { ACCENT, ChipScroller, pick } from '../components/ui'
 
 const MIXCOL: Record<Method, string> = {
@@ -12,35 +17,38 @@ const MIXCOL: Record<Method, string> = {
   bank: '#8f92a0',
 }
 
-/**
- * The recorder — the point of the app, and now the whole of this tab. The
- * timeline moved to its own tab so nothing competes with capturing an
- * expense in a few seconds.
- */
 export function Home({ app }: { app: App }) {
+  // A total left on screen is a total anyone glancing over can read, so it
+  // starts covered and opens only while deliberately asked for. Leaving the
+  // tab unmounts this and closes it again. The eye in Profile and on
+  // Analytics still hides every total at once, independently of this.
+  const [shown, setShown] = useState(false)
   const hidden = useRef<HTMLInputElement>(null)
   const cta = useRef<HTMLButtonElement>(null)
   const { data, mainCur, num, amt } = app
   const items = data.items
-
-  // A total left on screen is a total anyone glancing over can read, so it
-  // starts covered and is shown only while it is deliberately asked for.
-  // Leaving the tab unmounts this and closes it again.
-  const [shown, setShown] = useState(false)
+  const rates = data.rates
 
   const ready = num > 0 && !!app.method
   const ctaLabel =
     num <= 0 ? 'Record expense' : !app.method ? 'Pick a method' : 'Record ' + app.fmt(num)
 
+  // A balance of zero everywhere means the person has not told the app what
+  // they have yet.
   const hasBalance = app.selCurs.some((c) => (data.balances[c] ?? 0) !== 0)
-  const total = sumIn(data.rates, items, mainCur)
-  const allSum = total || 1
 
+  // The phone's keyboard covers the bottom of the screen while an amount or a
+  // new category is being typed. The moment the expense is ready to record,
+  // bring the button into view so it is never buried under the keyboard.
   useEffect(() => {
     if (ready) cta.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
   }, [ready])
 
+  // Choosing a category is the last step, so let the keyboard go with it.
   const done = () => (document.activeElement as HTMLElement | null)?.blur()
+
+  const total = sumIn(rates, items, mainCur)
+  const allSum = total || 1
 
   return (
     <div>
@@ -153,7 +161,7 @@ export function Home({ app }: { app: App }) {
           <button
             type="button"
             className="btn-analytics"
-            style={{ background: ACCENT }}
+            style={{ background: ACCENT, borderColor: ACCENT, color: '#fff' }}
             onClick={() => app.goBalance('home')}
           >
             <PlusSmallIcon />
@@ -179,7 +187,7 @@ export function Home({ app }: { app: App }) {
                 <span className="mixbar">
                   {METHODS.map(({ k }) => {
                     const v = sumIn(
-                      data.rates,
+                      rates,
                       items.filter((i) => i.method === k),
                       mainCur,
                     )
@@ -197,7 +205,7 @@ export function Home({ app }: { app: App }) {
                 <span className="mixlegend">
                   {METHODS.map(({ k, label }) => {
                     const v = sumIn(
-                      data.rates,
+                      rates,
                       items.filter((i) => i.method === k),
                       mainCur,
                     )

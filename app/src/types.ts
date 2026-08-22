@@ -5,6 +5,8 @@ export interface Expense {
   amount: number
   method: Method
   note: string
+  /** A longer clarification, offered only inside the editor. */
+  detail?: string
   /** The currency the expense was recorded in — the main currency at the time. */
   cur: string
   /** Real timestamp. The day grouping on the timeline is derived from this. */
@@ -42,10 +44,13 @@ export interface Safety {
   cur: string
 }
 
+/** The three hide flags are independent: each figure keeps its own eye. */
 export interface Settings {
   round: boolean
   reminder: boolean
-  hide: boolean
+  hideBal: boolean
+  hideMonth: boolean
+  hideSpent: boolean
 }
 
 /** Everything one signed-in person owns. Saved on the phone under their id. */
@@ -84,6 +89,7 @@ export interface Account {
 export type Screen =
   | 'signup'
   | 'signin'
+  | 'tour'
   | 'home'
   | 'history'
   | 'stats'

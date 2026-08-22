@@ -20,10 +20,10 @@ export function Profile({ app }: { app: App }) {
 
   const phoneOn = !!account?.passkeyId
 
+  // Hiding moved out of here: each figure carries its own eye now.
   const toggles: { k: keyof Settings; label: string }[] = [
     { k: 'round', label: 'Round amounts' },
     { k: 'reminder', label: 'Evening reminder' },
-    { k: 'hide', label: 'Hide totals' },
   ]
 
   return (
@@ -136,6 +136,9 @@ export function Profile({ app }: { app: App }) {
         </div>
         <button type="button" className="danger-row" onClick={app.askClear}>
           Delete all expenses
+        </button>
+        <button type="button" className="danger-row" onClick={app.askDeleteAccount}>
+          Delete account
         </button>
       </div>
 

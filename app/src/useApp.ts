@@ -160,6 +160,7 @@ export function useApp() {
   const [editId, setEditId] = useState<string | null>(null)
   const [eAmt, setEAmt] = useState('')
   const [eNote, setENote] = useState('')
+  const [eDetail, setEDetail] = useState('')
   const [eMethod, setEMethod] = useState<Method>('cash')
   // The editor can move an expense to another day; recording always stamps
   // the moment it happened.
@@ -390,9 +391,12 @@ export function useApp() {
       setAccount(acc)
       setData(fresh)
       setBalCur(fresh.mainCur)
-      setScreen('home')
+      // A brand-new person gets the short tour first; the phone's back
+      // button (and Skip) both land on home. No toast here — it would sit
+      // exactly over the tour's own header.
+      setScreen('tour')
+      setBack('home')
       resetForms()
-      showToast('Account ready.', 'ok')
     })
   }, [fName, fEmail, fPass, fail, freeze, resetForms, showToast])
 
@@ -655,6 +659,7 @@ export function useApp() {
       setEditId(item.id)
       setEAmt(String(item.amount))
       setENote(item.note)
+      setEDetail(item.detail ?? '')
       setEMethod(item.method)
       setEDate(dayInput(item.at))
     },
@@ -672,7 +677,14 @@ export function useApp() {
         ...d,
         items: d.items.map((x) =>
           x.id === item.id
-            ? { ...x, amount: v, note: eNote.trim(), method: eMethod, at: atOn(eDate, item.at) }
+            ? {
+                ...x,
+                amount: v,
+                note: eNote.trim(),
+                detail: eDetail.trim() || undefined,
+                method: eMethod,
+                at: atOn(eDate, item.at),
+              }
             : x,
         ),
         // Move the balance by the difference only.
@@ -682,7 +694,7 @@ export function useApp() {
       setEditId(null)
       showToast('Expense updated.', 'ok')
     },
-    [eAmt, eNote, eMethod, eDate, showToast],
+    [eAmt, eNote, eDetail, eMethod, eDate, showToast],
   )
 
   const askClear = useCallback(() => {
@@ -735,15 +747,19 @@ export function useApp() {
     setBack('stats')
   }, [data.safety.amt, clearErr])
 
-  /** Open the form empty for a new plan, or filled to edit one. */
+  /**
+   * Open the form empty for a new plan, or filled to edit one — dropped in
+   * right under its own row. Tapping the row again folds it away.
+   */
   const openPlanForm = useCallback(
     (p?: Plan) => {
       setIncomeForm(null)
-      setPlanForm(
-        p
+      setPlanForm((cur) => {
+        if (p && cur && cur.id === p.id) return null
+        return p
           ? { id: p.id, name: p.name, amt: String(p.amt), cur: p.cur, prio: p.prio, date: p.date }
-          : { id: null, name: '', amt: '', cur: mainCur, prio: 1, date: '' },
-      )
+          : { id: null, name: '', amt: '', cur: mainCur, prio: 1, date: '' }
+      })
       clearErr()
     },
     [mainCur, clearErr],
@@ -793,11 +809,12 @@ export function useApp() {
   const openIncomeForm = useCallback(
     (i?: Income) => {
       setPlanForm(null)
-      setIncomeForm(
-        i
+      setIncomeForm((cur) => {
+        if (i && cur && cur.id === i.id) return null
+        return i
           ? { id: i.id, name: i.name, amt: String(i.amt), cur: i.cur, date: i.date, counted: i.counted }
-          : { id: null, name: '', amt: '', cur: mainCur, date: '', counted: false },
-      )
+          : { id: null, name: '', amt: '', cur: mainCur, date: '', counted: false }
+      })
       clearErr()
     },
     [mainCur, clearErr],
@@ -852,12 +869,29 @@ export function useApp() {
     }))
   }, [])
 
-  /** The safety net saves as it is typed — no ceremony for one number. */
-  const editSafety = useCallback((raw: string) => {
-    const v = clean(raw)
-    setFSafety(v)
-    setData((d) => ({ ...d, safety: { ...d.safety, amt: Number(v) || 0 } }))
-  }, [])
+  /** Typing only stages the safety net; the Set button makes it count. */
+  const editSafety = useCallback(
+    (raw: string) => {
+      setFSafety(clean(raw))
+      clearErr()
+    },
+    [clearErr],
+  )
+
+  const saveSafety = useCallback(() => {
+    const amt = Number(fSafety) || 0
+    if (amt <= 0) return fail('safety', 'Give it an amount first.')
+    setData((d) => ({ ...d, safety: { ...d.safety, amt } }))
+    clearErr()
+    showToast('Safety net set.', 'ok')
+  }, [fSafety, fail, clearErr, showToast])
+
+  const resetSafety = useCallback(() => {
+    setData((d) => ({ ...d, safety: { ...d.safety, amt: 0 } }))
+    setFSafety('')
+    clearErr()
+    showToast('Safety net reset.', 'ok')
+  }, [clearErr, showToast])
 
   const setSafetyCur = useCallback((cur: string) => {
     setData((d) => ({ ...d, safety: { ...d.safety, cur } }))
@@ -1090,6 +1124,35 @@ export function useApp() {
     })
   }, [account, fPass, fNew, fNew2, fail, freeze, resetForms, showToast])
 
+  /**
+   * The whole account, gone from this phone: the account itself, its
+   * expenses, plans and settings. Said plainly before anything happens.
+   */
+  const askDeleteAccount = useCallback(() => {
+    if (!account) return
+    setConfirm({
+      title: 'Delete your account?',
+      body:
+        'Your account and everything saved under ' +
+        account.email +
+        ' on this phone are deleted. This cannot be undone.',
+      cta: 'Delete account',
+      danger: true,
+      yes: () =>
+        freeze('Deleting account', FREEZE.erase, () => {
+          removeAccount(account.id)
+          saveSession(null)
+          setLastAccount((l) => (l && l.id === account.id ? null : l))
+          setAccount(null)
+          setData(freshData())
+          setScreen('signup')
+          setBack('home')
+          resetForms()
+          showToast('Account deleted.', 'ok')
+        }),
+    })
+  }, [account, freeze, resetForms, showToast])
+
   const setSetting = useCallback((key: keyof Settings) => {
     setData((d) => ({ ...d, settings: { ...d.settings, [key]: !d.settings[key] } }))
   }, [])
@@ -1130,13 +1193,6 @@ export function useApp() {
   const spend = balance - plansOff - safetyOff + incomeIn
   const shortfall = p1Shortfall(data.rates, balance, data.plans, activeCur)
 
-  // "Hide totals", from Profile or the eye beside a figure. Hiding the big
-  // figure while the rows beneath still add up to it would hide nothing, so
-  // every amount on the home and analytics screens goes through priv().
-  const hidden = data.settings.hide
-  const toggleHide = useCallback(() => setSetting('hide'), [setSetting])
-  const priv = useCallback((s: string) => (hidden ? '•••' : s), [hidden])
-
   return {
     // state
     ready,
@@ -1153,7 +1209,6 @@ export function useApp() {
     incomeIn,
     spend,
     shortfall,
-    hidden,
     amt,
     num,
     method,
@@ -1178,6 +1233,7 @@ export function useApp() {
     editId,
     eAmt,
     eNote,
+    eDetail,
     eMethod,
     eDate,
     catFreq,
@@ -1204,6 +1260,7 @@ export function useApp() {
     setExtra,
     setEAmt,
     setENote,
+    setEDetail,
     setEMethod,
     setEDate,
     setBalCur,
@@ -1213,7 +1270,6 @@ export function useApp() {
     // helpers
     fmt,
     fmtIn,
-    priv,
     shownRate,
     editRate,
     canRemoveCur,
@@ -1231,8 +1287,9 @@ export function useApp() {
     askDeleteIncome,
     toggleCounted,
     editSafety,
+    saveSafety,
+    resetSafety,
     setSafetyCur,
-    toggleHide,
     signUp,
     signIn,
     askSignOut,
@@ -1249,6 +1306,7 @@ export function useApp() {
     openEditor,
     saveEdit,
     askClear,
+    askDeleteAccount,
     saveBalance,
     openExtra,
     addCur,

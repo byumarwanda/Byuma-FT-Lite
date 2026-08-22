@@ -99,11 +99,24 @@ for (const device of DEVICES) {
   await page.fill('input[placeholder="Password"]', 'ubuzima2026')
   await page.click('text=Create account')
 
-  // 1.3 Nothing recorded yet — now its own tab
+  // 1.2 The first-run tour: first slide, one Next, then Skip out
+  await page.waitForSelector('.tour-slide', { timeout: 8000 })
+  await page.waitForTimeout(700)
+  await shoot(page, device, '1.2-tour')
+  await page.click('text=Next')
+  await page.waitForTimeout(600)
+  await shoot(page, device, '1.2-tour-2')
+  await page.click('text=Skip')
+
+  // The recorder is where a fresh account lands.
   await page.waitForSelector('.tabbar', { timeout: 8000 })
+  await page.waitForTimeout(400)
   await shoot(page, device, '1.3-add-fresh')
+
+  // 1.3 Nothing recorded yet — the empty state lives on its own tab now
   await page.click('.tab >> text="History"')
   await page.waitForSelector('text=No expenses yet', { timeout: 8000 })
+  await page.waitForTimeout(400)
   await shoot(page, device, '1.3-empty')
   await page.click('.tab >> text="Add"')
   await page.waitForSelector('.recorder')
@@ -182,6 +195,7 @@ for (const device of DEVICES) {
   await page.click('text=Add plan')
   await page.waitForSelector('.plan-row')
   await page.fill('input[aria-label="Safety net"]', '140000')
+  await page.click('text=Set safety net')
 
   // expected income, counted in with the row's switch
   await page.click('text=＋ Add income')
@@ -193,10 +207,22 @@ for (const device of DEVICES) {
   await page.waitForTimeout(200)
   await shoot(page, device, '3.3-plans')
 
+  // editing drops the form in right under the row
+  await page.click('.plan-row >> text=Rent')
+  await page.waitForSelector('.mini-form-card')
+  await shoot(page, device, '3.3-plan-edit')
+  await page.click('.mini-form-card >> text=Cancel')
+
   await page.click('button[aria-label="Back"]')
   await page.waitForSelector('text=Where the money went', { timeout: 8000 })
   await page.waitForTimeout(300)
   await shoot(page, device, '3.1-stats-with-balance')
+
+  // the day-by-day graph behind the Graph toggle
+  await page.click('.seg-btn >> text=Graph')
+  await page.waitForSelector('.day-scroll-line')
+  await shoot(page, device, '3.1-stats-graph')
+  await page.click('.seg-btn >> text=Bars')
 
   // 4.1 Profile
   await page.click('.tab >> text="Account"')

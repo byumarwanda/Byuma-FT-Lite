@@ -53,6 +53,16 @@ export const WarnIcon = ({ color }: { color: string }) => (
   </svg>
 )
 
+export const InfoIcon = () => (
+  <svg
+    width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor"
+    strokeWidth="1.5" strokeLinecap="round"
+  >
+    <circle cx="9" cy="9" r="7" />
+    <path d="M9 8.4v4M9 5.6v.1" />
+  </svg>
+)
+
 export const OkIcon = ({ color }: { color: string }) => (
   <svg
     width="16" height="16" viewBox="0 0 18 18" fill="none" stroke={color}
