@@ -1,5 +1,5 @@
 import type { App } from '../useApp'
-import { ACCENT, DANGER, FormError, LINE, PasswordField } from '../components/ui'
+import { ACCENT, DANGER, FormError, LINE, PasswordField, Wordmark } from '../components/ui'
 import { UnlockIcon } from '../components/icons'
 
 const border = (app: App, field: string) => (app.errField === field ? DANGER : LINE)
@@ -17,7 +17,9 @@ function UnlockButton({ app, label }: { app: App; label: string }) {
 export function SignUp({ app }: { app: App }) {
   return (
     <div className="page-auth">
-      <div className="wordmark">BYUMA FT</div>
+      <div className="wordmark">
+        <Wordmark />
+      </div>
       <div className="headline-auth">Track what you spend.</div>
 
       <div className="field-group">
@@ -88,7 +90,9 @@ export function SignIn({ app }: { app: App }) {
 
   return (
     <div className="page-auth">
-      <div className="wordmark">BYUMA FT</div>
+      <div className="wordmark">
+        <Wordmark />
+      </div>
       <div className="headline-auth">Welcome back.</div>
 
       {phoneReady && (

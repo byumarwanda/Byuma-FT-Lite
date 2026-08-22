@@ -47,11 +47,18 @@
 }
 
 /* The screen title is the same lettering as the wordmark, so the name of
-   the app and the name of the screen read as one voice. */
+   the app and the name of the screen read as one voice. Serif is kept for
+   the display headlines and the money figures. */
 .topbar-title {
-  font: 400 15px/1 var(--font-title);
-  letter-spacing: 0.14em;
+  font: 600 12.5px/1 var(--font-text);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+/* FT drops to grey, so the initials read as a mark rather than as two
+   more letters of the word. */
+.wordmark-ft {
+  color: var(--muted);
 }
 
 .icon-btn {
@@ -81,8 +88,8 @@
 
 /* ---------- headlines ---------- */
 .wordmark {
-  font: 400 15px/1 var(--font-title);
-  letter-spacing: 0.14em;
+  font: 600 12.5px/1 var(--font-text);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 

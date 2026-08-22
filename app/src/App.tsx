@@ -1,6 +1,14 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { useApp } from './useApp'
-import { ConfirmSheet, Freeze, TabBar, Toast, TopBar, type Tab } from './components/ui'
+import {
+  ConfirmSheet,
+  Freeze,
+  TabBar,
+  Toast,
+  TopBar,
+  Wordmark,
+  type Tab,
+} from './components/ui'
 import { Forgot, SignIn, SignUp } from './screens/Auth'
 import { Tour } from './screens/Tour'
 import { Home } from './screens/Home'
@@ -16,8 +24,8 @@ import {
 } from './screens/Profile'
 import { ErrorScreen } from './screens/ErrorScreen'
 
-const TITLES: Record<string, string> = {
-  home: 'BYUMA FT',
+const TITLES: Record<string, ReactNode> = {
+  home: <Wordmark />,
   stats: 'ANALYTICS',
   profile: 'PROFILE',
   name: 'YOUR NAME',
