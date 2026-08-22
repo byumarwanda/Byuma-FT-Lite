@@ -60,10 +60,36 @@
    Above 440px the app stops growing and centres itself, so a tablet or
    a desktop browser shows the phone layout rather than a stretched one.
 ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------
+   The two typefaces, and the only two.
+
+   Every rule in the project reaches for one of these two names rather
+   than naming a font itself, so the app can never drift into a third.
+
+     --font-title  the wordmark, every screen title, every headline and
+                   every money figure — the app's voice
+     --font-text   everything you read rather than glance at
+------------------------------------------------------------------ */
+:root {
+  --font-title: 'Instrument Serif', Georgia, serif;
+  --font-text: 'Instrument Sans', system-ui, sans-serif;
+}
+
 html {
   font-size: clamp(8px, calc(min(100vw, 440px) / 39), 11.29px);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+/* The page itself must never scroll. Only the strip between the top bar
+   and the tab bar does. Without this, Chrome on Android scrolls the whole
+   document as its address bar hides, and anything pinned to the bottom of
+   the screen slides away with it and cannot be reached again. */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 * {
@@ -79,7 +105,7 @@ body {
   margin: 0;
   background: #eae9f1;
   color: #14161f;
-  font-family: 'Instrument Sans', system-ui, sans-serif;
+  font-family: var(--font-text);
   font-variant-numeric: tabular-nums lining-nums;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
@@ -110,7 +136,8 @@ input {
    inside the same bezel as the design prototype.
 ------------------------------------------------------------------ */
 .shell {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
