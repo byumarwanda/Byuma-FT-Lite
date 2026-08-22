@@ -1,15 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import type { App } from '../useApp'
 import type { Method } from '../types'
-import { sumIn } from '../lib/calc'
+import { amountIn, sumIn } from '../lib/calc'
 import { groupTyped, sanitizeAmount } from '../lib/money'
 import {
   METHODS,
+  MICON,
+  MLABEL,
+  ChevronRight,
   PlusSmallIcon,
   EyeIcon,
   EyeOffIcon,
 } from '../components/icons'
 import { ACCENT, ChipScroller, pick } from '../components/ui'
+
+/** How many of the latest expenses the home screen shows before "More". */
+const RECENT = 3
 
 const MIXCOL: Record<Method, string> = {
   cash: ACCENT,
@@ -18,11 +24,11 @@ const MIXCOL: Record<Method, string> = {
 }
 
 export function Home({ app }: { app: App }) {
-  // A total left on screen is a total anyone glancing over can read, so it
-  // starts covered and opens only while deliberately asked for. Leaving the
-  // tab unmounts this and closes it again. The eye in Profile and on
-  // Analytics still hides every total at once, independently of this.
-  const [shown, setShown] = useState(false)
+  // The total is there to be read, so it shows. The eye covers it for the
+  // moment someone is looking over your shoulder; leaving the tab brings it
+  // back. The eye in Profile and on Analytics still hides every total at
+  // once, independently of this.
+  const [shown, setShown] = useState(true)
   const hidden = useRef<HTMLInputElement>(null)
   const cta = useRef<HTMLButtonElement>(null)
   const { data, mainCur, num, amt } = app
@@ -226,6 +232,61 @@ export function Home({ app }: { app: App }) {
               </>
             )}
           </button>
+        )}
+
+        {/* The last few, so the home screen answers "what did I just spend?"
+            without a trip to History. Everything else, and all the editing,
+            stays one tap away behind More. */}
+        {items.length > 0 && (
+          <div className="recent">
+            <div className="hist-head">
+              <span className="label-sm">Recent</span>
+              <span className="hist-count">
+                {items.length === 1 ? '1 expense' : items.length + ' expenses'}
+              </span>
+            </div>
+
+            <div className="tl-card recent-card">
+              {items.slice(0, RECENT).map((item) => {
+                const Icon = MICON[item.method]
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="tl-row recent-row"
+                    onClick={() => app.go('history')}
+                  >
+                    <span
+                      className="tl-tile"
+                      style={{
+                        background:
+                          item.method === 'cash'
+                            ? 'rgba(20,22,31,.05)'
+                            : 'rgba(20,22,31,.08)',
+                      }}
+                    >
+                      <Icon />
+                    </span>
+                    <span className="tl-note">{item.note || MLABEL[item.method]}</span>
+                    <span className="tl-amount">
+                      {app.fmt(amountIn(rates, item, mainCur))}
+                    </span>
+                  </button>
+                )
+              })}
+
+              {items.length > RECENT && (
+                <button
+                  type="button"
+                  className="recent-more"
+                  onClick={() => app.go('history')}
+                >
+                  More
+                  <ChevronRight />
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>
