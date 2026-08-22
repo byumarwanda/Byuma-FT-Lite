@@ -85,6 +85,7 @@ export type Screen =
   | 'signup'
   | 'signin'
   | 'home'
+  | 'history'
   | 'stats'
   | 'balance'
   | 'plans'

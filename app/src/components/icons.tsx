@@ -91,6 +91,50 @@ export const ChevronRight = ({ size = 11, color = 'currentColor' }) => (
   </svg>
 )
 
+/* ---------------- tab bar ----------------
+   Solid when the tab is the current one, outlined otherwise, so the active
+   tab reads at a glance without relying on colour alone. */
+
+export const AddIcon = ({ on = false }) => (
+  <svg
+    width="21" height="21" viewBox="0 0 22 22" fill="none" stroke="currentColor"
+    strokeWidth={on ? 2.3 : 1.7} strokeLinecap="round"
+  >
+    <circle cx="11" cy="11" r="7.6" />
+    <path d="M11 7.6v6.8M7.6 11h6.8" />
+  </svg>
+)
+
+/** A receipt, for the list of everything recorded. */
+export const HistoryIcon = ({ on = false }) => (
+  <svg
+    width="21" height="21" viewBox="0 0 22 22" fill={on ? 'currentColor' : 'none'}
+    stroke="currentColor" strokeWidth={on ? 1 : 1.6} strokeLinecap="round" strokeLinejoin="round"
+  >
+    <path d="M5.2 3.4h11.6v15.2l-2.3-1.5-2.3 1.5-2.3-1.5-2.4 1.5-2.3-1.5z" />
+    <path d="M8.4 8h5.2M8.4 11.4h5.2" stroke={on ? '#fff' : 'currentColor'} strokeWidth="1.5" />
+  </svg>
+)
+
+export const ChartIcon = ({ on = false }) => (
+  <svg
+    width="21" height="21" viewBox="0 0 22 22" fill="none" stroke="currentColor"
+    strokeWidth={on ? 2.4 : 1.7} strokeLinecap="round"
+  >
+    <path d="M5.5 15.5v-4M11 15.5v-9M16.5 15.5v-6" />
+  </svg>
+)
+
+export const AccountIcon = ({ on = false }) => (
+  <svg
+    width="21" height="21" viewBox="0 0 22 22" fill={on ? 'currentColor' : 'none'}
+    stroke="currentColor" strokeWidth={on ? 1 : 1.6} strokeLinecap="round"
+  >
+    <circle cx="11" cy="7.6" r="3.2" />
+    <path d="M4.8 18c1.1-2.9 3.4-4.3 6.2-4.3s5.1 1.4 6.2 4.3" />
+  </svg>
+)
+
 export const PersonIcon = () => (
   <svg
     width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor"

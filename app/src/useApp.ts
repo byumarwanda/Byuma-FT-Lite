@@ -60,6 +60,34 @@ const FREEZE = {
   retry: 900,
 } as const
 
+/** Today as yyyy-mm-dd in the phone's own timezone, for a date input. */
+export function today(): string {
+  const d = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+/**
+ * Turn a picked day into a timestamp. Today keeps the current time so the
+ * newest expense still sorts to the top; any other day lands at midday, far
+ * enough from either midnight that a timezone will not shunt it into the
+ * neighbouring day.
+ */
+/** A timestamp as yyyy-mm-dd, for filling a date input. */
+export function dayInput(at: number): string {
+  const d = new Date(at)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+export function atOn(day: string, now: number = Date.now()): number {
+  if (!day) return now
+  if (day === today()) return now
+  const [y, m, d] = day.split('-').map(Number)
+  if (!y || !m || !d) return now
+  return new Date(y, m - 1, d, 12, 0, 0, 0).getTime()
+}
+
 const emailOk = (v: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim())
 
 export interface ExtraState {
@@ -133,6 +161,9 @@ export function useApp() {
   const [eAmt, setEAmt] = useState('')
   const [eNote, setENote] = useState('')
   const [eMethod, setEMethod] = useState<Method>('cash')
+  // The editor can move an expense to another day; recording always stamps
+  // the moment it happened.
+  const [eDate, setEDate] = useState(today())
 
   // unlocking with the phone
   const [canUsePhone, setCanUsePhone] = useState(false)
@@ -625,6 +656,7 @@ export function useApp() {
       setEAmt(String(item.amount))
       setENote(item.note)
       setEMethod(item.method)
+      setEDate(dayInput(item.at))
     },
     [editId],
   )
@@ -639,7 +671,9 @@ export function useApp() {
       setData((d) => ({
         ...d,
         items: d.items.map((x) =>
-          x.id === item.id ? { ...x, amount: v, note: eNote.trim(), method: eMethod } : x,
+          x.id === item.id
+            ? { ...x, amount: v, note: eNote.trim(), method: eMethod, at: atOn(eDate, item.at) }
+            : x,
         ),
         // Move the balance by the difference only.
         balances: applyEdit(d.balances, item, v),
@@ -648,7 +682,7 @@ export function useApp() {
       setEditId(null)
       showToast('Expense updated.', 'ok')
     },
-    [eAmt, eNote, eMethod, showToast],
+    [eAmt, eNote, eMethod, eDate, showToast],
   )
 
   const askClear = useCallback(() => {
@@ -1145,6 +1179,7 @@ export function useApp() {
     eAmt,
     eNote,
     eMethod,
+    eDate,
     catFreq,
     orderedCats,
     canUsePhone,
@@ -1170,6 +1205,7 @@ export function useApp() {
     setEAmt,
     setENote,
     setEMethod,
+    setEDate,
     setBalCur,
     setConfirm,
     clearErr,
