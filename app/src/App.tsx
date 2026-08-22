@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useApp } from './useApp'
 import { ConfirmSheet, Freeze, TabBar, Toast, TopBar, type Tab } from './components/ui'
 import { Forgot, SignIn, SignUp } from './screens/Auth'
@@ -34,6 +35,14 @@ export default function App() {
   const app = useApp()
   const { screen } = app
 
+  // Every screen is drawn inside the same scrolling strip, so without this a
+  // screen opened after scrolling down somewhere else would start halfway
+  // down itself. Each new screen starts at its top.
+  const scroll = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    scroll.current?.scrollTo(0, 0)
+  }, [screen])
+
   // Nothing is drawn until the saved session has been read, so a signed-in
   // person never sees the sign-up screen flash past on start-up.
   if (!app.ready) {
@@ -55,7 +64,7 @@ export default function App() {
   return (
     <div className="shell">
       <div className="phone">
-        <div className={onTab ? 'scroll has-tabbar' : 'scroll'}>
+        <div ref={scroll} className={onTab ? 'scroll has-tabbar' : 'scroll'}>
           {chrome && (
             <TopBar
               title={TITLES[screen] ?? ''}

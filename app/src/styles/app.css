@@ -6,20 +6,20 @@
 
 /* ---------- shared type ---------- */
 .serif {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-weight: 400;
 }
 
 /* Section label: 12.5px / 400 / .09em / uppercase / muted */
 .label-sm {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .section-label {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
@@ -46,9 +46,11 @@
   gap: 10px;
 }
 
+/* The screen title is the same lettering as the wordmark, so the name of
+   the app and the name of the screen read as one voice. */
 .topbar-title {
-  font: 600 12.5px/1 'Instrument Sans', system-ui, sans-serif;
-  letter-spacing: 0.16em;
+  font: 400 15px/1 var(--font-title);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -79,32 +81,32 @@
 
 /* ---------- headlines ---------- */
 .wordmark {
-  font: 600 12.5px/1 'Instrument Sans', system-ui, sans-serif;
-  letter-spacing: 0.16em;
+  font: 400 15px/1 var(--font-title);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .headline-auth {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 36px;
   line-height: 1.12;
   margin-top: 26px;
 }
 
 .headline-30 {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 30px;
   line-height: 1.15;
 }
 
 .headline-26 {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 26px;
   line-height: 1.2;
 }
 
 .headline-24 {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 24px;
   line-height: 1.2;
 }
@@ -118,7 +120,7 @@
   border-radius: 14px;
   background: var(--surface);
   outline: none;
-  font: 400 15px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 15px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -137,7 +139,7 @@
   border: 0;
   border-radius: 16px;
   color: #fff;
-  font: 500 15.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 15.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -147,7 +149,7 @@
   border: 0;
   border-radius: 15px;
   color: #fff;
-  font: 500 15px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 15px/1 var(--font-text);
   cursor: pointer;
   margin-top: 14px;
 }
@@ -159,7 +161,7 @@
   border-radius: 15px;
   background: none;
   color: var(--ink-2);
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -180,7 +182,7 @@
 }
 
 .form-error span {
-  font: 400 13px/1.4 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1.4 var(--font-text);
   color: var(--danger);
 }
 
@@ -194,7 +196,7 @@
 }
 
 .auth-alt-text {
-  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -202,7 +204,7 @@
   border: 0;
   background: none;
   padding: 0;
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -233,14 +235,14 @@
 }
 
 .amount-code {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 28px;
   line-height: 1;
   padding-bottom: 13px;
 }
 
 .amount-figure {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 78px;
   line-height: 1;
 }
@@ -280,7 +282,7 @@
   gap: 6px;
   border: 1px solid var(--hairline);
   border-radius: 13px;
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -295,7 +297,7 @@
   background: var(--sunken);
   outline: none;
   text-align: center;
-  font: 400 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 14.5px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -349,7 +351,7 @@
   padding: 0 14px;
   border: 1px solid var(--hairline);
   border-radius: 11px;
-  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -362,7 +364,7 @@
   border-radius: 11px;
   background: none;
   color: var(--ink-2);
-  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -373,7 +375,7 @@
   margin-top: 30px;
   border: 0;
   border-radius: 16px;
-  font: 500 15.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 15.5px/1 var(--font-text);
 }
 
 /* ---------- below the card ---------- */
@@ -382,7 +384,7 @@
 }
 
 .spent-figure {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 40px;
   line-height: 1.05;
   margin-top: 8px;
@@ -423,12 +425,12 @@
 }
 
 .mix-name {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--ink-2);
 }
 
 .mix-sum {
-  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 12.5px/1 var(--font-text);
 }
 
 /* A door, not a billboard: a soft wash of the accent instead of a solid
@@ -445,7 +447,7 @@
   border-radius: 15px;
   background: rgba(59, 69, 201, 0.08);
   color: var(--accent);
-  font: 600 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 600 14.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -494,11 +496,11 @@
 }
 
 .tl-day {
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
 }
 
 .tl-sum {
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -530,7 +532,7 @@
 .tl-note {
   flex: 1;
   min-width: 0;
-  font: 400 13.5px/1.3 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1.3 var(--font-text);
   color: var(--ink-2);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -538,7 +540,7 @@
 }
 
 .tl-amount {
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
 }
 
 .x-btn {
@@ -589,7 +591,7 @@
 }
 
 .editor-amt-label {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -600,7 +602,7 @@
   background: none;
   outline: none;
   text-align: right;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 22px;
   line-height: 1;
   color: var(--ink);
@@ -615,7 +617,7 @@
   border-radius: 12px;
   background: var(--sunken);
   outline: none;
-  font: 400 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 14px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -630,7 +632,7 @@
   height: 44px;
   border: 1px solid var(--hairline);
   border-radius: 12px;
-  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -647,7 +649,7 @@
   border-radius: 12px;
   background: none;
   color: var(--ink-2);
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -657,7 +659,7 @@
   border: 0;
   border-radius: 12px;
   color: #fff;
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -680,14 +682,14 @@
 }
 
 .empty-title {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 24px;
   line-height: 1.2;
   margin-top: 18px;
 }
 
 .empty-sub {
-  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1.5 var(--font-text);
   color: var(--muted);
   margin-top: 9px;
 }
@@ -715,7 +717,7 @@
   height: 42px;
   border: 1px solid var(--hairline);
   border-radius: 13px;
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -734,7 +736,7 @@
 }
 
 .figure-42 {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 42px;
   line-height: 1.05;
   margin-top: 10px;
@@ -758,12 +760,12 @@
 
 .bal-label {
   flex: 1;
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--ink-2);
 }
 
 .bal-value {
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   text-align: right;
 }
 
@@ -778,7 +780,7 @@
 }
 
 .bal-warn span {
-  font: 500 13px/1.35 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1.35 var(--font-text);
 }
 
 .card-footer {
@@ -798,7 +800,7 @@
   border: 0;
   background: none;
   color: var(--ink-2);
-  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -848,15 +850,15 @@
 
 .paid-label {
   flex: 1;
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
 }
 
 .paid-sum {
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
 }
 
 .paid-pct {
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--muted);
   width: 38px;
   text-align: right;
@@ -893,14 +895,14 @@
 }
 
 .cat-name {
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .cat-sum {
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   color: var(--ink-2);
   flex: none;
 }
@@ -947,7 +949,7 @@
   padding: 0 12px;
   border: 1px solid var(--hairline);
   border-radius: 9px;
-  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 12px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1000,7 +1002,7 @@
   flex: none;
   width: 38px;
   text-align: center;
-  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 11px/1 var(--font-text);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -1011,7 +1013,7 @@
 }
 
 .month-figure {
-  font: 500 11px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 11px/1 var(--font-text);
   color: var(--muted);
   margin-bottom: 7px;
   white-space: nowrap;
@@ -1043,7 +1045,7 @@
 
 .money-code {
   flex: none;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 20px;
   line-height: 1;
   color: var(--ink-2);
@@ -1056,7 +1058,7 @@
   background: none;
   outline: none;
   text-align: right;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 26px;
   line-height: 1;
   color: var(--ink);
@@ -1079,7 +1081,7 @@
 
 .rate-row-label {
   flex: 1;
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -1092,13 +1094,13 @@
   background: var(--sunken);
   outline: none;
   text-align: right;
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   color: var(--ink);
 }
 
 .rate-unit {
   width: 38px;
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1108,7 +1110,7 @@
   background: none;
   padding: 0;
   color: var(--ink-2);
-  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1160,7 +1162,7 @@
   padding: 0 13px;
   border: 1px solid var(--hairline);
   border-radius: 11px;
-  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1178,7 +1180,7 @@
 
 .extra-amt-code {
   flex: none;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 19px;
   line-height: 1;
   color: var(--ink-2);
@@ -1191,7 +1193,7 @@
   background: none;
   outline: none;
   text-align: right;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 24px;
   line-height: 1;
   color: var(--ink);
@@ -1211,7 +1213,7 @@
 
 .extra-rate-label,
 .extra-rate-unit {
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -1226,7 +1228,7 @@
   background: none;
   outline: none;
   text-align: right;
-  font: 500 15px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 15px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -1239,7 +1241,7 @@
 }
 
 .extra-preview {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1248,12 +1250,12 @@
   background: none;
   padding: 0;
   color: var(--muted);
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   cursor: pointer;
 }
 
 .helper {
-  font: 400 12.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1.5 var(--font-text);
   color: var(--muted);
   margin-top: 14px;
 }
@@ -1279,7 +1281,7 @@
 
 .section-total {
   margin-left: auto;
-  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 12.5px/1 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -1308,7 +1310,7 @@
   padding: 10px 12px;
   border-radius: 10px;
   background: rgba(20, 22, 31, 0.04);
-  font: 400 12.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1.5 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -1339,7 +1341,7 @@
   justify-content: center;
   border: 1px solid;
   border-radius: 7px;
-  font: 600 11px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 600 11px/1 var(--font-text);
 }
 
 .plan-main {
@@ -1351,7 +1353,7 @@
 }
 
 .plan-name {
-  font: 500 14px/1.1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1.1 var(--font-text);
   color: var(--ink);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1359,13 +1361,13 @@
 }
 
 .plan-date {
-  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1 var(--font-text);
   color: var(--muted);
 }
 
 .plan-amt {
   flex: none;
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -1410,7 +1412,7 @@
   padding: 0 14px;
   border: 1px solid var(--hairline);
   border-radius: 11px;
-  font: 500 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1434,11 +1436,11 @@
 }
 
 .prio-btn-p {
-  font: 600 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 600 14px/1 var(--font-text);
 }
 
 .prio-btn-word {
-  font: 400 11.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 11.5px/1 var(--font-text);
   opacity: 0.72;
 }
 
@@ -1456,7 +1458,7 @@
 
 .date-label {
   flex: none;
-  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1467,7 +1469,7 @@
   border: 0;
   background: none;
   outline: none;
-  font: 400 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 14.5px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -1498,7 +1500,7 @@
   border: 0;
   border-radius: 12px;
   color: #fff;
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1509,7 +1511,7 @@
   border-radius: 12px;
   background: none;
   color: var(--ink-2);
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1526,7 +1528,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 4px 0;
-  font: 400 13px/1.2 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1.2 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -1537,7 +1539,7 @@
   margin-top: 8px;
   padding-top: 12px;
   border-top: 1px solid var(--hairline);
-  font: 500 15px/1.2 'Instrument Sans', system-ui, sans-serif;
+  font: 500 15px/1.2 var(--font-text);
   color: var(--ink);
 }
 
@@ -1585,7 +1587,7 @@
   border-radius: 14px;
   background: var(--surface);
   outline: none;
-  font: 400 15px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 15px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -1600,7 +1602,7 @@
   border: 0;
   border-radius: 14px;
   color: #fff;
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1613,7 +1615,7 @@
 }
 
 .cur-meta span {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1651,14 +1653,14 @@
 
 .cur-name {
   flex: none;
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   letter-spacing: 0.03em;
 }
 
 .cur-main {
   flex: 1;
   text-align: right;
-  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1668,7 +1670,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 5px;
-  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1681,7 +1683,7 @@
   background: var(--sunken);
   outline: none;
   text-align: right;
-  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 12.5px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -1703,18 +1705,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 24px;
 }
 
 .profile-name {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 24px;
   line-height: 1.2;
 }
 
 .profile-email {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
   margin-top: 6px;
   overflow: hidden;
@@ -1747,7 +1749,7 @@
 }
 
 .row-label {
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -1758,7 +1760,7 @@
 }
 
 .row-value {
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--muted);
   max-width: 150px;
   overflow: hidden;
@@ -1776,7 +1778,7 @@
   height: 46px;
   border: 1px solid var(--hairline);
   border-radius: 12px;
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1794,7 +1796,7 @@
 }
 
 .toggle-label {
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
 }
 
 .toggle {
@@ -1824,12 +1826,12 @@
 }
 
 .data-label {
-  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1 var(--font-text);
   color: var(--ink-2);
 }
 
 .data-value {
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
 }
 
 .danger-row {
@@ -1840,7 +1842,7 @@
   border-top: 1px solid var(--divider);
   background: none;
   color: var(--danger);
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1852,7 +1854,7 @@
   border-radius: 14px;
   background: none;
   color: var(--ink-2);
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -1865,7 +1867,7 @@
 .app-version {
   margin-top: 16px;
   text-align: center;
-  font: 400 11px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 11px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1877,12 +1879,12 @@
 }
 
 .now-label {
-  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1 var(--font-text);
   color: var(--muted);
 }
 
 .now-value {
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
   margin-top: 8px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1904,7 +1906,7 @@
 }
 
 .pw-word {
-  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1 var(--font-text);
   color: var(--muted);
   width: 52px;
   text-align: right;
@@ -1929,11 +1931,11 @@
 
 .cat-row-name {
   flex: 1;
-  font: 500 14px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14px/1 var(--font-text);
 }
 
 .cat-row-count {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -1958,14 +1960,14 @@
 }
 
 .error-title {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 28px;
   line-height: 1.2;
   margin-top: 20px;
 }
 
 .error-sub {
-  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1.5 var(--font-text);
   color: var(--muted);
   margin-top: 10px;
 }
@@ -1994,7 +1996,7 @@
 
 .toast span:last-child {
   flex: 1;
-  font: 500 13.5px/1.35 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1.35 var(--font-text);
   color: #fff;
 }
 
@@ -2017,13 +2019,13 @@
 }
 
 .sheet-title {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 24px;
   line-height: 1.2;
 }
 
 .sheet-body {
-  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1.5 var(--font-text);
   color: var(--muted);
   margin-top: 10px;
 }
@@ -2041,7 +2043,7 @@
   border-radius: 14px;
   background: none;
   color: var(--ink-2);
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -2051,7 +2053,7 @@
   border: 0;
   border-radius: 14px;
   color: #fff;
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -2076,7 +2078,7 @@
 }
 
 .freeze-label {
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -2135,7 +2137,7 @@
   border-radius: 15px;
   background: var(--surface);
   color: var(--ink);
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -2160,7 +2162,7 @@
 }
 
 .auth-divider-word {
-  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -2171,7 +2173,7 @@
   background: none;
   padding: 4px 8px;
   color: var(--muted);
-  font: 400 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -2182,7 +2184,7 @@
 }
 
 .forgot-note {
-  font: 400 13.5px/1.5 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13.5px/1.5 var(--font-text);
   color: var(--muted);
   margin-top: 12px;
 }
@@ -2195,12 +2197,12 @@
   border-radius: 15px;
   background: none;
   color: var(--danger);
-  font: 500 14.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 14.5px/1 var(--font-text);
   cursor: pointer;
 }
 
 .toggle-hint {
-  font: 400 12px/1.45 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1.45 var(--font-text);
   color: var(--muted);
   margin-top: 5px;
   padding-right: 8px;
@@ -2240,7 +2242,7 @@
 }
 
 .tour-count {
-  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 12px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -2249,7 +2251,7 @@
   background: none;
   padding: 8px 0 8px 14px;
   color: var(--muted);
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   cursor: pointer;
 }
 
@@ -2286,7 +2288,7 @@
 }
 
 .tour-title {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 28px;
   line-height: 1.15;
 }
@@ -2294,7 +2296,7 @@
 .tour-body {
   margin-top: 10px;
   max-width: 300px;
-  font: 400 14px/1.55 'Instrument Sans', system-ui, sans-serif;
+  font: 400 14px/1.55 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -2351,13 +2353,13 @@
 }
 
 .tm-code {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 16px;
   color: var(--ink-2);
 }
 
 .tm-figure {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 40px;
   line-height: 1;
 }
@@ -2390,7 +2392,7 @@
   height: 34px;
   border: 1px solid var(--hairline);
   border-radius: 10px;
-  font: 500 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 12.5px/1 var(--font-text);
 }
 
 .tm-pill-on {
@@ -2406,7 +2408,7 @@
   padding: 0 12px;
   border: 1px solid var(--hairline);
   border-radius: 15px;
-  font: 400 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12px/1 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -2419,7 +2421,7 @@
   border-radius: 12px;
   background: var(--accent);
   color: #fff;
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   animation: tm-breathe 2.6s ease-in-out infinite;
 }
 
@@ -2434,7 +2436,7 @@
 }
 
 .tm-label {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
@@ -2442,7 +2444,7 @@
 
 .tm-big {
   margin-top: 10px;
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 34px;
   line-height: 1;
 }
@@ -2520,16 +2522,16 @@
   justify-content: center;
   border: 1px solid;
   border-radius: 6px;
-  font: 600 10.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 600 10.5px/1 var(--font-text);
 }
 
 .tm-plan-name {
   flex: 1;
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
 }
 
 .tm-plan-amt {
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--ink-2);
 }
 
@@ -2539,12 +2541,12 @@
   margin-top: 16px;
   padding-top: 13px;
   border-top: 1px solid var(--divider);
-  font: 400 13px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 13px/1 var(--font-text);
   color: var(--ink-2);
 }
 
 .tm-spend-val {
-  font: 600 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 600 13.5px/1 var(--font-text);
   color: var(--ink);
 }
 
@@ -2588,7 +2590,7 @@
 }
 
 .tm-phone-word {
-  font: 500 12px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 12px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -2606,70 +2608,61 @@
 /* ==================================================================
    Tab bar — the four destinations
 ================================================================== */
+/* The bar is a row of the phone, not something laid over it: it sits after
+   the scrolling area in the same column, so the screen is always exactly
+   "top bar + as much scrolling as is left + tab bar". Nothing it does can
+   move it, because scrolling happens inside its sibling, never around it. */
 .tabbar {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: max(14px, calc(env(safe-area-inset-bottom) + 6px));
+  position: relative;
+  flex: none;
   z-index: 8;
-  height: 64px;
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0 6px;
-  /* Liquid glass: the canvas shows through a blurred, slightly saturated
-     pane, with a bright hairline along the top edge where light would catch
-     and a soft shadow lifting it off the page. */
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  /* A full pill: half the height, so it stays round at any scale. */
-  border-radius: 32px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(20, 22, 31, 0.04),
-    0 1px 2px rgba(20, 22, 31, 0.06),
-    0 10px 30px rgba(20, 22, 31, 0.13);
+  /* Flush to the bottom edge. On a phone with a gesture bar the inset is
+     added underneath, so the icons clear it without the bar lifting off. */
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid var(--hairline);
+  /* A shadow thrown upwards, so the bar keeps a visible edge against
+     whatever colour scrolls up behind it. */
+  box-shadow: 0 -2px 10px rgba(20, 22, 31, 0.05);
 }
 
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .tabbar {
-    background: rgba(255, 255, 255, 0.55);
-    -webkit-backdrop-filter: blur(22px) saturate(180%);
-    backdrop-filter: blur(22px) saturate(180%);
-  }
-}
-
-/* Without backdrop-filter the pane would be a flat wash, so it goes solid. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .tabbar {
-    background: rgba(255, 255, 255, 0.97);
-  }
+/* The last stretch of the page dissolves into the bar instead of running
+   hard into it, which is what made the two blend together while scrolling. */
+.tabbar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 22px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(245, 244, 249, 0.95), rgba(245, 244, 249, 0));
 }
 
 .tab {
   flex: 1;
   min-width: 0;
-  height: 52px;
+  height: 46px;
   border: 0;
-  border-radius: 26px;
+  border-radius: 14px;
   background: none;
   color: var(--muted);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 4px;
   padding: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The current tab gets the filled lozenge and the ink colour. */
+/* The tab you are on is simply the dark one. On a white bar a pale lozenge
+   would not show, so the colour carries it. */
 .tab[aria-current='page'] {
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 1px 2px rgba(20, 22, 31, 0.07);
   color: var(--ink);
 }
 
@@ -2679,7 +2672,7 @@
 }
 
 .tab-label {
-  font: 500 11px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 11px/1 var(--font-text);
   letter-spacing: 0.01em;
   max-width: 100%;
   overflow: hidden;
@@ -2697,10 +2690,11 @@
   }
 }
 
-/* Room at the foot of every scrolling screen so the bar never sits on top
-   of the last row or button. */
+/* The bar takes its own room in the column now, so the scrolling area no
+   longer has to leave a gap for it — only a little air under the last row,
+   and none of the phone's bottom inset, which the bar already covers. */
 .has-tabbar {
-  padding-bottom: calc(64px + 28px + env(safe-area-inset-bottom));
+  padding-bottom: 22px;
 }
 
 /* ==================================================================
@@ -2737,7 +2731,7 @@
 /* Covered: dots at the same weight as the figure, so revealing does not
    make the card jump. */
 .spent-masked {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 40px;
   line-height: 1.05;
   letter-spacing: 0.06em;
@@ -2746,13 +2740,13 @@
 }
 
 .spent-hint {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
   margin-top: 12px;
 }
 
 .spent-card .spent-figure {
-  font-family: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-title);
   font-size: 40px;
   line-height: 1.05;
   color: var(--ink);
@@ -2787,7 +2781,7 @@
 }
 
 .hist-count {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -2809,7 +2803,7 @@
 }
 
 .editor-date-label {
-  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 400 12.5px/1 var(--font-text);
   color: var(--muted);
 }
 
@@ -2820,6 +2814,6 @@
   background: none;
   outline: none;
   text-align: right;
-  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  font: 500 13.5px/1 var(--font-text);
   color: var(--ink);
 }
