@@ -131,10 +131,21 @@ for (const device of DEVICES) {
   await shoot(page, device, '2.1-home-timeline')
   await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 0))
 
+  // the eye hides the totals
+  await page.click('.eye-btn')
+  await shoot(page, device, '2.1-home-hidden')
+  await page.click('.eye-btn')
+
   // 3.1 Analytics
   await page.click('.btn-analytics')
   await page.waitForSelector('text=Where the money went')
   await shoot(page, device, '3.1-stats')
+
+  // the phone's back key walks back to home instead of leaving the app
+  await page.evaluate(() => history.back())
+  await page.waitForSelector('text=Spent so far')
+  await page.click('.btn-analytics')
+  await page.waitForSelector('text=Where the money went')
 
   // 3.2 Update balance
   await page.click('text=Update balance')
@@ -146,13 +157,28 @@ for (const device of DEVICES) {
   await page.click('.btn-save')
   await page.waitForSelector('text=Where the money went', { timeout: 8000 })
 
-  // 3.3 Limits — set numbers that trigger the violet warning
-  await page.click('text=Limits')
-  await page.waitForSelector('text=Spendable after limits')
-  await page.fill('input[aria-label="Must"]', '460000')
+  // 3.3 Plans — a P1 plan and a safety net that trigger the violet warning
+  await page.click('.card-footer-btn >> text=Plans')
+  await page.waitForSelector('.sum-card')
+  await page.click('text=＋ Add a plan')
+  await page.fill('input[placeholder="What is it? Rent, school fees…"]', 'Rent')
+  await page.fill('input[aria-label="Amount"]', '460000')
+  await shoot(page, device, '3.3-plan-form')
+  await page.click('text=Add plan')
+  await page.waitForSelector('.plan-row')
   await page.fill('input[aria-label="Safety net"]', '140000')
-  await shoot(page, device, '3.3-limits')
-  await page.click('.btn-save')
+
+  // expected income, counted in with the row's switch
+  await page.click('text=＋ Add income')
+  await page.fill('input[placeholder="Where from? Salary, a client…"]', 'Salary')
+  await page.fill('input[aria-label="Amount"]', '300000')
+  await page.click('text=Add income')
+  await page.waitForSelector('.toggle-sm')
+  await page.click('.toggle-sm')
+  await page.waitForTimeout(200)
+  await shoot(page, device, '3.3-plans')
+
+  await page.click('button[aria-label="Back"]')
   await page.waitForSelector('text=Where the money went', { timeout: 8000 })
   await page.waitForTimeout(300)
   await shoot(page, device, '3.1-stats-with-balance')

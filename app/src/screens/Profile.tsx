@@ -80,8 +80,8 @@ export function Profile({ app }: { app: App }) {
                 <div className="toggle-label">Unlock with your phone</div>
                 <div className="toggle-hint">
                   {phoneOn
-                    ? 'Sign in with your fingerprint, face or PIN. Also how you reset a forgotten password.'
-                    : 'Sign in without typing your password, and keep a way back in if you forget it.'}
+                    ? 'Sign in with your fingerprint, face or PIN.'
+                    : 'Sign in with one tap instead of typing your password.'}
                 </div>
               </div>
               <button
@@ -139,12 +139,12 @@ export function Profile({ app }: { app: App }) {
         </button>
       </div>
 
-      {/* So it is always possible to tell which build is actually running. */}
-      <div className="build-stamp">Version {__BUILD__}</div>
 
       <button type="button" className="signout" onClick={app.askSignOut}>
         Sign out
       </button>
+
+      <div className="app-version">Version {__BUILD__}</div>
     </div>
   )
 }

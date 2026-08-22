@@ -3,8 +3,10 @@ import type {
   Account,
   ConfirmState,
   Expense,
-  Limits,
+  Income,
   Method,
+  Plan,
+  Prio,
   Screen,
   Settings,
   ToastState,
@@ -17,9 +19,11 @@ import {
   applyDeleteAll,
   applyEdit,
   applyRecord,
-  limitsFor,
+  countedIncome,
+  p1Shortfall,
+  plansTake,
+  safetyTake,
   totalBalance,
-  totalLimits,
 } from './lib/calc'
 import { hashPassword, verifyPassword } from './lib/crypto'
 import { passkeyAvailable, registerPasskey, verifyPasskey } from './lib/passkey'
@@ -50,7 +54,6 @@ const FREEZE = {
   resetPassword: 900,
   erase: 1200,
   saveBalance: 800,
-  saveLimits: 700,
   deleteOne: 600,
   deleteAll: 1200,
   signOut: 1100,
@@ -64,6 +67,28 @@ export interface ExtraState {
   amt: string
   rate: string
 }
+
+/** A plan or income being typed. id is null while it is a new one. */
+export interface PlanForm {
+  id: string | null
+  name: string
+  amt: string
+  cur: string
+  prio: Prio
+  date: string
+}
+
+export interface IncomeForm {
+  id: string | null
+  name: string
+  amt: string
+  cur: string
+  date: string
+  counted: boolean
+}
+
+/** Screens the phone's back button leaves the app from, not walks back from. */
+const ROOTS: Screen[] = ['home', 'signin', 'signup', 'error']
 
 export function useApp() {
   const [account, setAccount] = useState<Account | null>(null)
@@ -97,7 +122,9 @@ export function useApp() {
   // money screens
   const [balCur, setBalCur] = useState('RWF')
   const [fBal, setFBal] = useState<Record<string, string>>({})
-  const [fLim, setFLim] = useState<{ must: string; net: string }>({ must: '', net: '' })
+  const [planForm, setPlanForm] = useState<PlanForm | null>(null)
+  const [incomeForm, setIncomeForm] = useState<IncomeForm | null>(null)
+  const [fSafety, setFSafety] = useState('')
   const [extra, setExtra] = useState<ExtraState | null>(null)
   const [rateEdit, setRateEdit] = useState<{ code: string; value: string } | null>(null)
 
@@ -238,6 +265,8 @@ export function useApp() {
       setBack(from)
       resetForms()
       setEditId(null)
+      setPlanForm(null)
+      setIncomeForm(null)
     },
     [resetForms],
   )
@@ -245,6 +274,62 @@ export function useApp() {
   const goBack = useCallback(() => {
     go(screen === 'stats' || screen === 'profile' ? 'home' : back)
   }, [go, screen, back])
+
+  /* ---------------- the phone's back button ---------------- */
+
+  // The app is one page, so the phone's back button would close it from any
+  // screen. One spare history entry is kept above the real one; pressing
+  // back pops it, which closes whatever is open — the confirm sheet, an
+  // expense editor, a plan or income form — or walks one screen back, and
+  // the entry is put back for the next press. On home or sign-in nothing is
+  // re-armed, so pressing back there leaves the app, as the phone expects.
+  const armed = useRef(false)
+  const onHardwareBack = useRef<() => boolean>(() => false)
+  onHardwareBack.current = () => {
+    if (busy) return true
+    if (confirm) {
+      setConfirm(null)
+      return true
+    }
+    if (editId) {
+      setEditId(null)
+      return true
+    }
+    if (planForm) {
+      setPlanForm(null)
+      return true
+    }
+    if (incomeForm) {
+      setIncomeForm(null)
+      return true
+    }
+    if (ROOTS.includes(screen)) return false
+    const dest = screen === 'stats' || screen === 'profile' ? 'home' : back
+    goBack()
+    return !ROOTS.includes(dest)
+  }
+
+  useEffect(() => {
+    const onPop = () => {
+      armed.current = false
+      if (onHardwareBack.current()) {
+        history.pushState({ byuma: true }, '')
+        armed.current = true
+      }
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  useEffect(() => {
+    if (!ready) return
+    const needsGuard =
+      !ROOTS.includes(screen) || !!confirm || !!editId || !!planForm || !!incomeForm
+    if (needsGuard && !armed.current) {
+      history.pushState({ byuma: true }, '')
+      armed.current = true
+    }
+  }, [ready, screen, confirm, editId, planForm, incomeForm])
 
   /* ---------------- auth ---------------- */
 
@@ -360,7 +445,7 @@ export function useApp() {
     if (!account) return
     setConfirm({
       title: 'Turn off phone unlock?',
-      body: 'You will need your password to sign in, and to reset it if you forget.',
+      body: 'You will go back to typing your password to sign in.',
       cta: 'Turn off',
       yes: () => {
         const updated = { ...account, passkeyId: undefined }
@@ -396,14 +481,30 @@ export function useApp() {
     clearErr()
   }, [fEmail, fail, clearErr])
 
-  /** Prove who you are with the phone, which unlocks the new-password fields. */
+  /**
+   * Prove who you are with the phone, which unlocks the new-password fields.
+   * Accounts live only on this phone, so the phone's own screen lock is the
+   * identity check — whoever can pass it owns the phone and the accounts on
+   * it, whether or not phone unlock was ever switched on. An account that
+   * never enrolled gets its passkey made right here, so from then on the
+   * phone also remembers it at sign-in.
+   */
   const proveWithPhone = useCallback(async () => {
-    if (!recovering?.passkeyId) return
-    const ok = await verifyPasskey(recovering.passkeyId)
-    if (!ok) return fail('pass', 'That did not match. Try again.')
+    if (!recovering) return
+    if (recovering.passkeyId) {
+      const ok = await verifyPasskey(recovering.passkeyId)
+      if (!ok) return fail('pass', 'That did not match. Try again.')
+    } else {
+      const id = await registerPasskey(recovering.id, recovering.email, recovering.name)
+      if (!id) return fail('pass', 'Your phone did not confirm it. Try again.')
+      const updated = { ...recovering, passkeyId: id }
+      saveAccounts(loadAccounts().map((a) => (a.id === recovering.id ? updated : a)))
+      setRecovering(updated)
+      if (lastAccount?.id === updated.id) setLastAccount(updated)
+    }
     setRecovered(true)
     clearErr()
-  }, [recovering, fail, clearErr])
+  }, [recovering, lastAccount, fail, clearErr])
 
   const resetPassword = useCallback(async () => {
     if (!recovering || !recovered) return
@@ -589,13 +690,144 @@ export function useApp() {
     [selCurs, data.balances, clearErr],
   )
 
-  const goLimits = useCallback(() => {
-    const lim = limitsFor(data.limits, activeCur)
-    setFLim({ must: lim.must ? String(lim.must) : '', net: lim.net ? String(lim.net) : '' })
+  /* ---------------- plans, safety net, expected income ---------------- */
+
+  const goPlans = useCallback(() => {
+    setPlanForm(null)
+    setIncomeForm(null)
+    setFSafety(data.safety.amt ? String(data.safety.amt) : '')
     clearErr()
-    setScreen('limits')
+    setScreen('plans')
     setBack('stats')
-  }, [data.limits, activeCur, clearErr])
+  }, [data.safety.amt, clearErr])
+
+  /** Open the form empty for a new plan, or filled to edit one. */
+  const openPlanForm = useCallback(
+    (p?: Plan) => {
+      setIncomeForm(null)
+      setPlanForm(
+        p
+          ? { id: p.id, name: p.name, amt: String(p.amt), cur: p.cur, prio: p.prio, date: p.date }
+          : { id: null, name: '', amt: '', cur: mainCur, prio: 1, date: '' },
+      )
+      clearErr()
+    },
+    [mainCur, clearErr],
+  )
+
+  const savePlan = useCallback(() => {
+    if (!planForm) return
+    const name = planForm.name.trim()
+    const amt = Number(planForm.amt) || 0
+    if (!name) return fail('pname', 'Say what it is.')
+    if (amt <= 0) return fail('pamt', 'Give it an amount.')
+    const saved: Plan = {
+      id: planForm.id ?? newId(),
+      name,
+      amt,
+      cur: planForm.cur,
+      prio: planForm.prio,
+      date: planForm.date,
+    }
+    setData((d) => ({
+      ...d,
+      plans: planForm.id
+        ? d.plans.map((p) => (p.id === planForm.id ? saved : p))
+        : [...d.plans, saved],
+    }))
+    setPlanForm(null)
+    showToast(planForm.id ? 'Plan updated.' : 'Plan added.', 'ok')
+  }, [planForm, fail, showToast])
+
+  const askDeletePlan = useCallback(
+    (p: Plan) => {
+      setConfirm({
+        title: 'Remove ' + p.name + '?',
+        body: fmtIn(p.amt, p.cur) + ' · P' + p.prio + '. Its share comes back to spendable.',
+        cta: 'Remove',
+        danger: true,
+        yes: () => {
+          setData((d) => ({ ...d, plans: d.plans.filter((x) => x.id !== p.id) }))
+          setPlanForm(null)
+          showToast('Plan removed.', 'ok')
+        },
+      })
+    },
+    [fmtIn, showToast],
+  )
+
+  const openIncomeForm = useCallback(
+    (i?: Income) => {
+      setPlanForm(null)
+      setIncomeForm(
+        i
+          ? { id: i.id, name: i.name, amt: String(i.amt), cur: i.cur, date: i.date, counted: i.counted }
+          : { id: null, name: '', amt: '', cur: mainCur, date: '', counted: false },
+      )
+      clearErr()
+    },
+    [mainCur, clearErr],
+  )
+
+  const saveIncome = useCallback(() => {
+    if (!incomeForm) return
+    const name = incomeForm.name.trim()
+    const amt = Number(incomeForm.amt) || 0
+    if (!name) return fail('iname', 'Say where it comes from.')
+    if (amt <= 0) return fail('iamt', 'Give it an amount.')
+    const saved: Income = {
+      id: incomeForm.id ?? newId(),
+      name,
+      amt,
+      cur: incomeForm.cur,
+      date: incomeForm.date,
+      counted: incomeForm.counted,
+    }
+    setData((d) => ({
+      ...d,
+      incomes: incomeForm.id
+        ? d.incomes.map((i) => (i.id === incomeForm.id ? saved : i))
+        : [...d.incomes, saved],
+    }))
+    setIncomeForm(null)
+    showToast(incomeForm.id ? 'Income updated.' : 'Income added.', 'ok')
+  }, [incomeForm, fail, showToast])
+
+  const askDeleteIncome = useCallback(
+    (i: Income) => {
+      setConfirm({
+        title: 'Remove ' + i.name + '?',
+        body: fmtIn(i.amt, i.cur) + (i.counted ? '. It stops counting into spendable.' : '.'),
+        cta: 'Remove',
+        danger: true,
+        yes: () => {
+          setData((d) => ({ ...d, incomes: d.incomes.filter((x) => x.id !== i.id) }))
+          setIncomeForm(null)
+          showToast('Income removed.', 'ok')
+        },
+      })
+    },
+    [fmtIn, showToast],
+  )
+
+  /** The switch on an income row: count it into spendable, or not. */
+  const toggleCounted = useCallback((id: string) => {
+    setData((d) => ({
+      ...d,
+      incomes: d.incomes.map((i) => (i.id === id ? { ...i, counted: !i.counted } : i)),
+    }))
+  }, [])
+
+  /** The safety net saves as it is typed — no ceremony for one number. */
+  const editSafety = useCallback((raw: string) => {
+    const v = clean(raw)
+    setFSafety(v)
+    setData((d) => ({ ...d, safety: { ...d.safety, amt: Number(v) || 0 } }))
+  }, [])
+
+  const setSafetyCur = useCallback((cur: string) => {
+    setData((d) => ({ ...d, safety: { ...d.safety, cur } }))
+  }, [])
 
   const saveBalance = useCallback(() => {
     const vals: Record<string, number> = { ...data.balances }
@@ -628,32 +860,6 @@ export function useApp() {
       )
     })
   }, [data.balances, selCurs, fBal, extra, mainCur, fail, freeze, showToast, fmtIn])
-
-  const saveLimits = useCallback(() => {
-    const must = Number(fLim.must) || 0
-    const net = Number(fLim.net) || 0
-    // The limits are held per currency but they are spent from one pot, so
-    // what matters is whether the whole Must would exceed the whole balance.
-    const nextLimits = { ...data.limits, [activeCur]: { must, net } }
-    const wholeBalance = totalBalance(data.rates, data.balances, selCurs, activeCur)
-    const wholeMust = totalLimits(data.rates, nextLimits, selCurs, activeCur).must
-    if (wholeMust > wholeBalance) return fail('limmust', 'More than your balance.')
-    freeze('Saving limits', FREEZE.saveLimits, () => {
-      setData((d) => ({ ...d, limits: { ...d.limits, [activeCur]: { must, net } } }))
-      setScreen('stats')
-      showToast('Limits saved.', 'ok')
-    })
-  }, [
-    fLim,
-    data.limits,
-    data.balances,
-    data.rates,
-    selCurs,
-    activeCur,
-    fail,
-    freeze,
-    showToast,
-  ])
 
   /* ---------------- rates ---------------- */
 
@@ -720,7 +926,6 @@ export function useApp() {
           ...d,
           selCurs: [...selCurs, code],
           balances: { ...d.balances, [code]: d.balances[code] ?? 0 },
-          limits: { ...d.limits, [code]: d.limits[code] ?? { must: 0, net: 0 } },
         }))
         setExtra(null)
       }
@@ -882,11 +1087,21 @@ export function useApp() {
   )
 
   // The card shows one ultimate total, not a slice per currency: every
-  // currency's money and limits are converted at the current rates and added
-  // up, then expressed in whichever currency is being viewed.
+  // currency's money, plans and income are converted at the current rates
+  // and added up, then expressed in whichever currency is being viewed.
   const balance = totalBalance(data.rates, data.balances, selCurs, activeCur)
-  const limits: Limits = totalLimits(data.rates, data.limits, selCurs, activeCur)
+  const plansOff = plansTake(data.rates, data.plans, activeCur)
+  const safetyOff = safetyTake(data.rates, data.safety, activeCur)
+  const incomeIn = countedIncome(data.rates, data.incomes, activeCur)
+  const spend = balance - plansOff - safetyOff + incomeIn
+  const shortfall = p1Shortfall(data.rates, balance, data.plans, activeCur)
 
+  // "Hide totals", from Profile or the eye beside a figure. Hiding the big
+  // figure while the rows beneath still add up to it would hide nothing, so
+  // every amount on the home and analytics screens goes through priv().
+  const hidden = data.settings.hide
+  const toggleHide = useCallback(() => setSetting('hide'), [setSetting])
+  const priv = useCallback((s: string) => (hidden ? '•••' : s), [hidden])
 
   return {
     // state
@@ -899,7 +1114,12 @@ export function useApp() {
     mainCur,
     activeCur,
     balance,
-    limits,
+    plansOff,
+    safetyOff,
+    incomeIn,
+    spend,
+    shortfall,
+    hidden,
     amt,
     num,
     method,
@@ -917,7 +1137,9 @@ export function useApp() {
     confirm,
     busy,
     fBal,
-    fLim,
+    planForm,
+    incomeForm,
+    fSafety,
     extra,
     editId,
     eAmt,
@@ -942,7 +1164,8 @@ export function useApp() {
     setNewCat,
     setNewCur,
     setFBal,
-    setFLim,
+    setPlanForm,
+    setIncomeForm,
     setExtra,
     setEAmt,
     setENote,
@@ -954,6 +1177,7 @@ export function useApp() {
     // helpers
     fmt,
     fmtIn,
+    priv,
     shownRate,
     editRate,
     canRemoveCur,
@@ -962,7 +1186,17 @@ export function useApp() {
     go,
     goBack,
     goBalance,
-    goLimits,
+    goPlans,
+    openPlanForm,
+    savePlan,
+    askDeletePlan,
+    openIncomeForm,
+    saveIncome,
+    askDeleteIncome,
+    toggleCounted,
+    editSafety,
+    setSafetyCur,
+    toggleHide,
     signUp,
     signIn,
     askSignOut,
@@ -980,7 +1214,6 @@ export function useApp() {
     saveEdit,
     askClear,
     saveBalance,
-    saveLimits,
     openExtra,
     addCur,
     toggleCur,

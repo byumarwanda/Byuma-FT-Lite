@@ -79,6 +79,19 @@ You will land on the home screen with **no expenses**, exactly as in the
 design. Go to **Analytics → Update balance** whenever you want to tell the
 app how much money you actually have.
 
+### When the app is improved
+
+The address above is the only link, and it never changes — it always serves
+the newest version. Your phone keeps a saved copy so the app opens even
+without internet; when a new version is published, the app notices the next
+time you open it (or bring it back to the front) with internet on, downloads
+the new version in the background, and refreshes itself within a few
+seconds. You never reinstall anything and the icon on your home screen stays
+the same.
+
+To see which version you are running: open **Profile** and look at the very
+bottom — a small line shows the day that version was published.
+
 ---
 
 ## 2. How the money works
@@ -91,28 +104,50 @@ its own. You do not have to correct it by hand.
 correct the app — for example after counting the real cash in your pocket.
 Whatever you type there replaces the old totals.
 
-**Limits** (Analytics → Limits) is where you protect money:
+**Plans** (Analytics → Plans) is where you protect money before it is
+spent. A plan is anything you know is coming: rent, school fees, a loan
+payment. Each one has a name, an amount, a currency, a priority and, if
+you like, a date:
 
-- **Must** — money that is already spoken for: rent, school fees, a loan.
-  **All of it** is taken off.
-- **Safety net** — a cushion. **Only 75% of it** is taken off, because in
-  real life a person dips into their cushion, and the app should not
-  pretend otherwise.
+- **P1 — certain.** All of its amount is set aside.
+- **P2 — likely.** Half is set aside.
+- **P3 — loose.** A fifth is set aside.
+
+Below the plans sits the **Safety net** — the money you want to remain
+with if every plan happened and the musts were done. **70% of it** is held
+back, because in real life a person dips into their cushion, and the app
+should not pretend otherwise.
+
+And below that, **Expected income** — money on its way to you: a salary,
+a client paying. Each row has a switch: flip it on and that money counts
+into what you can spend before it arrives; leave it off and the app waits
+until you actually have it.
 
 So:
 
 ```
-Spendable = Balance − Must − (75% of Safety net)
+Spendable = Balance
+          − (all of P1 + half of P2 + a fifth of P3)
+          − 70% of Safety net
+          + Expected income you count in
 ```
+
+The bottom of the Plans screen shows exactly this sum with your own
+numbers, so you can always see where the figure comes from.
 
 The app warns you in two ways:
 
-- **Red** — your balance has fallen below your Must limit. It tells you by
-  how much.
-- **Violet** — your Must is still covered, but you are eating into your
-  safety net.
+- **Red** — your balance cannot cover your P1 plans in full. It tells you
+  by how much. Expected income cannot save this: money that has not
+  arrived cannot pay a certain bill.
+- **Violet** — the P1s are covered, but you are eating into your safety
+  net.
 
 Never both at once.
+
+If you saved limits in an earlier version, nothing is lost: each old
+**Must** became a P1 plan called "Musts", and your old safety nets were
+pooled into the one safety net, in your main currency.
 
 **Exchange rates.** The app fetches today's rates from the internet when
 you open it. If you have no internet it keeps the last rates it saw. You
@@ -137,17 +172,24 @@ fingerprint never leaves your phone; the app only ever learns whether your
 phone said yes.
 
 **If you forget your password.** Tap **Forgot your password?** on the sign-in
-screen.
+screen. Your account lives only on this phone, so the phone itself can vouch
+for you: confirm with the same fingerprint, face or PIN that unlocks the
+phone, and set a new password straight away. Your expenses are untouched.
+This works even if you never turned on phone unlock — and after it, phone
+unlock is on for that account, so the next sign-in is one tap.
 
-- If you turned on phone unlock, confirm with your fingerprint, face or PIN
-  and you can set a new password straight away. Your expenses are untouched.
-- If you did not, nothing on the phone can prove who you are — there is no
-  email server behind this app to send a reset link to. The only honest
-  option left is to erase that account and start over, which deletes its
-  expenses. The app says so plainly before it does anything.
+Be clear-eyed about what that means: anyone who can unlock your phone can
+also reset a password in this app. On your own phone that person is you; if
+you share your phone and its PIN, you share what the PIN can open.
 
-**So turn on phone unlock early.** It is both the fast way in and the only
-way back if the password goes.
+Only a phone with no screen lock at all (or a browser that cannot ask for
+one) has nothing to check against. There is no email server behind this app
+to send a reset link to, so the only honest option left there is to erase
+that account and start over, which deletes its expenses. The app says so
+plainly before it does anything.
+
+**Phone unlock is still worth turning on early** — it is the fast way in:
+one tap instead of typing a password.
 
 ---
 
@@ -206,6 +248,18 @@ Two smaller adjustments you asked for during the build:
 - The **Cash / MoMo / Bank** buttons are 44px tall instead of 54px, so they
   stop competing with the amount. They are still clearly taller than the
   category chips.
+- A small **Version** line sits at the very bottom of Profile, under
+  Sign out. It shows the day the running version was published, so you can
+  tell at a glance that an update has arrived.
+- **Limits grew into Plans** — named plans with P1/P2/P3 priorities, one
+  safety net (70% held back instead of the design's 75%), and expected
+  income you can count in. Section 2 has the current formula.
+- An **eye** beside "Spent so far" and "Spendable" hides every amount on
+  the home and analytics screens — the same switch as "Hide totals" in
+  Profile, so the toggle and the eye always agree.
+- The **phone's back button** steps back one screen — or closes whatever
+  sheet or form is open — instead of leaving the app. It only leaves from
+  the home or sign-in screen, the way a phone app should.
 
 ---
 
