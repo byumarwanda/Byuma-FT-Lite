@@ -2623,6 +2623,9 @@
      added underneath, so the icons clear it without the bar lifting off. */
   padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
   background: #fff;
+  /* Stuck to the bottom edge, but the two top corners still curve, so the
+     bar keeps the rounded shape it had while it floated. */
+  border-radius: 26px 26px 0 0;
   border-top: 1px solid var(--hairline);
   /* A shadow thrown upwards, so the bar keeps a visible edge against
      whatever colour scrolls up behind it. */
@@ -2660,9 +2663,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The tab you are on is simply the dark one. On a white bar a pale lozenge
-   would not show, so the colour carries it. */
+/* The tab you are on darkens, and sits in a soft rounded lozenge that
+   echoes the curve of the bar itself. */
 .tab[aria-current='page'] {
+  background: var(--key);
   color: var(--ink);
 }
 
@@ -2768,6 +2772,57 @@
   display: flex;
   align-items: center;
   gap: 7px;
+}
+
+/* ==================================================================
+   Recent — the last few expenses, on the home screen
+================================================================== */
+.recent {
+  margin-top: 26px;
+}
+
+.recent-card {
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+}
+
+/* Buttons, so a tap anywhere on the row carries you to History, where the
+   editing lives. They have to be told to look like the timeline's rows. */
+.recent-row {
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recent-row + .recent-row {
+  border-top: 1px solid var(--divider);
+}
+
+.recent-more {
+  width: 100%;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-top: 1px solid var(--divider);
+  background: none;
+  color: var(--ink-2);
+  font: 500 13px/1 var(--font-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .recent-row:hover,
+  .recent-more:hover {
+    background: rgba(20, 22, 31, 0.025);
+  }
 }
 
 /* ==================================================================

@@ -118,7 +118,7 @@ for (const device of DEVICES) {
   await page.waitForSelector('text=No expenses yet', { timeout: 8000 })
   await page.waitForTimeout(400)
   await shoot(page, device, '1.3-empty')
-  await page.click('.tab >> text="Add"')
+  await page.click('.tab >> text="Home"')
   await page.waitForSelector('.recorder')
 
   // 2.1 Record an expense — the amount is typed on the phone's own keyboard
@@ -130,10 +130,12 @@ for (const device of DEVICES) {
   await page.click('.cta')
   await page.waitForTimeout(300)
 
-  // a couple more so the charts have something to draw
+  // A few more, so the charts have something to draw and the home screen has
+  // more than the three it shows — which is what puts "More" on the card.
   for (const [amount, method] of [
     ['850', 'Cash'],
     ['12500', 'Bank'],
+    ['3200', 'MoMo'],
   ]) {
     await page.click('.amount-display')
     await page.fill('input[aria-label="Amount"]', amount)
@@ -143,10 +145,10 @@ for (const device of DEVICES) {
   await page.waitForTimeout(300)
   await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 99999))
   await page.waitForTimeout(200)
-  await shoot(page, device, '2.1-add-covered')
+  await shoot(page, device, '2.1-home')
   await page.click('.spent-card')
   await page.waitForTimeout(250)
-  await shoot(page, device, '2.1-add-revealed')
+  await shoot(page, device, '2.1-home-covered')
   await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 0))
 
   // the history tab, and one row's editor

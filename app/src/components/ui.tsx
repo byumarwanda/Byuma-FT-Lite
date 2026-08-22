@@ -195,7 +195,7 @@ export function HideEye({ hidden, onToggle }: { hidden: boolean; onToggle: () =>
 export type Tab = 'home' | 'history' | 'stats' | 'profile'
 
 const TABS: { id: Tab; label: string; Icon: (p: { on?: boolean }) => ReactNode }[] = [
-  { id: 'home', label: 'Add', Icon: AddIcon },
+  { id: 'home', label: 'Home', Icon: AddIcon },
   { id: 'history', label: 'History', Icon: HistoryIcon },
   { id: 'stats', label: 'Analytics', Icon: ChartIcon },
   { id: 'profile', label: 'Account', Icon: AccountIcon },
