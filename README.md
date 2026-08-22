@@ -57,6 +57,19 @@ So it opens like a normal app, without the browser bars:
 3. Scroll down the list and tap **Add to Home Screen**.
 4. Tap **Add** at the top right.
 
+### Getting new versions
+
+The app is saved onto the phone so it opens instantly and works with no
+internet. That also means it has to be told when a new version exists.
+
+**Just reload, or reopen it from the home screen.** One reload is enough:
+the app checks for a new version on every start, whenever you bring it back
+to the front, and every fifteen minutes. If it finds one it swaps itself
+over and refreshes. Your expenses and your account are untouched.
+
+To be sure which version you have, open **Profile** and look at the bottom
+of the screen — it shows the date and time that version was built.
+
 ### Step 5 — Make your account
 
 Open the app from your home screen and tap through **Create account**.

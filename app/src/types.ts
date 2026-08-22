@@ -91,6 +91,7 @@ export type Screen =
   | 'signin'
   | 'tour'
   | 'home'
+  | 'history'
   | 'stats'
   | 'balance'
   | 'plans'

@@ -142,6 +142,7 @@ export function Profile({ app }: { app: App }) {
         </button>
       </div>
 
+
       <button type="button" className="signout" onClick={app.askSignOut}>
         Sign out
       </button>

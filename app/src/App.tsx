@@ -1,8 +1,9 @@
 import { useApp } from './useApp'
-import { ConfirmSheet, Freeze, Toast, TopBar } from './components/ui'
+import { ConfirmSheet, Freeze, TabBar, Toast, TopBar, type Tab } from './components/ui'
 import { Forgot, SignIn, SignUp } from './screens/Auth'
 import { Tour } from './screens/Tour'
 import { Home } from './screens/Home'
+import { History } from './screens/History'
 import { Stats } from './screens/Stats'
 import { Balance, PlansScreen } from './screens/Money'
 import { Categories, Currencies } from './screens/Currencies'
@@ -21,6 +22,7 @@ const TITLES: Record<string, string> = {
   name: 'YOUR NAME',
   email: 'EMAIL',
   password: 'PASSWORD',
+  history: 'HISTORY',
   cats: 'CATEGORIES',
   forgot: 'PASSWORD',
   curs: 'CURRENCIES',
@@ -45,16 +47,23 @@ export default function App() {
   const chrome =
     screen !== 'signup' && screen !== 'signin' && screen !== 'error' && screen !== 'tour'
 
+  // The four destinations reachable from the tab bar. Everything else is
+  // something you stepped into, and keeps the back chevron instead.
+  const TABS: Tab[] = ['home', 'history', 'stats', 'profile']
+  const onTab = (TABS as string[]).includes(screen)
+
   return (
     <div className="shell">
       <div className="phone">
-        <div className="scroll">
+        <div className={onTab ? 'scroll has-tabbar' : 'scroll'}>
           {chrome && (
             <TopBar
               title={TITLES[screen] ?? ''}
-              showBack={screen !== 'home'}
-              showProfile={screen === 'home' || screen === 'stats' || screen === 'profile'}
-              profileActive={screen === 'profile'}
+              showBack={!onTab}
+              /* Account is a tab now, so the top-right shortcut to it would
+                 just be the same destination twice on the same screen. */
+              showProfile={false}
+              profileActive={false}
               onBack={app.goBack}
               onProfile={() => app.go('profile')}
               white={screen === 'home'}
@@ -66,6 +75,7 @@ export default function App() {
           {screen === 'tour' && <Tour app={app} />}
           {screen === 'forgot' && <Forgot app={app} />}
           {screen === 'home' && <Home app={app} />}
+          {screen === 'history' && <History app={app} />}
           {screen === 'stats' && <Stats app={app} />}
           {screen === 'balance' && <Balance app={app} />}
           {screen === 'plans' && <PlansScreen app={app} />}
@@ -77,6 +87,8 @@ export default function App() {
           {screen === 'password' && <ChangePassword app={app} />}
           {screen === 'error' && <ErrorScreen app={app} />}
         </div>
+
+        {onTab && <TabBar current={screen as Tab} onGo={(t) => app.go(t)} />}
 
         <Toast toast={app.toast} />
         <ConfirmSheet confirm={app.confirm} onCancel={() => app.setConfirm(null)} />

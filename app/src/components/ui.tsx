@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { ConfirmState, ToastState } from '../types'
 import {
+  AccountIcon,
+  AddIcon,
+  ChartIcon,
   ChevronLeft,
+  HistoryIcon,
   ErrorIcon,
   EyeIcon,
   EyeOffIcon,
@@ -176,6 +180,54 @@ export function HideEye({ hidden, onToggle }: { hidden: boolean; onToggle: () =>
     >
       {hidden ? <EyeIcon /> : <EyeOffIcon />}
     </button>
+  )
+}
+
+/**
+ * The four places worth reaching in one tap. A floating pill rather than a
+ * bar stuck to the bottom edge, so the canvas keeps showing through and the
+ * screen still reads as the design's single sheet of paper.
+ *
+ * Only shown on those four; anything opened from them keeps the back chevron
+ * instead, so it is always obvious whether you are switching place or
+ * stepping into something.
+ */
+export type Tab = 'home' | 'history' | 'stats' | 'profile'
+
+const TABS: { id: Tab; label: string; Icon: (p: { on?: boolean }) => ReactNode }[] = [
+  { id: 'home', label: 'Add', Icon: AddIcon },
+  { id: 'history', label: 'History', Icon: HistoryIcon },
+  { id: 'stats', label: 'Analytics', Icon: ChartIcon },
+  { id: 'profile', label: 'Account', Icon: AccountIcon },
+]
+
+export function TabBar({
+  current,
+  onGo,
+}: {
+  current: Tab
+  onGo: (t: Tab) => void
+}) {
+  return (
+    <nav className="tabbar" aria-label="Main">
+      {TABS.map(({ id, label, Icon }) => {
+        const on = id === current
+        return (
+          <button
+            key={id}
+            type="button"
+            className="tab"
+            aria-current={on ? 'page' : undefined}
+            onClick={() => onGo(id)}
+          >
+            <span className="tab-icon">
+              <Icon on={on} />
+            </span>
+            <span className="tab-label">{label}</span>
+          </button>
+        )
+      })}
+    </nav>
   )
 }
 

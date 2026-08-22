@@ -2602,3 +2602,224 @@
     opacity: 1;
   }
 }
+
+/* ==================================================================
+   Tab bar — the four destinations
+================================================================== */
+.tabbar {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: max(14px, calc(env(safe-area-inset-bottom) + 6px));
+  z-index: 8;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  /* Liquid glass: the canvas shows through a blurred, slightly saturated
+     pane, with a bright hairline along the top edge where light would catch
+     and a soft shadow lifting it off the page. */
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  /* A full pill: half the height, so it stays round at any scale. */
+  border-radius: 32px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(20, 22, 31, 0.04),
+    0 1px 2px rgba(20, 22, 31, 0.06),
+    0 10px 30px rgba(20, 22, 31, 0.13);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .tabbar {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
+  }
+}
+
+/* Without backdrop-filter the pane would be a flat wash, so it goes solid. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tabbar {
+    background: rgba(255, 255, 255, 0.97);
+  }
+}
+
+.tab {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  border: 0;
+  border-radius: 26px;
+  background: none;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The current tab gets the filled lozenge and the ink colour. */
+.tab[aria-current='page'] {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 1px 2px rgba(20, 22, 31, 0.07);
+  color: var(--ink);
+}
+
+.tab-icon {
+  display: flex;
+  height: 21px;
+}
+
+.tab-label {
+  font: 500 11px/1 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab[aria-current='page'] .tab-label {
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--ink-2);
+  }
+}
+
+/* Room at the foot of every scrolling screen so the bar never sits on top
+   of the last row or button. */
+.has-tabbar {
+  padding-bottom: calc(64px + 28px + env(safe-area-inset-bottom));
+}
+
+/* ==================================================================
+   Spent so far — covered until asked for
+================================================================== */
+.spent-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 26px;
+  padding: 22px 20px 24px;
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.spent-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.spent-eye {
+  display: flex;
+  color: var(--icon-faint);
+}
+
+/* Covered: dots at the same weight as the figure, so revealing does not
+   make the card jump. */
+.spent-masked {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 40px;
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  margin-top: 14px;
+}
+
+.spent-hint {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.spent-card .spent-figure {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 40px;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-top: 14px;
+}
+
+.spent-card .mixbar {
+  margin-top: 20px;
+}
+
+.spent-card .mixlegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 18px;
+  margin-top: 14px;
+}
+
+.mixleg {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ==================================================================
+   History tab
+================================================================== */
+.hist-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hist-count {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.timeline-top {
+  margin-top: 22px;
+}
+
+/* ---------- the date row inside the inline editor ---------- */
+.editor-date {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  margin-top: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--sunken);
+}
+
+.editor-date-label {
+  font: 400 12.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.editor-date input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  outline: none;
+  text-align: right;
+  font: 500 13.5px/1 'Instrument Sans', system-ui, sans-serif;
+  color: var(--ink);
+}

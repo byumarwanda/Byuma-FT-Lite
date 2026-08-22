@@ -108,10 +108,18 @@ for (const device of DEVICES) {
   await shoot(page, device, '1.2-tour-2')
   await page.click('text=Skip')
 
-  // 1.3 Nothing recorded yet — let the entrance animation settle first
+  // The recorder is where a fresh account lands.
+  await page.waitForSelector('.tabbar', { timeout: 8000 })
+  await page.waitForTimeout(400)
+  await shoot(page, device, '1.3-add-fresh')
+
+  // 1.3 Nothing recorded yet — the empty state lives on its own tab now
+  await page.click('.tab >> text="History"')
   await page.waitForSelector('text=No expenses yet', { timeout: 8000 })
   await page.waitForTimeout(400)
   await shoot(page, device, '1.3-empty')
+  await page.click('.tab >> text="Add"')
+  await page.waitForSelector('.recorder')
 
   // 2.1 Record an expense — the amount is typed on the phone's own keyboard
   await page.click('.amount-display')
@@ -120,7 +128,7 @@ for (const device of DEVICES) {
   await page.click('.chip >> text=Groceries')
   await shoot(page, device, '2.1-typing')
   await page.click('.cta')
-  await page.waitForSelector('text=Spent so far')
+  await page.waitForTimeout(300)
 
   // a couple more so the charts have something to draw
   for (const [amount, method] of [
@@ -133,28 +141,38 @@ for (const device of DEVICES) {
     await page.click('.cta')
   }
   await page.waitForTimeout(300)
-  await shoot(page, device, '2.1-home')
-
-  // the timeline lower down
   await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 99999))
   await page.waitForTimeout(200)
-  await shoot(page, device, '2.1-home-timeline')
+  await shoot(page, device, '2.1-add-covered')
+  await page.click('.spent-card')
+  await page.waitForTimeout(250)
+  await shoot(page, device, '2.1-add-revealed')
   await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 0))
 
-  // the eye hides the totals
-  await page.click('.eye-btn')
-  await shoot(page, device, '2.1-home-hidden')
-  await page.click('.eye-btn')
+  // the history tab, and one row's editor
+  await page.click('.tab >> text="History"')
+  await page.waitForSelector('.tl-row')
+  await shoot(page, device, '2.4-history')
+  await page.click('.tl-row')
+  await page.waitForSelector('.editor')
+  await shoot(page, device, '2.4-history-editor')
+  await page.click('.editor-cancel')
 
   // 3.1 Analytics
-  await page.click('.btn-analytics')
+  await page.click('.tab >> text="Analytics"')
   await page.waitForSelector('text=Where the money went')
   await shoot(page, device, '3.1-stats')
 
+  // the eye hides the totals on Analytics
+  await page.click('.eye-btn')
+  await page.waitForTimeout(200)
+  await shoot(page, device, '3.1-stats-hidden')
+  await page.click('.eye-btn')
+
   // the phone's back key walks back to home instead of leaving the app
   await page.evaluate(() => history.back())
-  await page.waitForSelector('text=Spent so far')
-  await page.click('.btn-analytics')
+  await page.waitForTimeout(300)
+  await page.click('.tab >> text="Analytics"')
   await page.waitForSelector('text=Where the money went')
 
   // 3.2 Update balance
@@ -207,7 +225,7 @@ for (const device of DEVICES) {
   await page.click('.seg-btn >> text=Bars')
 
   // 4.1 Profile
-  await page.click('button[aria-label="Profile"]')
+  await page.click('.tab >> text="Account"')
   await page.waitForSelector('text=Main currency')
   await shoot(page, device, '4.1-profile')
 
