@@ -109,14 +109,18 @@ covers the three buttons.
 **Spent this month**, on the home screen, is this month's total split by
 how it was paid. Tap the card to show or cover the figure.
 
+**Categories** live under **Profile → Categories**: add one, remove one,
+or tap a name to rename it — every expense filed under it follows the
+new name.
+
 **Your balance is a check-up, not a running sum.** Every so often — every
 week, say — go to **Analytics → Update balance** and type what each place
 actually holds. That is a check-up. The app compares it with what the
 records expected: the previous check-up, less everything recorded since,
 plus any income you marked received. The difference is what moved without
-a record, and Analytics keeps it under **Check-ups**: minus is spending
-you never typed in, plus is money that came in unrecorded, and "matched
-the records" is the goal. Between check-ups the balance still comes down
+a record, and Analytics keeps it under **Check-ups**, at the foot of the
+screen below Day by day: minus is spending you never typed in, plus is
+money that came in unrecorded, and "matched the records" is the goal. Between check-ups the balance still comes down
 by itself as you record, so it is always the app's best estimate.
 
 **Accounts** are the places the money sits — Ziraat, Albaraka, Vakıf, the
@@ -127,9 +131,7 @@ picks its currency, and tapping a name changes or removes it. Money in
 two currencies is two accounts — "Cash" and "Cash TL" — which is also how
 an older save is read. Accounts are for the check-up only, not for
 recording an expense. The one balance is every account added together at
-today's rates, in whichever currency you are looking at, and Analytics
-shows **Where the money is**, account by account, as of the last
-check-up.
+today's rates, in whichever currency you are looking at.
 
 **Plans** (Analytics → Plans) is where you protect money before it is
 spent. A plan is anything you know is coming: rent, school fees, a loan

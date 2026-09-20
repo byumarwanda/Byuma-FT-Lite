@@ -1,14 +1,4 @@
-import type {
-  Account,
-  Expense,
-  Income,
-  Method,
-  Phase,
-  Plan,
-  Prio,
-  Safety,
-  UserData,
-} from '../types'
+import type { Expense, Income, Method, Phase, Plan, Prio, Safety, UserData } from '../types'
 import { convert } from './rates'
 
 export const DAY = 864e5
@@ -150,11 +140,6 @@ export function accountBalance(
     (sum, code) => sum + convert(rates, held[code] ?? 0, code, display),
     0,
   )
-}
-
-/** What one account holds in its own currency, as of the last check-up. */
-export function heldIn(balances: Balances, acc: Account): number {
-  return balances[acc.id]?.[acc.cur] ?? 0
 }
 
 /** What every account together held at the last check-up, in one currency. */

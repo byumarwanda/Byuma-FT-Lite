@@ -37,6 +37,7 @@ import {
   loadPasskeyId,
   newId,
   rememberCategory,
+  renameCategory,
   savePasskeyId,
 } from './lib/storage'
 import { auth, isConfigured } from './lib/firebase'
@@ -224,6 +225,8 @@ export function useApp() {
   const [fNew, setFNew] = useState('')
   const [fNew2, setFNew2] = useState('')
   const [newCat, setNewCat] = useState('')
+  // A category being renamed: which one, and the name typed so far.
+  const [catEdit, setCatEdit] = useState<{ from: string; value: string } | null>(null)
   const [newCur, setNewCur] = useState('')
   const [formError, setFormError] = useState('')
   const [errField, setErrField] = useState('')
@@ -1211,6 +1214,48 @@ export function useApp() {
     [showToast],
   )
 
+  /** Tap a category to rename it; tap it again to close the row. */
+  const openCatEdit = useCallback(
+    (name: string) => {
+      setCatEdit((cur) => (cur && cur.from === name ? null : { from: name, value: name }))
+      clearErr()
+    },
+    [clearErr],
+  )
+
+  /** The new name — and every expense filed under the old one follows it. */
+  const saveCatEdit = useCallback(() => {
+    if (!catEdit) return
+    const from = catEdit.from
+    const to = catEdit.value.trim()
+    if (!to) return fail('catedit', 'Type a name first.')
+    if (to.length > 18) return fail('catedit', 'Keep it under 18 characters.')
+    const clash = data.cats.some((c) => c !== from && c.toLowerCase() === to.toLowerCase())
+    if (clash) return fail('catedit', 'You already have that one.')
+    if (to === from) {
+      setCatEdit(null)
+      clearErr()
+      return
+    }
+    const { moved } = renameCategory(data.cats, data.items, from, to)
+    setData((d) => {
+      const r = renameCategory(d.cats, d.items, from, to)
+      return { ...d, cats: r.cats, items: r.items }
+    })
+    // The recorder or the editor may be holding the old name.
+    if (note.toLowerCase() === from.toLowerCase()) setNote(to)
+    if (eNote.toLowerCase() === from.toLowerCase()) setENote(to)
+    setCatEdit(null)
+    clearErr()
+    showToast(
+      from +
+        ' is now ' +
+        to +
+        (moved ? '. ' + moved + (moved === 1 ? ' expense follows.' : ' expenses follow.') : '.'),
+      'ok',
+    )
+  }, [catEdit, data.cats, data.items, note, eNote, fail, clearErr, showToast])
+
   /* ---------------- profile edits ---------------- */
 
   const saveName = useCallback(async () => {
@@ -1766,6 +1811,7 @@ export function useApp() {
     fNew,
     fNew2,
     newCat,
+    catEdit,
     newCur,
     formError,
     errField,
@@ -1810,6 +1856,7 @@ export function useApp() {
     setFNew,
     setFNew2,
     setNewCat,
+    setCatEdit,
     setNewCur,
     setFBal,
     setPlanForm,
@@ -1891,6 +1938,8 @@ export function useApp() {
     removeCur,
     addCat,
     removeCat,
+    openCatEdit,
+    saveCatEdit,
     saveName,
     saveEmail,
     savePassword,

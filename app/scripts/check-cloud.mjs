@@ -218,9 +218,16 @@ await bob.page.fill('input[aria-label="Ziraat balance"]', '100000')
 const together = (await bob.page.textContent('.bal-together')).replace(/\s+/g, ' ')
 check('the lines add up before Save', /900,000/.test(together), together)
 await bob.page.click('.btn-save')
-await bob.page.waitForSelector('text=Where the money is', { timeout: 10000 })
-const where = (await bob.page.textContent('.card-list')).replace(/\s+/g, ' ')
-check('Analytics shows where the money is', /Ziraat/.test(where) && /100,000/.test(where), where.slice(0, 80))
+await bob.page.waitForSelector('text=Where the money went', { timeout: 10000 })
+await bob.page.waitForTimeout(300)
+const withZiraat = (await bob.page.textContent('.card-balance')).replace(/\s+/g, ' ')
+check('the account is in the one balance', /900,000/.test(withZiraat), withZiraat.slice(0, 60))
+// The check-ups sit at the foot of Analytics, under Day by day.
+const order = await bob.page.evaluate(() => {
+  const labels = [...document.querySelectorAll('.section-label')].map((el) => el.textContent.trim())
+  return labels.join(' > ')
+})
+check('check-ups come after Day by day', /Day by day > Check-ups$/.test(order), order)
 
 // A phase started from History takes what is recorded from now on.
 await bob.page.click('.tab >> text="History"')
@@ -316,6 +323,25 @@ await bob.page.waitForSelector('text=Where the money went', { timeout: 10000 })
 // 900,000 at the check-up, less the 5,000 and 700 recorded since, plus 50,000.
 const withIncome = (await bob.page.textContent('.card-balance')).replace(/\s+/g, ' ')
 check('received income is in the balance', /944,300/.test(withIncome), withIncome.slice(0, 60))
+
+// A category renamed: the chip changes, and the expenses under it follow.
+await bob.page.click('.tab >> text="Account"')
+await bob.page.waitForSelector('.row-btn >> text=Categories', { timeout: 10000 })
+await bob.page.click('.row-btn >> text=Categories')
+await bob.page.waitForSelector('button[aria-label="Rename Groceries"]', { timeout: 10000 })
+await bob.page.click('button[aria-label="Rename Groceries"]')
+await bob.page.fill('.cat-edit input', 'Food shop')
+await bob.page.click('.cat-edit .add-btn')
+await bob.page.waitForSelector('button[aria-label="Rename Food shop"]', { timeout: 5000 })
+check('a category can be renamed', (await bob.page.locator('button[aria-label="Rename Groceries"]').count()) === 0)
+await bob.page.click('button[aria-label="Back"]')
+await bob.page.click('.tab >> text="History"')
+await bob.page.waitForSelector('.tl-row', { timeout: 10000 })
+check(
+  'and the expenses filed under it follow',
+  (await bob.page.locator('.tl-note >> text="Food shop"').count()) === 1 &&
+    (await bob.page.locator('.tl-note >> text="Groceries"').count()) === 0,
+)
 
 // A way of paying kept off the recorder.
 await bob.page.click('.tab >> text="Account"')

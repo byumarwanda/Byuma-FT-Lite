@@ -82,6 +82,27 @@ export function rememberCategory(cats: string[], note: string): string[] {
   return [...cats, name]
 }
 
+/**
+ * Rename a category, and re-label every expense filed under the old name
+ * so History and the breakdowns follow it. Matching is case-insensitive,
+ * the way categories are kept unique.
+ */
+export function renameCategory(
+  cats: string[],
+  items: Expense[],
+  from: string,
+  to: string,
+): { cats: string[]; items: Expense[]; moved: number } {
+  const key = from.toLowerCase()
+  let moved = 0
+  const relabelled = items.map((i) => {
+    if (i.note.toLowerCase() !== key) return i
+    moved++
+    return { ...i, note: to }
+  })
+  return { cats: cats.map((c) => (c === from ? to : c)), items: relabelled, moved }
+}
+
 /** The three ways of paying, in the order the recorder shows them. */
 export const METHODS: Method[] = ['cash', 'bank', 'momo']
 export const METHOD_NAME: Record<Method, string> = { cash: 'Cash', bank: 'Bank', momo: 'MoMo' }
