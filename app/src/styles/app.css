@@ -3320,29 +3320,6 @@
   cursor: pointer;
 }
 
-/* Where the money is, on Analytics. */
-.acc-line {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 16px;
-}
-
-.acc-line + .acc-line {
-  border-top: 1px solid var(--divider);
-}
-
-.acc-line-name {
-  flex: 1;
-  font: 500 14px/1.2 var(--font-text);
-  color: var(--ink);
-}
-
-.acc-line-sum {
-  font: 500 14px/1 var(--font-text);
-  color: var(--ink);
-}
-
 /* Check-ups: the date and what moved without a record. */
 .checkup-row {
   display: flex;
@@ -3469,4 +3446,53 @@
 
 .phase-rec-chips[data-fade] {
   mask-image: none;
+}
+
+/* Renaming a category: tap the name, and the row opens under it. */
+.cat-item + .cat-item {
+  border-top: 1px solid var(--divider);
+}
+
+.cat-item .cat-row {
+  border-top: 0;
+}
+
+.cat-row-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.cat-edit {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px 14px 18px;
+}
+
+.cat-edit .add-input,
+.cat-edit .add-btn {
+  height: 46px;
+}
+
+.cat-edit .add-btn {
+  padding: 0 16px;
+}
+
+.cat-edit-cancel {
+  flex: none;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 13.5px/1 var(--font-text);
+  cursor: pointer;
+}
+
+.cat-edit-note:not(:empty) {
+  padding: 0 18px 12px;
 }

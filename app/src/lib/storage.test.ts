@@ -1,5 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { freshData, normalise } from './storage'
+import { freshData, normalise, renameCategory } from './storage'
+import type { Expense } from '../types'
+
+describe('renaming a category', () => {
+  const items = [
+    { id: 'a', amount: 1, method: 'cash', note: 'Groceries', cur: 'RWF', at: 1 },
+    { id: 'b', amount: 2, method: 'cash', note: 'groceries', cur: 'RWF', at: 2 },
+    { id: 'c', amount: 3, method: 'cash', note: 'Rent', cur: 'RWF', at: 3 },
+  ] as Expense[]
+
+  it('renames the chip and every expense filed under it, whatever the case', () => {
+    const r = renameCategory(['Groceries', 'Rent'], items, 'Groceries', 'Food shop')
+    expect(r.cats).toEqual(['Food shop', 'Rent'])
+    expect(r.items.map((i) => i.note)).toEqual(['Food shop', 'Food shop', 'Rent'])
+    expect(r.moved).toBe(2)
+  })
+
+  it('leaves everything else exactly as it was', () => {
+    const r = renameCategory(['Groceries', 'Rent'], items, 'Rent', 'Home')
+    expect(r.items[0]).toBe(items[0])
+    expect(r.items[2].note).toBe('Home')
+    expect(r.moved).toBe(1)
+  })
+})
 
 describe('reading an old save', () => {
   it('turns each Must into a P1 plan and pools the nets into one safety pot', () => {

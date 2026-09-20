@@ -116,23 +116,76 @@ export function Categories({ app }: { app: App }) {
         </button>
       </div>
 
-      <FormError message={app.formError} />
+      <FormError message={app.errField === 'cat' ? app.formError : ''} />
 
+      {/* Tap a name to rename it; the expenses filed under it follow. */}
       <div className="list-card cat-list">
-        {app.data.cats.map((c) => (
-          <div className="cat-row" key={c}>
-            <span className="cat-row-name">{c}</span>
-            <span className="cat-row-count">{(app.catFreq[c] || 0) + ' used'}</span>
-            <button
-              type="button"
-              className="x-btn x-btn-lg"
-              aria-label={'Remove ' + c}
-              onClick={() => app.removeCat(c)}
-            >
-              <CrossIcon size={11} />
-            </button>
-          </div>
-        ))}
+        {app.data.cats.map((c) => {
+          const editing = app.catEdit?.from === c
+          return (
+            <div className="cat-item" key={c}>
+              <div className="cat-row">
+                <button
+                  type="button"
+                  className="cat-row-name cat-row-btn"
+                  aria-label={'Rename ' + c}
+                  aria-expanded={editing}
+                  onClick={() => app.openCatEdit(c)}
+                >
+                  {c}
+                </button>
+                <span className="cat-row-count">{(app.catFreq[c] || 0) + ' used'}</span>
+                <button
+                  type="button"
+                  className="x-btn x-btn-lg"
+                  aria-label={'Remove ' + c}
+                  onClick={() => app.removeCat(c)}
+                >
+                  <CrossIcon size={11} />
+                </button>
+              </div>
+              {editing && app.catEdit && (
+                <>
+                  <div className="cat-edit">
+                    <input
+                      className="add-input"
+                      type="text"
+                      aria-label={'New name for ' + c}
+                      autoFocus
+                      value={app.catEdit.value}
+                      onChange={(e) => {
+                        app.setCatEdit({ from: c, value: e.target.value })
+                        app.clearErr()
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') app.saveCatEdit()
+                      }}
+                      style={{ borderColor: app.errField === 'catedit' ? DANGER : LINE }}
+                    />
+                    <button
+                      type="button"
+                      className="cat-edit-cancel"
+                      onClick={() => app.setCatEdit(null)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="add-btn"
+                      style={{ background: ACCENT }}
+                      onClick={app.saveCatEdit}
+                    >
+                      Save
+                    </button>
+                  </div>
+                  <div className="cat-edit-note">
+                    <FormError message={app.errField === 'catedit' ? app.formError : ''} />
+                  </div>
+                </>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

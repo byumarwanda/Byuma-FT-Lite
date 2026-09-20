@@ -6,13 +6,12 @@ import {
   sumFrom,
   dayOffset,
   dayStamp,
-  heldIn,
   monthItems,
   sumIn,
   topCategories,
 } from '../lib/calc'
 import { MINUS } from '../lib/money'
-import { ChevronRight, MICON, WarnIcon } from '../components/icons'
+import { ChevronRight, WarnIcon } from '../components/icons'
 import { ACCENT, ChipScroller, DANGER, HideEye, VIOLET, pick } from '../components/ui'
 import { mixColour } from './Home'
 
@@ -137,64 +136,6 @@ export function Stats({ app }: { app: App }) {
         </div>
       </div>
 
-      {/* ---------------- where the money is ---------------- */}
-      {data.balancesAt > 0 && (
-        <>
-          <div className="section-label">Where the money is</div>
-          <div className="card-list">
-            {data.accounts.map((a) => {
-              const Icon = MICON[a.kind]
-              return (
-                <div className="acc-line" key={a.id}>
-                  <span className="acc-tile">
-                    <Icon />
-                  </span>
-                  <span className="acc-line-name">{a.name}</span>
-                  <span className="acc-line-sum">{m(app.fmtIn(heldIn(data.balances, a), a.cur))}</span>
-                </div>
-              )
-            })}
-            <div className="helper" style={{ margin: '10px 0 4px' }}>
-              As of the last check-up. Spending since comes off the total above.
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* ---------------- check-ups ---------------- */}
-      {checkups.length > 0 && (
-        <>
-          <div className="section-label">Check-ups</div>
-          <div className="card-list">
-            {checkups.map((c) => {
-              const moved = selCurs.filter((cur) => Math.round(c.diff[cur] ?? 0) !== 0)
-              return (
-                <div className="checkup-row" key={c.id}>
-                  <span className="checkup-date">{dayStamp(c.at)}</span>
-                  <span className="checkup-diff">
-                    {moved.length === 0
-                      ? 'matched the records'
-                      : moved.map((cur) => (
-                          <span
-                            key={cur}
-                            className="checkup-amt"
-                            style={{ color: c.diff[cur] > 0 ? '#1f7a5c' : DANGER }}
-                          >
-                            {(c.diff[cur] > 0 ? '+' : MINUS) +
-                              app.fmtIn(Math.abs(c.diff[cur]), cur)}
-                          </span>
-                        ))}
-                  </span>
-                </div>
-              )
-            })}
-            <div className="helper" style={{ margin: '10px 0 4px' }}>
-              What moved without a record: minus is unrecorded spending, plus is money that came in.
-            </div>
-          </div>
-        </>
-      )}
-
       {/* ---------------- this month ---------------- */}
       <div className="card card-month">
         <div className="label-eye">
@@ -272,6 +213,40 @@ export function Stats({ app }: { app: App }) {
       <div className="card-months">
         {monthsView === 'bars' ? <DayBars app={app} /> : <DayGraph app={app} />}
       </div>
+
+      {/* ---------------- check-ups ---------------- */}
+      {checkups.length > 0 && (
+        <>
+          <div className="section-label">Check-ups</div>
+          <div className="card-list">
+            {checkups.map((c) => {
+              const moved = selCurs.filter((cur) => Math.round(c.diff[cur] ?? 0) !== 0)
+              return (
+                <div className="checkup-row" key={c.id}>
+                  <span className="checkup-date">{dayStamp(c.at)}</span>
+                  <span className="checkup-diff">
+                    {moved.length === 0
+                      ? 'matched the records'
+                      : moved.map((cur) => (
+                          <span
+                            key={cur}
+                            className="checkup-amt"
+                            style={{ color: c.diff[cur] > 0 ? '#1f7a5c' : DANGER }}
+                          >
+                            {(c.diff[cur] > 0 ? '+' : MINUS) +
+                              app.fmtIn(Math.abs(c.diff[cur]), cur)}
+                          </span>
+                        ))}
+                  </span>
+                </div>
+              )
+            })}
+            <div className="helper" style={{ margin: '10px 0 4px' }}>
+              What moved without a record: minus is unrecorded spending, plus is money that came in.
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -255,6 +255,12 @@ for (const device of DEVICES) {
   await page.click('.row-btn >> text=Categories')
   await page.waitForSelector('input[placeholder="New category"]')
   await shoot(page, device, '2.2-categories')
+  // Tapping a name opens it for renaming; the expenses under it follow.
+  await page.click('button[aria-label="Rename Groceries"]')
+  await page.waitForSelector('.cat-edit', { timeout: 8000 })
+  await page.fill('.cat-edit input', 'Food shop')
+  await shoot(page, device, '2.2-category-rename')
+  await page.click('.cat-edit-cancel')
   await page.click('button[aria-label="Back"]')
 
   // 6.1 Accounts, on the Balance screen: one line each — Albaraka, TL, 700
@@ -279,7 +285,11 @@ for (const device of DEVICES) {
   await page.fill('input[aria-label="Cash balance"]', '800000')
   await page.click('.btn-save')
   await page.waitForSelector('text=Check-ups', { timeout: 8000 })
+  // The check-ups sit at the foot of Analytics, under Day by day.
+  await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 99999))
+  await page.waitForTimeout(250)
   await shoot(page, device, '6.3-stats-checkups')
+  await page.evaluate(() => document.querySelector('.scroll').scrollTo(0, 0))
 
   // 6.4 A phase started from History, an expense added into it, and read on its own
   await page.click('.tab >> text="History"')
