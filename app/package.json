@@ -11,6 +11,7 @@
     "test": "vitest run",
     "emulators": "firebase emulators:start --project demo-byuma --only auth,firestore",
     "check:cloud": "node scripts/check-cloud.mjs",
+    "check:speed": "node scripts/check-speed.mjs",
     "check:firebase": "node scripts/check-firebase.mjs",
     "connect:firebase": "node scripts/connect-firebase.mjs",
     "setup:firebase": "node scripts/setup-firebase.mjs",

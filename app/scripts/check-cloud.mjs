@@ -77,6 +77,31 @@ async function reveal(page) {
   return (await page.textContent('.spent-figure')).trim()
 }
 
+/**
+ * Ask again until the answer is right or time is up. The app opens on the
+ * phone's own copy and brings in the server's a moment later, so what
+ * another phone did shows up shortly after opening, not at the first frame.
+ */
+async function until(get, ok, ms = 15000) {
+  const end = Date.now() + ms
+  let v = await get()
+  while (!ok(v) && Date.now() < end) {
+    await new Promise((r) => setTimeout(r, 250))
+    v = await get()
+  }
+  return v
+}
+
+/** The amounts saved in one account's document, as the server has them. */
+async function savedAmounts(uid) {
+  const res = await fetch(`${REST}/users/${uid}`, { headers: { Authorization: 'Bearer owner' } })
+  if (!res.ok) return []
+  const d = await res.json()
+  return (d.fields?.items?.arrayValue?.values ?? [])
+    .map((v) => Number(v.mapValue.fields.amount.doubleValue ?? v.mapValue.fields.amount.integerValue))
+    .sort((a, b) => a - b)
+}
+
 console.log('\n1. Sign up, record, and reach Firestore')
 const alice = await phone()
 await signUp(alice.page, 'Thierry', 'thierry@example.com', 'ubuzima2026')
@@ -120,7 +145,7 @@ await record(bob.page, '600', 'Cash')
 await bob.page.waitForTimeout(2000)
 await alice.page.reload({ waitUntil: 'domcontentloaded' })
 await alice.page.waitForSelector('.spent-card', { timeout: 15000 })
-const back = await reveal(alice.page)
+const back = await until(() => reveal(alice.page), (v) => v.includes('15,500'))
 check('the first phone sees it after a reload', back.includes('15,500'), back.trim())
 
 console.log('\n4. Data from the phone-only version is carried up')
@@ -352,7 +377,112 @@ await bob.page.waitForSelector('.amount-display')
 check('a hidden way of paying leaves the recorder', (await bob.page.locator('.method-btn >> text=MoMo').count()) === 0)
 check('the others stay', (await bob.page.locator('.method-btn').count()) === 2)
 
-console.log('\n7. The rules keep one account out of another')
+console.log('\n7. Opening from the phone’s own copy')
+// A person of their own, so nothing here moves the figures checked above.
+const carol = await phone()
+await signUp(carol.page, 'Merge', 'merge@example.com', 'ubuzima2026')
+await carol.page.waitForSelector('.tour-slide', { timeout: 15000 })
+await carol.page.click('text=Skip')
+await carol.page.waitForSelector('.amount-display', { timeout: 10000 })
+await record(carol.page, '1000', 'Cash')
+await carol.page.waitForTimeout(2000)
+// Their document is the one holding that 1,000.
+const carolUid = await until(
+  async () => {
+    const all = await (await fetch(`${REST}/users`, { headers: { Authorization: 'Bearer owner' } })).json()
+    const mine = (all.documents ?? []).find((d) =>
+      (d.fields?.items?.arrayValue?.values ?? []).some(
+        (v) => Number(v.mapValue.fields.amount.doubleValue ?? v.mapValue.fields.amount.integerValue) === 1000,
+      ),
+    )
+    return mine ? mine.name.split('/').pop() : ''
+  },
+  (v) => !!v,
+)
+
+// With no internet at all, the saved money is on screen at once.
+await carol.ctx.setOffline(true)
+const t0 = Date.now()
+await carol.page.reload({ waitUntil: 'domcontentloaded' })
+await carol.page.waitForSelector('.spent-card', { timeout: 15000 })
+const offlineMs = Date.now() - t0
+const offlineFigure = await reveal(carol.page)
+check(
+  'with no internet it opens straight onto the saved money',
+  offlineFigure.includes('1,000') && offlineMs < 5000,
+  `${offlineMs} ms, ${offlineFigure}`,
+)
+await carol.ctx.setOffline(false)
+
+// Another phone records while this one is closed. This one opens and
+// records before the server has answered. Neither expense may be lost.
+const dave = await phone()
+await dave.page.goto(BASE, { waitUntil: 'domcontentloaded' })
+await dave.page.waitForSelector('text=Track what you spend.')
+await dave.page.click('text=Sign in')
+await dave.page.click('text=Use email instead')
+await dave.page.fill('input[placeholder="Email"]', 'merge@example.com')
+await dave.page.fill('input[placeholder="Password"]', 'ubuzima2026')
+await dave.page.click('.btn-primary >> text=Sign in')
+await dave.page.waitForSelector('.amount-display', { timeout: 15000 })
+await record(dave.page, '333', 'Cash')
+await until(() => savedAmounts(carolUid), (a) => a.includes(333))
+
+// Hold the server's answer back for a moment, as a slow connection would.
+await carol.ctx.route('http://127.0.0.1:8080/**', async (route) => {
+  await new Promise((r) => setTimeout(r, 2500))
+  await route.continue().catch(() => {})
+})
+await carol.page.reload({ waitUntil: 'domcontentloaded' })
+await carol.page.waitForSelector('.amount-display', { timeout: 15000 })
+await record(carol.page, '444', 'Cash')
+await carol.ctx.unroute('http://127.0.0.1:8080/**')
+const merged = await until(
+  () => savedAmounts(carolUid),
+  (a) => a.includes(333) && a.includes(444),
+  30000,
+)
+check(
+  'an expense recorded before the server answered is merged, not lost',
+  JSON.stringify(merged) === '[333,444,1000]',
+  merged.join(', '),
+)
+const carolSees = await until(() => reveal(carol.page), (v) => v.includes('1,777'))
+check('and this phone shows both', carolSees.includes('1,777'), carolSees)
+await dave.page.reload({ waitUntil: 'domcontentloaded' })
+await dave.page.waitForSelector('.spent-card', { timeout: 15000 })
+const daveSees = await until(() => reveal(dave.page), (v) => v.includes('1,777'))
+check('and so does the other one', daveSees.includes('1,777'), daveSees)
+
+// A phone updating from the version before: Firebase's copy is on it, the
+// app's own is not yet. It opens on Firebase's, and keeps one for next time.
+await dave.page.evaluate(() => {
+  localStorage.removeItem('byuma.snapshot.meta.v1')
+  localStorage.removeItem('byuma.snapshot.data.v1')
+})
+await dave.page.reload({ waitUntil: 'domcontentloaded' })
+await dave.page.waitForSelector('.spent-card', { timeout: 20000 })
+const upgraded = await until(() => reveal(dave.page), (v) => v.includes('1,777'))
+check('a phone on the last version opens on its own data after the update', upgraded.includes('1,777'), upgraded)
+const kept = await until(
+  () => dave.page.evaluate(() => !!localStorage.getItem('byuma.snapshot.data.v1')),
+  (v) => v,
+  5000,
+)
+check('and keeps a copy for the next opening', kept)
+
+// Signing out takes the phone's copy with it.
+await carol.page.click('.tab >> text="Account"')
+await carol.page.click('text=Sign out')
+await carol.page.click('.sheet-go')
+await carol.page.waitForSelector('text=Welcome back.', { timeout: 15000 })
+const leftover = await carol.page.evaluate(() => localStorage.getItem('byuma.snapshot.data.v1'))
+check('signing out leaves no copy of the money on the phone', leftover === null)
+await carol.page.reload({ waitUntil: 'domcontentloaded' })
+await carol.page.waitForSelector('text=Welcome back.', { timeout: 15000 })
+check('and the next opening goes straight to sign-in', true)
+
+console.log('\n8. The rules keep one account out of another')
 const uid = stored?.name.split('/').pop()
 const open = await fetch(`${REST}/users/${uid}`)
 check('an unauthenticated read is refused', open.status === 403 || open.status === 401,

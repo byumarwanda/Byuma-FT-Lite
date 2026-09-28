@@ -54,12 +54,18 @@ export default function App() {
     scroll.current?.scrollTo(0, 0)
   }, [screen])
 
-  // Nothing is drawn until the saved session has been read, so a signed-in
-  // person never sees the sign-up screen flash past on start-up.
+  // Almost every opening is drawn at once from the phone's own copy. The
+  // rest — the very first on a phone — wait for Firebase to say who is
+  // signed in, so a signed-in person never sees the sign-up screen flash
+  // past; the name holds the screen meanwhile.
   if (!app.ready) {
     return (
       <div className="shell">
-        <div className="phone" />
+        <div className="phone boot-screen">
+          <span className="boot-mark">
+            <Wordmark />
+          </span>
+        </div>
       </div>
     )
   }

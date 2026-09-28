@@ -1,7 +1,7 @@
-import { doc, deleteDoc, getDoc, setDoc } from 'firebase/firestore'
 import type { UserData } from '../types'
-import { db } from './firebase'
-import { loadAccounts, loadData, normalise } from './storage'
+import { live } from './firebase'
+import { loadAccounts, loadData } from './storage'
+import type { CloudCopy } from './sync'
 
 /**
  * The money data, kept in Firebase.
@@ -19,26 +19,20 @@ import { loadAccounts, loadData, normalise } from './storage'
  *
  * Reads and writes go through the phone's saved copy first, so all of this
  * keeps working with no internet; writes queue and go up on reconnection.
+ * Each call waits for Firebase to have loaded (see live() in firebase.ts).
  */
 
-const userDoc = (uid: string) => {
-  if (!db) throw new Error('Firebase is not configured')
-  return doc(db, 'users', uid)
+export async function loadCloud(uid: string, from: 'cache' | 'server'): Promise<CloudCopy | null> {
+  return (await live()).loadCloud(uid, from)
 }
 
-/** Their saved data, or null when this account has never saved any. */
-export async function loadCloud(uid: string): Promise<UserData | null> {
-  const snap = await getDoc(userDoc(uid))
-  if (!snap.exists()) return null
-  return normalise(snap.data() as Partial<UserData>)
-}
-
-export async function saveCloud(uid: string, data: UserData): Promise<void> {
-  await setDoc(userDoc(uid), { ...data, updatedAt: Date.now() })
+/** Resolves with the `updatedAt` stamp written, once the server has it. */
+export async function saveCloud(uid: string, data: UserData): Promise<number> {
+  return (await live()).saveCloud(uid, data)
 }
 
 export async function deleteCloud(uid: string): Promise<void> {
-  await deleteDoc(userDoc(uid))
+  return (await live()).deleteCloud(uid)
 }
 
 /**

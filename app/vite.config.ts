@@ -128,6 +128,13 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    // Firebase is one file of about 620 kB, loaded after the first screen is
+    // drawn (see live() in src/lib/firebase.ts). The warning's 500 kB is
+    // about what a page must read before it can show anything; this file
+    // is not that, so the limit is set just above it.
+    chunkSizeWarningLimit: 700,
+  },
   css: {
     postcss: {
       plugins: [

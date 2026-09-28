@@ -36,29 +36,25 @@ import {
   METHOD_NAME,
   loadPasskeyId,
   newId,
+  normalise,
   rememberCategory,
   renameCategory,
   savePasskeyId,
 } from './lib/storage'
-import { auth, isConfigured } from './lib/firebase'
+import { isConfigured, live } from './lib/firebase'
 import { askPeriodicChecks, askToRemind, handToWorker, nudgeWorker, remindNow } from './lib/remind'
 import { deleteCloud, loadCloud, localDataFor, saveCloud } from './lib/cloud'
 import {
-  createUserWithEmailAndPassword,
-  deleteUser,
-  EmailAuthProvider,
-  onAuthStateChanged,
-  reauthenticateWithCredential,
-  sendPasswordResetEmail,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-  updatePassword,
-  updateProfile,
-  verifyBeforeUpdateEmail,
-  type User as FbUser,
-} from 'firebase/auth'
+  clearSnapshot,
+  markSignedOut,
+  readSnapshot,
+  wasSignedOut,
+  writeSnapshot,
+  writeSnapshotMeta,
+} from './lib/snapshot'
+import { reconcile, type CloudCopy } from './lib/sync'
+// Only the type: the Firebase code itself arrives through live().
+import type { User as FbUser } from 'firebase/auth'
 
 /** How long each consequential action holds the freeze, from the spec. */
 const FREEZE = {
@@ -202,12 +198,76 @@ export interface PhaseForm {
 /** Screens the phone's back button leaves the app from, not walks back from. */
 const ROOTS: Screen[] = ['home', 'signin', 'signup', 'error']
 
-export function useApp() {
-  const [user, setUser] = useState<User | null>(null)
-  const [data, setData] = useState<UserData>(freshData)
-  const [ready, setReady] = useState(false)
+/** Screens that belong to nobody being signed in. */
+const SIGNED_OUT: Screen[] = ['signin', 'signup', 'forgot']
 
-  const [screen, setScreen] = useState<Screen>('signup')
+/**
+ * The app opens on the phone's copy before Firebase has confirmed the
+ * sign-in. Changing the account itself has to wait for that confirmation,
+ * which is seconds at most.
+ */
+const NOT_YET = 'Still connecting to your account. Try again in a moment.'
+
+/** Where a signed-in person lands: the tour once, then the lock or the money. */
+function landing(d: UserData, passkeyId?: string): Screen {
+  return !d.settings.seenTour ? 'tour' : passkeyId ? 'lock' : 'home'
+}
+
+interface Boot {
+  user: User | null
+  data: UserData
+  ready: boolean
+  screen: Screen
+  base: number
+  pending: boolean
+  deleted: string[]
+}
+
+/**
+ * How the app opens, decided from the phone alone and at once.
+ *
+ *   - the last session's copy is here → open straight onto it; Firebase
+ *     confirms the sign-in and brings the data up to date behind it;
+ *   - this phone last saw nobody signed in → the sign-in screen, at once;
+ *   - neither (first run, or the copy was lost) → wait for Firebase, as the
+ *     app always used to.
+ */
+function bootFromPhone(): Boot {
+  const blank: Boot = {
+    user: null,
+    data: freshData(),
+    ready: false,
+    screen: 'signup',
+    base: 0,
+    pending: false,
+    deleted: [],
+  }
+  if (!isConfigured) return blank
+  const snap = readSnapshot()
+  if (snap) {
+    const passkeyId = loadPasskeyId(snap.meta.user.id)
+    const data = normalise(snap.data as Partial<UserData>)
+    return {
+      user: { ...snap.meta.user, passkeyId },
+      data,
+      ready: true,
+      screen: landing(data, passkeyId),
+      base: snap.meta.base,
+      pending: snap.meta.pending,
+      deleted: snap.meta.deleted,
+    }
+  }
+  if (wasSignedOut()) return { ...blank, ready: true, screen: 'signin' }
+  return blank
+}
+
+export function useApp() {
+  const [boot] = useState(bootFromPhone)
+  const [user, setUser] = useState<User | null>(boot.user)
+  const [data, setData] = useState<UserData>(boot.data)
+  const [ready, setReady] = useState(boot.ready)
+
+  const [screen, setScreen] = useState<Screen>(boot.screen)
   const [back, setBack] = useState<Screen>('home')
 
   // recorder
@@ -237,7 +297,7 @@ export function useApp() {
   const [busy, setBusy] = useState<string | null>(null)
 
   // money screens
-  const [balCur, setBalCur] = useState('RWF')
+  const [balCur, setBalCur] = useState(boot.data.mainCur)
   // Keyed by account id: each account holds one currency, so one field.
   const [fBal, setFBal] = useState<Record<string, string>>({})
   const [planForm, setPlanForm] = useState<PlanForm | null>(null)
@@ -334,64 +394,217 @@ export function useApp() {
     clearErr()
   }, [clearErr])
 
-  /* ---------------- boot ---------------- */
+  /* ---------------- boot, and keeping the account in step ---------------- */
 
-  // True between reading the data down and the first change to it, so
-  // arriving at a screen does not immediately write back what was just read.
-  const justLoaded = useRef(false)
-  // Raised by every local change and lowered once the write lands, so a
-  // pull from the server can never land on top of an unsaved edit.
-  const dirty = useRef(false)
+  // The latest values, for callbacks that outlive the render they came from.
+  const userRef = useRef(user)
+  userRef.current = user
+  const dataRef = useRef(data)
+  dataRef.current = data
+  const readyRef = useRef(ready)
+  readyRef.current = ready
+
+  // True when the next change to the data came from outside — the phone's
+  // copy, the server — rather than from an edit, so it is not written back.
+  const justLoaded = useRef(true)
+  // A change made here that the server has not confirmed yet. While it is
+  // up, what the server says is merged in rather than taken.
+  const dirty = useRef(boot.pending)
+  // The `updatedAt` stamp of the server copy the data last matched.
+  const base = useRef(boot.base)
+  // What was deleted here since then, so a merge does not bring it back.
+  const tomb = useRef(new Set(boot.deleted))
+  // Edits counted, and the count last sent up: one save per change.
+  const edits = useRef(0)
+  const lastSent = useRef(-1)
+  const pulling = useRef(false)
+  // True once the server has been heard from this session, or could not be
+  // reached. Saving waits for it, so nothing is written over the account
+  // before the two copies have been compared.
+  const [synced, setSynced] = useState(false)
+
+  const forget = useCallback(() => {
+    dirty.current = false
+    base.current = 0
+    tomb.current = new Set()
+    edits.current = 0
+    lastSent.current = -1
+  }, [])
+
+  /** Send the whole of it up. Once the server confirms, it is no longer pending. */
+  const saveNow = useCallback((uid: string, d: UserData) => {
+    const version = edits.current
+    lastSent.current = version
+    void saveCloud(uid, d)
+      .then((stamp) => {
+        if (userRef.current?.id !== uid) return
+        base.current = stamp
+        if (edits.current === version) {
+          dirty.current = false
+          tomb.current = new Set()
+        }
+        writeSnapshotMeta(uid, {
+          base: stamp,
+          pending: dirty.current,
+          deleted: [...tomb.current],
+        })
+      })
+      .catch(() => {
+        // Firestore keeps the write and retries it; the change stays
+        // pending, so the next opening sends it again if it has to.
+      })
+  }, [])
 
   /**
-   * Firebase holds the session itself, so the app is told who is signed in
-   * rather than remembering it: this fires on start-up, after a sign-in or
-   * sign-up, and again on sign-out. Their data is read straight after, from
-   * the server when there is internet and from the phone's saved copy when
-   * there is not.
+   * Ask the server for the account's copy and bring the two together —
+   * take it, keep ours, or merge them (lib/sync.ts). With no internet this
+   * changes nothing: the phone's copy stands and the next pull tries again.
    */
-  const openFor = useCallback(async (fbUser: FbUser) => {
-    const acc = userFrom(fbUser)
-    let d: UserData
-    let carried = false
-    try {
-      const cloud = await loadCloud(fbUser.uid)
-      if (cloud) {
-        d = cloud
-      } else {
-        // Nothing saved under this account yet. If this phone still holds
-        // what an older, phone-only version recorded for the same email,
-        // that history becomes the account's opening data.
-        const legacy = localDataFor(acc.email)
-        d = legacy ?? freshData()
-        await saveCloud(fbUser.uid, d)
-        if (legacy) {
-          clearLegacyFor(acc.email)
-          carried = true
+  const pull = useCallback(
+    async (uid: string) => {
+      if (pulling.current) return
+      pulling.current = true
+      try {
+        let got: CloudCopy | null
+        try {
+          got = await loadCloud(uid, 'server')
+        } catch {
+          return
         }
+        if (userRef.current?.id !== uid) return
+        const r = reconcile(dataRef.current, base.current, dirty.current, tomb.current, got)
+        if (r.kind === 'take') {
+          justLoaded.current = true
+          base.current = r.base
+          setData(r.data)
+        } else if (r.kind === 'merge') {
+          // An edit like any other, so it is saved like one.
+          base.current = r.base
+          setData(r.data)
+        } else if (r.kind === 'push') {
+          dirty.current = true
+          saveNow(uid, dataRef.current)
+        }
+      } finally {
+        pulling.current = false
       }
-    } catch {
-      // Offline with nothing cached yet. Start on an empty set rather than
-      // failing to open; the next save carries whatever is recorded up.
-      d = freshData()
-    }
-    justLoaded.current = true
-    setUser(acc)
-    setData(d)
-    setBalCur(d.selCurs.includes(d.mainCur) ? d.mainCur : d.selCurs[0])
-    // A passkey enrolled on this phone turns it into a lock on the app
-    // itself: Firebase keeps the session, so the fingerprint is what stands
-    // between someone holding the phone and the money on it.
-    // A first sign-in — by any route, Google included — opens on the tour
-    // once; every one after that opens on the money.
-    setScreen(!d.settings.seenTour ? 'tour' : acc.passkeyId ? 'lock' : 'home')
-    setBack('home')
-    setReady(true)
-    if (carried) showToast('Your expenses moved into your account.', 'ok')
-  }, [showToast])
+    },
+    [saveNow],
+  )
+
+  /**
+   * Someone signed in who is not on screen yet — a sign-in, a sign-up, or
+   * the first opening on this phone. Their data comes from Firebase's copy
+   * on the phone when it has one, at once, and from the server otherwise.
+   */
+  const openFor = useCallback(
+    async (fbUser: FbUser) => {
+      const acc = userFrom(fbUser)
+      let d: UserData
+      let stamp = 0
+      let fresh = false
+      let carried = false
+      let fromPhone = false
+      let got: CloudCopy | null = null
+      try {
+        got = await loadCloud(fbUser.uid, 'cache')
+        fromPhone = !!got
+      } catch {
+        // Nothing on the phone yet; the server has to answer.
+      }
+      try {
+        if (!got) got = await loadCloud(fbUser.uid, 'server')
+        if (got) {
+          d = got.data
+          stamp = got.updatedAt
+        } else {
+          // Nothing saved under this account yet. If this phone still holds
+          // what an older, phone-only version recorded for the same email,
+          // that history becomes the account's opening data.
+          const legacy = localDataFor(acc.email)
+          d = legacy ?? freshData()
+          fresh = true
+          if (legacy) {
+            clearLegacyFor(acc.email)
+            carried = true
+          }
+        }
+      } catch {
+        // Offline with nothing cached yet. Start on an empty set rather than
+        // failing to open; the first save carries whatever is recorded up.
+        d = freshData()
+      }
+      forget()
+      base.current = stamp
+      justLoaded.current = true
+      userRef.current = acc
+      setUser(acc)
+      setData(d)
+      setBalCur(d.selCurs.includes(d.mainCur) ? d.mainCur : d.selCurs[0])
+      // A passkey enrolled on this phone turns it into a lock on the app
+      // itself: Firebase keeps the session, so the fingerprint is what stands
+      // between someone holding the phone and the money on it.
+      // A first sign-in — by any route, Google included — opens on the tour
+      // once; every one after that opens on the money.
+      setScreen(landing(d, acc.passkeyId))
+      setBack('home')
+      setReady(true)
+      if (carried) showToast('Your expenses moved into your account.', 'ok')
+      if (fresh) {
+        // The account's first save: its opening data.
+        dirty.current = true
+        saveNow(fbUser.uid, d)
+      } else if (fromPhone) {
+        // Opened from the phone's copy: the server may know something newer.
+        await pull(fbUser.uid)
+      }
+      setSynced(true)
+    },
+    [forget, pull, saveNow, showToast],
+  )
+
+  /**
+   * What Firebase says about who is signed in: once on start-up, then on
+   * every sign-in and sign-out, here or — for a session ended elsewhere,
+   * as a password change does — on the next opening.
+   */
+  const onAuth = useCallback(
+    (fbUser: FbUser | null) => {
+      if (!fbUser) {
+        // Nobody. The phone's copy goes with the session.
+        clearSnapshot()
+        markSignedOut(true)
+        forget()
+        if (userRef.current) {
+          userRef.current = null
+          setUser(null)
+          justLoaded.current = true
+          setData(freshData())
+        }
+        setSynced(false)
+        setScreen((s) => (SIGNED_OUT.includes(s) ? s : 'signin'))
+        setReady(true)
+        return
+      }
+      markSignedOut(false)
+      const cur = userRef.current
+      if (cur && cur.id === fbUser.uid) {
+        // Already on screen from the phone's copy. Firebase has confirmed
+        // who it is; bring the data up to date behind it.
+        const now = userFrom(fbUser)
+        if (now.name !== cur.name || now.email !== cur.email) {
+          setUser({ ...cur, name: now.name, email: now.email })
+        }
+        void pull(fbUser.uid).finally(() => setSynced(true))
+        return
+      }
+      void openFor(fbUser)
+    },
+    [forget, openFor, pull],
+  )
 
   useEffect(() => {
-    if (!auth) {
+    if (!isConfigured) {
       // The Firebase keys have not been filled in. Say so on the error
       // screen rather than failing silently at the first sign-in.
       setScreen('error')
@@ -399,87 +612,103 @@ export function useApp() {
       return
     }
     void passkeyAvailable().then(setCanUsePhone)
-    return onAuthStateChanged(auth, (fbUser) => {
-      if (fbUser) void openFor(fbUser)
-      else {
-        setUser(null)
-        setData(freshData())
-        setScreen((s) => (s === 'signup' ? 'signup' : 'signin'))
-        setReady(true)
-      }
-    })
-  }, [openFor])
+    // Firebase loads after the first screen is drawn; see live().
+    let stop: (() => void) | undefined
+    let gone = false
+    live()
+      .then((fb) => {
+        if (!gone) stop = fb.onAuthStateChanged(fb.auth, onAuth)
+      })
+      .catch(() => {
+        // Firebase could not even be loaded. With the phone's copy on
+        // screen the app carries on; with nothing to show, say so.
+        if (!gone && !readyRef.current) {
+          setScreen('error')
+          setReady(true)
+        }
+      })
+    return () => {
+      gone = true
+      stop?.()
+    }
+  }, [onAuth])
 
   /* ---------------- persist ---------------- */
 
-  // Every change is written up, a moment after the typing stops so that a
-  // held-down key is one save rather than ten. Firestore queues the write
-  // when there is no internet and sends it on reconnection.
+  // Every change to the data is an edit, unless it came from the phone's
+  // copy or the server.
   useEffect(() => {
-    if (!ready || !user) return
     if (justLoaded.current) {
       justLoaded.current = false
       return
     }
+    if (!userRef.current) return
     dirty.current = true
-    const t = window.setTimeout(() => {
-      void saveCloud(user.id, data)
-        .then(() => {
-          dirty.current = false
-        })
-        .catch(() => {
-          // Firestore keeps the write and retries; nothing to do here but
-          // leave the flag up so a pull cannot overwrite it meanwhile.
-        })
-    }, 700)
-    return () => window.clearTimeout(t)
-  }, [ready, user, data])
+    edits.current++
+  }, [data])
 
-  // Coming back to the app is when another phone's work should appear. Only
-  // when nothing local is waiting to be written, so a pull never wins over
-  // an edit that has not gone up yet.
+  // Every edit is written up, a moment after the typing stops so that a
+  // held-down key is one save rather than ten — and never before the server
+  // has been heard from. Firestore queues the write when there is no
+  // internet and sends it on reconnection.
+  useEffect(() => {
+    if (!ready || !user || !synced) return
+    if (!dirty.current || lastSent.current === edits.current) return
+    const uid = user.id
+    const t = window.setTimeout(() => saveNow(uid, data), 700)
+    return () => window.clearTimeout(t)
+  }, [ready, user, data, synced, saveNow])
+
+  // The phone's own copy, kept in step, so the next opening is instant.
   useEffect(() => {
     if (!ready || !user) return
+    writeSnapshot(user, data, {
+      base: base.current,
+      pending: dirty.current,
+      deleted: [...tomb.current],
+    })
+  }, [ready, user, data])
+
+  // Coming back to the app is when another phone's work should appear.
+  const uid = user?.id
+  useEffect(() => {
+    if (!ready || !uid || !synced) return
     const onShow = () => {
-      if (document.visibilityState !== 'visible' || dirty.current) return
-      void loadCloud(user.id)
-        .then((cloud) => {
-          if (!cloud || dirty.current) return
-          justLoaded.current = true
-          setData(cloud)
-        })
-        .catch(() => {})
+      if (document.visibilityState === 'visible') void pull(uid)
     }
     document.addEventListener('visibilitychange', onShow)
     return () => document.removeEventListener('visibilitychange', onShow)
-  }, [ready, user])
+  }, [ready, uid, synced, pull])
 
   /* ---------------- live rates ---------------- */
 
+  // Once per opening, after the server has been heard from, so the new
+  // rates are an edit on top of the account's latest copy. Unchanged rates
+  // change nothing, and so cost no save.
   useEffect(() => {
-    if (!ready || !user) return
+    if (!synced || !uid) return
     const ctl = new AbortController()
     let cancelled = false
     void (async () => {
-      const fresh = await fetchRates(data.allCurs, ctl.signal)
+      const fresh = await fetchRates(dataRef.current.allCurs, ctl.signal)
       if (!fresh || cancelled) return
       setData((d) => {
+        let changed = false
         const next = { ...d.rates }
         for (const [code, value] of Object.entries(fresh)) {
           // Never overwrite a rate the person typed themselves.
-          if (d.manualRates.includes(code)) continue
+          if (d.manualRates.includes(code) || next[code] === value) continue
           next[code] = value
+          changed = true
         }
-        return { ...d, rates: next, ratesFetchedAt: Date.now() }
+        return changed ? { ...d, rates: next, ratesFetchedAt: Date.now() } : d
       })
     })()
     return () => {
       cancelled = true
       ctl.abort()
     }
-    // Refreshing once per sign-in is enough; the person can always edit a rate.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, user?.id])
+  }, [synced, uid])
 
   useEffect(() => {
     return () => {
@@ -578,15 +807,16 @@ export function useApp() {
    * for them, which is also what seeds their first saved data.
    */
   const signUp = useCallback(async () => {
-    if (!auth) return
+    if (!isConfigured) return
     if (!fName.trim()) return fail('name', 'Your name is missing.')
     if (!emailOk(fEmail)) return fail('email', 'That email does not look right.')
     if (fPass.length < 8) return fail('pass', 'Use at least 8 characters.')
 
     setBusy('Creating your account')
     try {
-      const cred = await createUserWithEmailAndPassword(auth, fEmail.trim(), fPass)
-      await updateProfile(cred.user, { displayName: fName.trim() })
+      const fb = await live()
+      const cred = await fb.createUserWithEmailAndPassword(fb.auth, fEmail.trim(), fPass)
+      await fb.updateProfile(cred.user, { displayName: fName.trim() })
       resetForms()
     } catch (err) {
       const code = (err as { code?: string })?.code ?? ''
@@ -597,13 +827,14 @@ export function useApp() {
   }, [fName, fEmail, fPass, fail, resetForms])
 
   const signIn = useCallback(async () => {
-    if (!auth) return
+    if (!isConfigured) return
     if (!emailOk(fEmail)) return fail('email', 'That email does not look right.')
     if (!fPass) return fail('pass', 'Enter your password.')
 
     setBusy('Signing in')
     try {
-      await signInWithEmailAndPassword(auth, fEmail.trim(), fPass)
+      const fb = await live()
+      await fb.signInWithEmailAndPassword(fb.auth, fEmail.trim(), fPass)
       resetForms()
       showToast('Signed in.', 'ok')
     } catch (err) {
@@ -622,14 +853,18 @@ export function useApp() {
    * Someone who first signed up with a password and then uses Google on
    * the same address is one account, not two — Firebase links them when
    * the address is verified, which Google's always is.
+   *
+   * The helper Google's window needs is handed over here, not at start-up,
+   * so a signed-in phone never loads it (see firebase-live.ts).
    */
   const signInWithGoogle = useCallback(async () => {
-    if (!auth) return
+    if (!isConfigured) return
     setBusy('Signing in')
     try {
-      const provider = new GoogleAuthProvider()
+      const fb = await live()
+      const provider = new fb.GoogleAuthProvider()
       provider.setCustomParameters({ prompt: 'select_account' })
-      await signInWithPopup(auth, provider)
+      await fb.signInWithPopup(fb.auth, provider, fb.browserPopupRedirectResolver)
       resetForms()
       showToast('Signed in.', 'ok')
     } catch (err) {
@@ -653,8 +888,9 @@ export function useApp() {
       cta: 'Sign out',
       yes: () =>
         freeze('Signing out', FREEZE.signOut, () => {
-          // The listener clears the account and lands on the sign-in screen.
-          void signOut(auth!)
+          // The listener clears the account, and the phone's copy of it,
+          // and lands on the sign-in screen.
+          void live().then((fb) => fb.signOut(fb.auth))
           resetForms()
           showToast('Signed out.', 'ok')
         }),
@@ -723,11 +959,12 @@ export function useApp() {
    * friends is registered.
    */
   const sendReset = useCallback(async () => {
-    if (!auth) return
+    if (!isConfigured) return
     if (!emailOk(fEmail)) return fail('email', 'That email does not look right.')
     setBusy('Sending')
     try {
-      await sendPasswordResetEmail(auth, fEmail.trim())
+      const fb = await live()
+      await fb.sendPasswordResetEmail(fb.auth, fEmail.trim())
       setSent(true)
       clearErr()
     } catch (err) {
@@ -782,6 +1019,7 @@ export function useApp() {
         danger: true,
         yes: () =>
           freeze('Deleting', FREEZE.deleteOne, () => {
+            tomb.current.add(item.id)
             setData((d) => ({ ...d, items: d.items.filter((x) => x.id !== item.id) }))
             showToast('Expense deleted.', 'ok')
           }),
@@ -844,6 +1082,7 @@ export function useApp() {
       danger: true,
       yes: () =>
         freeze('Deleting everything', FREEZE.deleteAll, () => {
+          for (const i of dataRef.current.items) tomb.current.add(i.id)
           setData((d) => ({ ...d, items: [], cleared: true }))
           setScreen('home')
           showToast('All expenses deleted.', 'ok')
@@ -933,6 +1172,7 @@ export function useApp() {
         cta: 'Remove',
         danger: true,
         yes: () => {
+          tomb.current.add(p.id)
           setData((d) => ({ ...d, plans: d.plans.filter((x) => x.id !== p.id) }))
           setPlanForm(null)
           showToast('Plan removed.', 'ok')
@@ -988,6 +1228,7 @@ export function useApp() {
         cta: 'Remove',
         danger: true,
         yes: () => {
+          tomb.current.add(i.id)
           setData((d) => ({ ...d, incomes: d.incomes.filter((x) => x.id !== i.id) }))
           setIncomeForm(null)
           showToast('Income removed.', 'ok')
@@ -1259,11 +1500,13 @@ export function useApp() {
   /* ---------------- profile edits ---------------- */
 
   const saveName = useCallback(async () => {
-    if (!auth?.currentUser) return
     if (!fName.trim()) return fail('name', 'Your name is missing.')
     const next = fName.trim()
+    const fb = await live().catch(() => null)
+    const fbUser = fb?.auth.currentUser
+    if (!fb || !fbUser) return fail('name', NOT_YET)
     try {
-      await updateProfile(auth.currentUser, { displayName: next })
+      await fb.updateProfile(fbUser, { displayName: next })
     } catch (err) {
       return fail('name', authMessage(err))
     }
@@ -1277,11 +1520,12 @@ export function useApp() {
 
   /** Prove it is really them before a change that touches the user. */
   const reauth = useCallback(async (password: string) => {
-    const user = auth?.currentUser
+    const fb = await live()
+    const user = fb.auth.currentUser
     if (!user?.email) throw new Error('not signed in')
-    await reauthenticateWithCredential(
+    await fb.reauthenticateWithCredential(
       user,
-      EmailAuthProvider.credential(user.email, password),
+      fb.EmailAuthProvider.credential(user.email, password),
     )
   }, [])
 
@@ -1292,14 +1536,16 @@ export function useApp() {
    * an address they cannot read and locking themselves out.
    */
   const saveEmail = useCallback(async () => {
-    const fbUser = auth?.currentUser
-    if (!user || !fbUser) return
+    if (!user) return
     if (!emailOk(fEmail)) return fail('email', 'That email does not look right.')
     if (fEmail.trim().toLowerCase() === user.email.toLowerCase()) {
       return fail('email', 'That is already your email.')
     }
     if (!fPass) return fail('pass', 'Enter your password to confirm.')
     const next = fEmail.trim()
+    const fb = await live().catch(() => null)
+    const fbUser = fb?.auth.currentUser
+    if (!fb || !fbUser) return fail('email', NOT_YET)
     try {
       await reauth(fPass)
     } catch (err) {
@@ -1313,7 +1559,7 @@ export function useApp() {
         void (async () => {
           setBusy('Sending')
           try {
-            await verifyBeforeUpdateEmail(fbUser, next)
+            await fb.verifyBeforeUpdateEmail(fbUser, next)
             setScreen('profile')
             resetForms()
             showToast('Link sent. Open it to finish.', 'ok')
@@ -1328,12 +1574,14 @@ export function useApp() {
   }, [user, fEmail, fPass, fail, reauth, resetForms, showToast])
 
   const savePassword = useCallback(async () => {
-    const fbUser = auth?.currentUser
-    if (!user || !fbUser) return
+    if (!user) return
     if (!fPass) return fail('pass', 'Enter your current password.')
     if (fNew.length < 8) return fail('new', 'New password needs 8 characters.')
     if (fNew !== fNew2) return fail('new2', 'The two new passwords do not match.')
     if (fNew === fPass) return fail('new', 'Pick a password you have not used.')
+    const fb = await live().catch(() => null)
+    const fbUser = fb?.auth.currentUser
+    if (!fb || !fbUser) return fail('pass', NOT_YET)
     try {
       await reauth(fPass)
     } catch (err) {
@@ -1348,7 +1596,7 @@ export function useApp() {
         void (async () => {
           setBusy('Saving')
           try {
-            await updatePassword(fbUser, next)
+            await fb.updatePassword(fbUser, next)
             setScreen('profile')
             resetForms()
             showToast('Password changed.', 'ok')
@@ -1380,13 +1628,17 @@ export function useApp() {
       yes: () => {
         void (async () => {
           setBusy('Deleting user')
-          const user = auth?.currentUser
-          if (!user) return setBusy(null)
+          const fb = await live().catch(() => null)
+          const user = fb?.auth.currentUser
+          if (!fb || !user) {
+            setBusy(null)
+            return showToast(NOT_YET)
+          }
           try {
             await deleteCloud(user.uid)
             clearPasskeyId(user.uid)
             clearLegacyFor(user?.email ?? '')
-            await deleteUser(user)
+            await fb.deleteUser(user)
             resetForms()
             showToast('Account deleted.', 'ok')
           } catch (err) {
@@ -1565,6 +1817,7 @@ export function useApp() {
         cta: 'Remove',
         danger: true,
         yes: () => {
+          tomb.current.add(ph.id)
           setData((d) => ({ ...d, phases: d.phases.filter((x) => x.id !== ph.id) }))
           setPhaseForm(null)
           setHistPeriod((cur) => (cur === ph.id ? null : cur))
