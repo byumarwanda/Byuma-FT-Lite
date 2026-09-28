@@ -244,6 +244,15 @@ The phone still keeps a full copy, which is what lets the app open and
 record with no internet at all. Anything written offline is queued and goes
 up the moment there is a connection.
 
+**Opening is instant.** The app opens straight onto that copy — no
+waiting for the internet, for Google to confirm the sign-in, or for the
+server to send the data — and brings it up to date a moment later, in the
+background. Before, the screen stayed empty until all three had answered:
+about four and a half seconds on a slow phone with mobile data, and much
+longer on a poor connection. If something was recorded on another phone
+in the meantime it simply appears; if you record something in those first
+seconds too, both are kept.
+
 What guards it:
 
 - Every account can read and write **exactly one document — its own**. That
@@ -262,6 +271,8 @@ Three things to know:
   **Lock with your phone**.
 - Expenses recorded on another phone appear when the app is opened or
   brought back to the front — not mid-screen while you are looking at it.
+- **Signing out removes the phone's copy.** The next person to open the
+  app on that phone sees the sign-in screen, not your money.
 
 ---
 
@@ -367,6 +378,7 @@ cd app
 npm run emulators                                 # Firebase's own local Auth + Firestore
 VITE_FB_EMULATOR=1 npm run build && npm run preview
 npm run check:cloud        # signs up, records, syncs, migrates, checks up, checks the rules
+npm run check:speed        # how long a returning person waits, on a slowed-down phone
 ```
 
 An emulator build talks only to the emulators' own `demo-byuma` project,
@@ -556,7 +568,7 @@ and sits in the middle of the window.
 cd app
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 103 unit tests over the money engine
+npm test             # 116 unit tests over the money engine and syncing
 npm run build        # production build into app/dist
 npm run setup:firebase   # sign in, find or create the project, connect it
 npm run connect:firebase # just write a config block into the app
@@ -564,7 +576,24 @@ npm run check:firebase   # ask the project whether it is ready (-- --prove goes 
 npm run check:live       # drive the built app against the real project in a browser
 npm run emulators        # Firebase's local Auth + Firestore, for the next one
 npm run check:cloud      # drive an emulator build end to end (VITE_FB_EMULATOR=1 npm run build)
+npm run check:speed      # time the opening on a slowed phone (SPEED_BUDGET_MS=1000 makes it a check)
 ```
+
+**Why it opens fast.** Three things, all in the start-up path:
+
+1. The app draws itself from its own copy of the last session
+   (`lib/snapshot.ts`) before anything else happens, and reconciles with
+   the server afterwards (`lib/sync.ts`: keep, take, or merge — a merge
+   never loses an expense).
+2. Firebase is two thirds of the JavaScript, so it lives in its own file
+   (`lib/firebase-live.ts`) that is loaded once the first screen is up.
+   What the phone reads before drawing went from 932 kB to 315 kB.
+3. Firebase loads a Google helper page on phones as it starts, only for
+   "Continue with Google". A signed-in phone no longer loads it; it is
+   handed to Firebase when the button is tapped.
+
+On a phone slowed four times with 600 ms per request, the recorder
+appeared after about 4.5 s before and about 0.5 s after.
 
 A build with no Firebase config at all warns and carries on, so the layout
 checks and a quick look at the screens still work; the same build on
@@ -594,8 +623,11 @@ app/src/
   lib/money.ts      formatting, numpad rules
   lib/rates.ts      the rate table, live FX fetch, conversion
   lib/calc.ts       spendable, the warnings, check-ups, phases and months, what is due
-  lib/firebase.ts   the one place Firebase is set up
+  lib/firebase.ts   the one place Firebase is configured, and live() that loads it
+  lib/firebase-live.ts  Firebase itself: sign-in and the saved data, loaded after the first screen
   lib/cloud.ts      reading and writing the one document per person
+  lib/snapshot.ts   the phone's own copy of the last session, so the app opens at once
+  lib/sync.ts       bringing that copy and the server's together: keep, take or merge
   lib/passkey.ts    unlocking with the phone's own fingerprint/face/PIN
   lib/remind.ts     reminders: asking, showing, handing the list to the worker
   lib/storage.ts    the shape of a save, and reading an older one
@@ -610,6 +642,7 @@ app/scripts/
   check-firebase.mjs    is the real project ready? (no emulator needed)
   check-live.mjs        the browser flow against the real project
   check-cloud.mjs       drives the app against the emulators end to end
+  check-speed.mjs       how long opening takes on a slowed-down phone
   check-layout.mjs      every screen on four phone sizes
   make-icons.mjs        the home-screen icons from the logo
 ```

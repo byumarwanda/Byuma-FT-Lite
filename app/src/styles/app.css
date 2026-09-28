@@ -3496,3 +3496,18 @@
 .cat-edit-note:not(:empty) {
   padding: 0 18px 12px;
 }
+
+/* The first opening on a phone waits for Firebase; the name holds the
+   screen meanwhile, a little faded, rather than a blank page. */
+.boot-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boot-mark {
+  font: 600 14px/1 var(--font-text);
+  letter-spacing: 0.2em;
+  color: var(--ink);
+  opacity: 0.55;
+}

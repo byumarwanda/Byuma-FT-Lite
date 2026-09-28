@@ -1,15 +1,7 @@
-import { initializeApp, type FirebaseOptions } from 'firebase/app'
-import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth'
-import {
-  initializeFirestore,
-  connectFirestoreEmulator,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-  type Firestore,
-} from 'firebase/firestore'
+import type { FirebaseOptions } from 'firebase/app'
 
 /**
- * The one place Firebase is set up.
+ * The one place Firebase is configured.
  *
  * These values are not secrets. A web app's Firebase config ships inside the
  * JavaScript of every page that uses it, by design — what actually guards the
@@ -20,6 +12,11 @@ import {
  *   - paste them straight into FALLBACK below, or
  *   - set VITE_FB_* environment variables (locally in app/.env, and in the
  *     GitHub repository's Actions variables for the published build).
+ *
+ * The Firebase code itself lives in firebase-live.ts and is loaded only once
+ * the app is already on screen: it is two thirds of all the JavaScript, and
+ * a phone opening the app should not have to read it before showing
+ * anything. Nothing here pulls it in.
  */
 const FALLBACK: FirebaseOptions = {
   apiKey: 'AIzaSyAg5f6SBMW9oRMrQ_yjzGw1uppplL7rTy4',
@@ -45,7 +42,9 @@ const EMULATOR: FirebaseOptions = {
   appId: 'demo-app',
 }
 
-export const config: FirebaseOptions = env.VITE_FB_EMULATOR
+export const emulated = !!env.VITE_FB_EMULATOR
+
+export const config: FirebaseOptions = emulated
   ? EMULATOR
   : {
       apiKey: env.VITE_FB_API_KEY || FALLBACK.apiKey,
@@ -60,30 +59,21 @@ export const config: FirebaseOptions = env.VITE_FB_EMULATOR
 export const isConfigured =
   !!config.apiKey && !String(config.apiKey).startsWith('PASTE_')
 
-let authRef: Auth | null = null
-let dbRef: Firestore | null = null
+type Live = typeof import('./firebase-live')
 
-if (isConfigured) {
-  const app = initializeApp(config)
-  authRef = getAuth(app)
+let loading: Promise<Live> | null = null
 
-  // The saved copy on the phone is what makes the app work with no internet:
-  // reads are served from it, and writes made offline are queued and sent up
-  // the moment there is a connection again. Multi-tab keeps two open copies
-  // of the app from fighting over that cache.
-  dbRef = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-    // A field left holding undefined would otherwise make Firestore refuse
-    // the whole save, silently. Dropping the field is always what is meant.
-    ignoreUndefinedProperties: true,
+/**
+ * Firebase, loaded on first use and shared from then on. The service worker
+ * keeps the file on the phone, so this is a read from storage, not the
+ * network — it just no longer stands between opening the app and seeing it.
+ */
+export function live(): Promise<Live> {
+  if (!isConfigured) return Promise.reject(new Error('Firebase is not configured'))
+  // A failed load is not remembered, so the next call tries again.
+  loading ??= import('./firebase-live').catch((err: unknown) => {
+    loading = null
+    throw err
   })
-
-  // Point at the local emulators when running the end-to-end checks.
-  if (env.VITE_FB_EMULATOR) {
-    connectAuthEmulator(authRef, 'http://127.0.0.1:9099', { disableWarnings: true })
-    connectFirestoreEmulator(dbRef, '127.0.0.1', 8080)
-  }
+  return loading
 }
-
-export const auth = authRef
-export const db = dbRef
